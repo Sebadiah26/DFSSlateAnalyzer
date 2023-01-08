@@ -1,0 +1,204 @@
+﻿@model IEnumerable<StaffManagement.Models.JobRecordModel>
+
+
+<div class="container-fluid ">
+
+    @if (Model.Any())
+
+    {
+
+
+
+
+        <table class="table table-sm table-bordered table-hover">
+
+
+            <thead>
+                <tr>
+
+                    @*<th scope="col">
+            @Html.DisplayNameFor(model => model.JobRecordId)
+        </th>*@
+                    <th scope="col">
+                        @Html.DisplayNameFor(model => model.employeeJobTitle)
+                    </th>
+                    <th scope="col">
+                        @Html.DisplayNameFor(model => model.HrPrimary)
+                    </th>
+
+                    <th scope="col">
+                        @Html.DisplayNameFor(model => model.IsActive)
+                    </th>
+                    <th scope="col">
+                        @Html.DisplayNameFor(model => model.UnitId)
+                    </th>
+                    <th scope="col">
+                        @*@Html.DisplayNameFor(model => model.BuildingId)*@
+                    </th>
+
+                    <th scope="col">
+                        @Html.DisplayNameFor(model => model.StartDate)
+                    </th>
+
+                    <th scope="col">
+                        @Html.DisplayNameFor(model => model.EndDate)
+                    </th>
+
+                    <th scope="col">
+                        @Html.DisplayNameFor(model => model.HrRecordNumber)
+                    </th>
+                    <th scope="col">
+                        @Html.DisplayNameFor(model => model.HrWorkLocation)
+                    </th>
+                    <th scope="col">
+                        @Html.DisplayNameFor(model => model.HrPersonnelCode)
+                    </th>
+                    <th scope="col">
+                        @Html.DisplayNameFor(model => model.HrJobCode)
+                    </th>
+                    <th scope="col">
+                        @Html.DisplayNameFor(model => model.HrMatched)
+                    </th>
+
+                    <th scope="col">
+                        @Html.DisplayNameFor(model => model.IsPHRST)
+                    </th>
+                    <th scope="col">
+                        @Html.DisplayNameFor(model => model.NeedsReview)
+                    </th>
+                    <th scope="col">
+                        @Html.DisplayNameFor(model => model.CreateDate)
+                    </th>
+                    <th scope="col">
+                        @Html.DisplayNameFor(model => model.CreateUser)
+                    </th>
+                    <th scope="col">
+                        @Html.DisplayNameFor(model => model.LastUpdate)
+                    </th>
+                    <th scope="col">
+                        @Html.DisplayNameFor(model => model.LastUpdateUser)
+                    </th>
+                    <th scope="col">
+                        
+                    </th>
+
+
+
+
+                </tr>
+            </thead>
+
+            <tbody>
+              
+                @foreach (var item in Model)
+                {
+
+                <tr class="@((item.HrPrimary == true ) ?  "table-success" : "table-danger")">
+
+
+                    @*<td>
+            <input @((ViewBag.SelectedEmployee == null ? "" : ViewBag.SelectedEmployee.ToString()) == item.EmployeeId.ToString() ? "checked" : string.Empty ) type="radio" id="@item.EmployeeId" name="SelectedEmployee" value="@item.EmployeeId" />
+        </td>*@
+
+                    @*<td>
+            @Html.DisplayFor(modelItem => item.JobRecordId)
+        </td>*@
+                    <td>
+                        @Html.DisplayFor(modelItem => item.employeeJobTitle)
+                    </td>
+
+                    <td>
+                        @Html.DisplayFor(modelItem => item.HrPrimary)
+                    </td>
+
+                    <td>
+                        @Html.DisplayFor(modelItem => item.IsActive)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.UnitId)
+                    </td>
+                    <td>
+                        @*@Html.DisplayFor(modelItem => item.BuildingId)*@
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.StartDate)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.EndDate)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.HrRecordNumber)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.HrWorkLocation)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.HrPersonnelCode)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.HrJobCode)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.HrMatched)
+                    </td>
+
+                    <td>
+                        @Html.DisplayFor(modelItem => item.IsPHRST)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.NeedsReview)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.CreateDate)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.CreateUser)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.LastUpdate)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.LastUpdateUser)
+                    </td>
+                    <td class="text-nowrap">
+                        @if(item.IsCurrentJobRecord == false)
+                        { 
+                        <a asp-action="Edit" asp-route-id="@item.SystemId"  asp-route-jobrecordid="@item.JobRecordId">Edit</a> 
+                       }
+                    </td>
+
+
+
+                    @*<td class="text-nowrap">
+            @if (item.IsDeleted == false)
+            {
+                @:Yes
+            }
+            else
+            {
+                @:No
+            }
+
+        </td>*@
+
+
+
+                </tr>
+
+
+                }
+
+                                </tbody>
+                            </table>
+
+                           
+                        }
+                        else
+                        {
+                        @:<strong>No job records found.</strong><br /><br />
+                        }
+
+</div>
+
+
+

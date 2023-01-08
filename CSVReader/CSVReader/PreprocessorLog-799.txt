@@ -1,0 +1,206 @@
+2022-06-30 14:34:10(UTC): ===Preprocessor Start=== 
+2022-06-30 14:34:10(UTC): Preparing tables 
+2022-06-30 14:34:11(UTC): Initializing tableLoader 
+2022-06-30 14:34:11(UTC): Initializing tableLoader 
+2022-06-30 14:34:11(UTC): Initializing tableLoader 
+2022-06-30 14:34:11(UTC): Initializing tableLoader 
+2022-06-30 14:34:11(UTC): Initializing tableLoader 
+2022-06-30 14:34:11(UTC): Initializing tableLoader 
+2022-06-30 14:34:11(UTC): Initializing tableLoader 
+2022-06-30 14:34:11(UTC): Determining merge file encodings (start) 
+2022-06-30 14:34:11(UTC): Determining merge file encodings (end) 
+2022-06-30 14:34:11(UTC): Merging files: Checking for Pre-Transform Custom File Merge 
+2022-06-30 14:34:11(UTC): =Conversion and Insertion Started= 
+2022-06-30 14:34:11(UTC): Converting and inserting data for table [academicSessions] and file [academicSessions.csv] 
+2022-06-30 14:34:11(UTC): Parsing - [academicSessions] 
+2022-06-30 14:34:11(UTC): Parsing - [academicSessions] done - 25 total rows 
+2022-06-30 14:34:11(UTC): Converting and inserting data for table [orgs] and file [orgs.csv] 
+2022-06-30 14:34:11(UTC): Parsing - [academicSessions.csv] done - 25 total rows 
+2022-06-30 14:34:11(UTC): Parsing - [orgs] 
+2022-06-30 14:34:11(UTC): Parsing - [orgs] done - 21 total rows 
+2022-06-30 14:34:11(UTC): Converting and inserting data for table [courses] and file [courses.csv] 
+2022-06-30 14:34:11(UTC): Parsing - [orgs.csv] done - 21 total rows 
+2022-06-30 14:34:11(UTC): Parsing - [courses] 
+2022-06-30 14:34:12(UTC): Parsing - [academicSessions] 
+2022-06-30 14:34:12(UTC): Parsing - [orgs] 
+2022-06-30 14:34:12(UTC): Parsing - [courses] 
+2022-06-30 14:34:13(UTC): Parsing - [courses] 
+2022-06-30 14:34:14(UTC): Converting and inserting data for table [courses] and file [courses_supp.csv] 
+2022-06-30 14:34:14(UTC): Parsing - [courses.csv] done - 5734 total rows 
+2022-06-30 14:34:14(UTC): Parsing - [courses] 
+2022-06-30 14:34:14(UTC): Parsing - [courses] done - 11613 total rows 
+2022-06-30 14:34:14(UTC): Converting and inserting data for table [classes] and file [classes.csv] 
+2022-06-30 14:34:14(UTC): Parsing - [courses_supp.csv] done - 145 total rows 
+2022-06-30 14:34:14(UTC): Parsing - [classes] 
+2022-06-30 14:34:15(UTC): Parsing - [courses] 
+2022-06-30 14:34:15(UTC): Parsing - [courses] 
+2022-06-30 14:34:15(UTC): Parsing - [classes] 
+2022-06-30 14:34:16(UTC): Parsing - [classes] 
+2022-06-30 14:34:17(UTC): Parsing - [classes] 
+2022-06-30 14:34:17(UTC): Converting and inserting data for table [classes] and file [classes_supp.csv] 
+2022-06-30 14:34:17(UTC): Parsing - [classes.csv] done - 6320 total rows 
+2022-06-30 14:34:17(UTC): Parsing - [classes] 
+2022-06-30 14:34:17(UTC): Parsing - [classes] done - 12785 total rows 
+2022-06-30 14:34:17(UTC): Converting and inserting data for table [enrollments] and file [enrollments.csv] 
+2022-06-30 14:34:17(UTC): Parsing - [classes_supp.csv] done - 145 total rows 
+2022-06-30 14:34:17(UTC): Parsing - [enrollments] 
+2022-06-30 14:34:18(UTC): Parsing - [classes] 
+2022-06-30 14:34:18(UTC): Parsing - [classes] 
+2022-06-30 14:34:18(UTC): Parsing - [enrollments] 
+2022-06-30 14:34:19(UTC): Parsing - [enrollments] 
+2022-06-30 14:34:20(UTC): Parsing - [enrollments] 
+2022-06-30 14:34:21(UTC): Parsing - [enrollments] 
+2022-06-30 14:34:22(UTC): Parsing - [enrollments] 
+2022-06-30 14:34:23(UTC): Parsing - [enrollments] 
+2022-06-30 14:34:24(UTC): Parsing - [enrollments] 
+2022-06-30 14:34:25(UTC): Parsing - [enrollments] 
+2022-06-30 14:34:26(UTC): Parsing - [enrollments] 
+2022-06-30 14:34:27(UTC): Parsing - [enrollments] 
+2022-06-30 14:34:28(UTC): Parsing - [enrollments] 
+2022-06-30 14:34:29(UTC): Parsing - [enrollments] 
+2022-06-30 14:34:30(UTC): Parsing - [enrollments] 
+2022-06-30 14:34:31(UTC): Parsing - [enrollments] 
+2022-06-30 14:34:32(UTC): Parsing - [enrollments] 
+2022-06-30 14:34:33(UTC): Parsing - [enrollments] 
+2022-06-30 14:34:34(UTC): Parsing - [enrollments] 
+2022-06-30 14:34:35(UTC): Parsing - [enrollments] 
+2022-06-30 14:34:36(UTC): Parsing - [enrollments] 
+2022-06-30 14:34:37(UTC): Parsing - [enrollments] 
+2022-06-30 14:34:38(UTC): Parsing - [enrollments] 
+2022-06-30 14:34:39(UTC): Parsing - [enrollments] 
+2022-06-30 14:34:40(UTC): Parsing - [enrollments] 
+2022-06-30 14:34:41(UTC): Parsing - [enrollments] 
+2022-06-30 14:34:42(UTC): Parsing - [enrollments] 
+2022-06-30 14:34:43(UTC): Parsing - [enrollments] 
+2022-06-30 14:34:44(UTC): Parsing - [enrollments] 
+2022-06-30 14:34:45(UTC): Parsing - [enrollments] 
+2022-06-30 14:34:46(UTC): Converting and inserting data for table [enrollments] and file [enrollments_supp.csv] 
+2022-06-30 14:34:46(UTC): Parsing - [enrollments.csv] done - 117251 total rows 
+2022-06-30 14:34:46(UTC): Parsing - [enrollments] 
+2022-06-30 14:34:46(UTC): Parsing - [enrollments] 
+2022-06-30 14:34:46(UTC): Parsing - [enrollments] done - 235568 total rows 
+2022-06-30 14:34:46(UTC): Converting and inserting data for table [users] and file [users.csv] 
+2022-06-30 14:34:46(UTC): Parsing - [enrollments_supp.csv] done - 1066 total rows 
+2022-06-30 14:34:46(UTC): Parsing - [users] 
+2022-06-30 14:34:47(UTC): Parsing - [enrollments] 
+2022-06-30 14:34:47(UTC): Parsing - [users] 
+2022-06-30 14:34:48(UTC): Parsing - [users] 
+2022-06-30 14:34:49(UTC): Parsing - [users] 
+2022-06-30 14:34:50(UTC): Parsing - [users] 
+2022-06-30 14:34:51(UTC): Parsing - [users] 
+2022-06-30 14:34:52(UTC): Parsing - [users] 
+2022-06-30 14:34:53(UTC): Parsing - [users] 
+2022-06-30 14:34:54(UTC): Parsing - [users] 
+2022-06-30 14:34:55(UTC): Parsing - [users] 
+2022-06-30 14:34:56(UTC): Parsing - [users] 
+2022-06-30 14:34:57(UTC): Parsing - [users] 
+2022-06-30 14:34:58(UTC): Parsing - [users] 
+2022-06-30 14:34:59(UTC): Parsing - [users] 
+2022-06-30 14:35:00(UTC): Parsing - [users] done - 51294 total rows 
+2022-06-30 14:35:00(UTC): Converting and inserting data for table [demographics] and file [demographics.csv] 
+2022-06-30 14:35:00(UTC): Parsing - [users.csv] done - 51294 total rows 
+2022-06-30 14:35:00(UTC): Parsing - [demographics] 
+2022-06-30 14:35:00(UTC): Parsing - [users] 
+2022-06-30 14:35:01(UTC): Parsing - [demographics] 
+2022-06-30 14:35:02(UTC): Parsing - [demographics] 
+2022-06-30 14:35:03(UTC): Parsing - [demographics] 
+2022-06-30 14:35:04(UTC): Parsing - [demographics] 
+2022-06-30 14:35:05(UTC): Parsing - [demographics] 
+2022-06-30 14:35:06(UTC): Parsing - [demographics] 
+2022-06-30 14:35:08(UTC): Parsing - [demographics] 
+2022-06-30 14:35:09(UTC): Parsing - [demographics] 
+2022-06-30 14:35:10(UTC): Parsing - [demographics] 
+2022-06-30 14:35:11(UTC): Parsing - [demographics] 
+2022-06-30 14:35:12(UTC): Parsing - [demographics] 
+2022-06-30 14:35:13(UTC): Parsing - [demographics] 
+2022-06-30 14:35:14(UTC): Parsing - [demographics] 
+2022-06-30 14:35:15(UTC): Parsing - [demographics] 
+2022-06-30 14:35:16(UTC): Parsing - [demographics] 
+2022-06-30 14:35:17(UTC): Parsing - [demographics] 
+2022-06-30 14:35:18(UTC): Parsing - [demographics] 
+2022-06-30 14:35:19(UTC): Parsing - [demographics] 
+2022-06-30 14:35:20(UTC): Parsing - [demographics] 
+2022-06-30 14:35:21(UTC): Parsing - [demographics] 
+2022-06-30 14:35:22(UTC): Parsing - [demographics] 
+2022-06-30 14:35:23(UTC): Parsing - [demographics] 
+2022-06-30 14:35:24(UTC): Parsing - [demographics] 
+2022-06-30 14:35:25(UTC): Parsing - [demographics] 
+2022-06-30 14:35:26(UTC): Parsing - [demographics] 
+2022-06-30 14:35:27(UTC): Parsing - [demographics] 
+2022-06-30 14:35:28(UTC): Parsing - [demographics] 
+2022-06-30 14:35:29(UTC): Parsing - [demographics] 
+2022-06-30 14:35:30(UTC): Parsing - [demographics] 
+2022-06-30 14:35:31(UTC): Parsing - [demographics] 
+2022-06-30 14:35:32(UTC): Parsing - [demographics] 
+2022-06-30 14:35:33(UTC): Parsing - [demographics] 
+2022-06-30 14:35:34(UTC): Parsing - [demographics] 
+2022-06-30 14:35:35(UTC): Parsing - [demographics] 
+2022-06-30 14:35:36(UTC): Parsing - [demographics] 
+2022-06-30 14:35:37(UTC): Parsing - [demographics] 
+2022-06-30 14:35:38(UTC): Parsing - [demographics] 
+2022-06-30 14:35:39(UTC): Parsing - [demographics] 
+2022-06-30 14:35:40(UTC): Parsing - [demographics] 
+2022-06-30 14:35:41(UTC): Parsing - [demographics] 
+2022-06-30 14:35:42(UTC): Parsing - [demographics] 
+2022-06-30 14:35:43(UTC): Parsing - [demographics] 
+2022-06-30 14:35:44(UTC): Parsing - [demographics] 
+2022-06-30 14:35:45(UTC): Parsing - [demographics] 
+2022-06-30 14:35:46(UTC): Parsing - [demographics] 
+2022-06-30 14:35:47(UTC): Parsing - [demographics] 
+2022-06-30 14:35:48(UTC): Parsing - [demographics] 
+2022-06-30 14:35:49(UTC): Parsing - [demographics] 
+2022-06-30 14:35:50(UTC): Parsing - [demographics] 
+2022-06-30 14:35:51(UTC): Parsing - [demographics] 
+2022-06-30 14:35:52(UTC): Parsing - [demographics] 
+2022-06-30 14:35:53(UTC): Parsing - [demographics] 
+2022-06-30 14:35:54(UTC): Parsing - [demographics] 
+2022-06-30 14:35:55(UTC): Parsing - [demographics] 
+2022-06-30 14:35:56(UTC): Parsing - [demographics] 
+2022-06-30 14:35:56(UTC): Parsing - [demographics] done - 180720 total rows 
+2022-06-30 14:35:56(UTC): =Conversion and Insertion complete= 
+2022-06-30 14:35:56(UTC): Waiting for objects to cache 
+2022-06-30 14:35:56(UTC): Waiting for objects to cache 
+2022-06-30 14:35:56(UTC): Waiting for objects to cache 
+2022-06-30 14:35:56(UTC): Waiting for objects to cache 
+2022-06-30 14:35:56(UTC): Waiting for objects to cache 
+2022-06-30 14:35:56(UTC): Waiting for objects to cache 
+2022-06-30 14:35:56(UTC): Waiting for objects to cache 
+2022-06-30 14:35:56(UTC): Parsing - [demographics.csv] done - 180720 total rows 
+2022-06-30 14:35:56(UTC): Post-Transform - Checking File or Table Merge 
+2022-06-30 14:35:56(UTC): Post-Transform Custom File Merge Start 
+2022-06-30 14:35:56(UTC): Post-Transform Custom File Merge End 
+2022-06-30 14:35:57(UTC): Post-Transform Custom File Merge - file [metadata_user.csv] read 
+2022-06-30 14:35:57(UTC): Parsing - [demographics] 
+2022-06-30 14:36:02(UTC): Post-Transform Custom File Merge Start 
+2022-06-30 14:36:02(UTC): Post-Transform Custom File Merge End 
+2022-06-30 14:36:03(UTC): Post-Transform Custom File Merge - file [metadata_user.csv] read 
+2022-06-30 14:36:23(UTC): Post-Transform Custom File Merge Start 
+2022-06-30 14:36:23(UTC): Post-Transform Custom File Merge End 
+2022-06-30 14:36:23(UTC): Post-Transform Custom File Merge - file [metadata_user.csv] read 
+2022-06-30 14:36:43(UTC): Post-Transform Custom File Merge Start 
+2022-06-30 14:36:43(UTC): Post-Transform Custom File Merge End 
+2022-06-30 14:36:44(UTC): Post-Transform Custom File Merge - file [metadata_user.csv] read 
+2022-06-30 14:37:04(UTC): Post-Transform Custom File Merge Start 
+2022-06-30 14:37:04(UTC): Post-Transform Custom File Merge End 
+2022-06-30 14:37:04(UTC): Post-Transform Custom File Merge - file [metadata_user.csv] read 
+2022-06-30 14:37:14(UTC): Post-Transform Custom File Merge Start 
+2022-06-30 14:37:14(UTC): Post-Transform Custom File Merge End 
+2022-06-30 14:37:14(UTC): Post-Transform Custom File Merge - file [metadata_user.csv] read 
+2022-06-30 14:37:24(UTC): Performing High Powered Transforms 
+2022-06-30 14:37:31(UTC): Rewriting output files - start 
+2022-06-30 14:37:31(UTC): Rewrite - writing file [academicSessions] 
+2022-06-30 14:37:31(UTC): Rewriting output files - end 
+2022-06-30 14:37:31(UTC): Rewrite - writing file [orgs] 
+2022-06-30 14:37:31(UTC): Rewriting output files - end 
+2022-06-30 14:37:31(UTC): Rewrite - writing file [courses] 
+2022-06-30 14:37:31(UTC): Rewriting output files - end 
+2022-06-30 14:37:31(UTC): Rewrite - writing file [classes] 
+2022-06-30 14:37:31(UTC): Rewriting output files - end 
+2022-06-30 14:37:32(UTC): Rewrite - writing file [enrollments] 
+2022-06-30 14:37:32(UTC): Rewriting output files - end 
+2022-06-30 14:37:35(UTC): Rewrite - writing file [users] 
+2022-06-30 14:37:35(UTC): Rewriting output files - end 
+2022-06-30 14:37:38(UTC): Rewrite - writing file [demographics] 
+2022-06-30 14:37:38(UTC): Rewriting output files - end 
+2022-06-30 14:37:45(UTC): Dropping Tables 
+2022-06-30 14:37:46(UTC): ===Preprocessor End=== 

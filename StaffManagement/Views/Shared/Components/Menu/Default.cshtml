@@ -1,0 +1,53 @@
+﻿@model AppUser
+
+@{
+    var controllerName = this.ViewContext.RouteData.Values["controller"].ToString();
+    var actionName = this.ViewContext.RouteData.Values["action"].ToString();
+}
+
+
+
+<div class="navbar-nav">
+    <ul class="navbar-nav  border-dark">
+
+        <li class="nav-item">
+            <a class="nav-link   @(controllerName == "Home" && actionName == "Index" ? "active" : string.Empty )" asp-area="" asp-controller="Home" asp-action="Index">
+                <span class="fas fa-home"></span>&nbsp;Home&nbsp;
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link   @(controllerName == "Account" && actionName != "HRMenu"  ? "active" : string.Empty )" asp-area="" asp-controller="Account" asp-action="Index">
+                <span class="fas fa-user"></span>&nbsp;Employees&nbsp;
+            </a>
+        </li>
+
+
+
+       
+            <li class="nav-item">
+                <a class="nav-link  @(controllerName == "JobRecord"  ? "active" : string.Empty )" asp-area="" asp-controller="JobRecord" asp-action="Menu">
+                    <span class="fas fa-user-check"></span>&nbsp;Reports&nbsp;
+                </a>
+            </li>
+       
+        @if (Model.IsInLevel("Can View System Review Page"))
+        {
+            <li class="nav-item">
+                <a class="nav-link   @(controllerName == "SystemReview"  ? "active" : string.Empty )" asp-area="" asp-controller="SystemReview" asp-action="Index">
+                    <span class="fab fa-windows"></span>&nbsp;Admin&nbsp;
+                </a>
+            </li>
+
+        }
+
+        @*<li class="nav-item">
+            <a class="nav-link   @(controllerName == "Account" && actionName == "HRMenu" ? "active" : string.Empty )" asp-area="" asp-controller="Account" asp-action="HRMenu">
+                <span class="fab fa-windows"></span>&nbsp;HR Tasks&nbsp;
+            </a>
+        </li>*@
+    </ul>
+</div>
+
+   
+  

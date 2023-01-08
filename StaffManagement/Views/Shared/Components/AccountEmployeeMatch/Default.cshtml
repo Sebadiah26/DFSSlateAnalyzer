@@ -1,0 +1,150 @@
+﻿@model IEnumerable<StaffManagement.Models.EmployeeModel>
+
+
+<div class="container-fluid">
+
+    @if (Model.Any())
+
+    {
+
+
+
+
+        <table class="table table-sm table-bordered table-hover">
+
+
+            <thead>
+                <tr>
+                    <th scope="col">
+
+                    </th>
+                    <th scope="col">
+                        @Html.DisplayNameFor(model => model.EmployeeId)
+                    </th>
+                    <th scope="col">
+                        @Html.DisplayNameFor(model => model.FirstName)
+                    </th>
+
+                    <th scope="col">
+                        @Html.DisplayNameFor(model => model.LastName)
+                    </th>
+
+                    <th scope="col">
+                        @Html.DisplayNameFor(model => model.JobTitle)
+                    </th>
+
+                    <th scope="col">
+                        @Html.DisplayNameFor(model => model.Unit.Name)
+                    </th>
+                    <th scope="col">
+                        @Html.DisplayNameFor(model => model.Account.SystemId)
+                    </th>
+                    @*<th scope="col">
+                        @Html.DisplayNameFor(model => model.NeedsReview.needsReview)
+                    </th>*@
+                    <th scope="col">
+                        @Html.DisplayNameFor(model => model.IsDeleted)
+                    </th>
+
+
+
+
+
+                </tr>
+            </thead>
+
+            <tbody>
+
+                @foreach (var item in Model)
+                {
+                    @*@(((item.Account.SystemId == 0) && (item.NeedsReview.needsReview != null && item.NeedsReview.needsReview == true)) ?  "table-success" : "table-danger")*@
+                    <tr class="">
+                        <td>
+                            <input @((ViewBag.SelectedEmployee == null ? "" : ViewBag.SelectedEmployee.ToString()) == item.EmployeeId.ToString() ? "checked" : string.Empty ) type="radio" id="@item.EmployeeId" name="SelectedEmployee" value="@item.EmployeeId" />
+                        </td>
+
+                        <td>
+                            @Html.DisplayFor(modelItem => item.EmployeeId)
+                        </td>
+
+                        <td>
+                            @Html.DisplayFor(modelItem => item.FirstName)
+                        </td>
+
+                        <td>
+                            @Html.DisplayFor(modelItem => item.LastName)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.JobTitle)
+                        </td>
+
+                        <td class="text-nowrap">
+                            @Html.DisplayFor(modelItem => item.Unit.Name)
+                        </td>
+
+                        <td class="text-nowrap">
+                            @if (item.Account.SystemId != 0)
+                            {
+                                @item.Account.SystemId.ToString();
+                            }
+                            else
+                            {
+                                @:No Account
+                            }
+
+                        </td>
+                        @*<td class="text-nowrap">
+                    @if ((item.Account.SystemId == 0) && (item.NeedsReview.needsReview != null && item.NeedsReview.needsReview == true))
+                    {
+                        @:Needs Account
+                    }
+                    else if (item.Account.SystemId == 0)
+                    {
+                        @:Handled
+                    }
+                    else
+                    {
+                        @:N/A
+                    }
+
+
+                </td>*@
+
+                        <td class="text-nowrap">
+                            @if (item.IsDeleted == false)
+                            {
+                                @:Yes
+                            }
+                            else
+                            {
+                                @:No
+                            }
+
+                        </td>
+
+
+
+                    </tr>
+
+
+                }
+
+            </tbody>
+                            </table>
+
+                            <div class= "form-group small" >
+
+                                 <input type = "submit" formnovalidate = "formnovalidate" name = "SubmitAction" value = "Select Employee" class= "btn btn-secondary btn-sm" />
+
+                            </div>
+
+                        }
+                        else
+                        {
+                        @:<strong>No matches found.</strong><br /><br />
+                        }
+
+</div>
+
+
+

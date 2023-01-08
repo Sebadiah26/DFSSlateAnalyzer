@@ -1,0 +1,49 @@
+﻿@model IEnumerable<StaffManagement.Data.JobRecord>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h3>Send Email Notices</h3>
+<br />
+
+
+<h3>Additional Resources</h3>
+
+<section class="jumbotron text-left bg-transparent ">
+    
+              
+                <div class="table text-nowrap">
+                    <form id="formAction" name="formAction" asp-controller="JobRecord" asp-action="SendNotices" method="post">
+                        <div class="row p-2 ">
+                            <div class="col-2 border">
+
+                                Job Records needing review
+
+                            </div>
+                            <div class="col-2 border">
+                                <input type="submit" value="JobRecords" name="SubmitAction" class="btn btn-primary input-group-sm" />
+
+                            </div>
+                            <div class="col-8">
+                            </div>
+                        </div>
+                            <div class="row p-2 ">
+                                <div class="col-2 border">
+
+                                    Employees needing review
+
+                                </div>
+                                <div class="col-2 border">
+                                    <input type="submit" value="Employees" name="SubmitAction" class="btn btn-primary input-group-sm" />
+
+                                </div>
+                                <div class="col-8">
+                                </div>
+                            </div>
+
+
+</form>
+                </div>
+           
+</section>

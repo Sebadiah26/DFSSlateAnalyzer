@@ -1,0 +1,39 @@
+﻿@model AppUser
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h3>Report Menu</h3>
+<br />
+
+<br />
+
+
+<section class="text-center bg-light ">
+    <div class="table">
+        <div class="row">
+            <div class="col-md-5">
+                @*<h1 class="display-4">Staff Management</h1>*@
+                @*<p class="lead text-muted">A tool for managing staff-related data</p>*@
+
+                <div class="list-group text-nowrap">
+                    @*<a asp-controller="JobRecord" asp-action="Index" class="list-group-item list-group-item-action">Personnel Review (@Model.NeedsReviewCount.ToString())</a>*@
+                    <a asp-controller="Account" asp-action="Contractors" class="list-group-item list-group-item-action">Contractors/Other</a>
+                    <a asp-controller="JobRecord" asp-action="UnlinkedEmployees" class="list-group-item list-group-item-action">HR Employees Without Active Directory account records</a>
+                    <a asp-controller="Account" asp-action="AssignEmployee" class="list-group-item list-group-item-action">Assign EmployeeID to Active Directory Account</a>
+                    <a asp-controller="SystemReview" asp-action="AuditLog" class="list-group-item list-group-item-action">Review Staff Management Website Activity</a>
+                    <a asp-controller="SystemReview" asp-action="JobTitleAdmin" class="list-group-item list-group-item-action">Job Title Admin</a>
+
+                    @*<a asp-controller="JobRecord" asp-action="SendNotices" class="list-group-item list-group-item-action">Send Email Updates to Users regarding staff to review </a>*@
+
+
+
+
+                </div>
+            </div>
+            <div class="col-md-7">
+            </div>
+        </div>
+    </div>
+</section>

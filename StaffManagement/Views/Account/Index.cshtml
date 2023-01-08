@@ -1,0 +1,398 @@
+﻿@model PagedList.Core.IPagedList<StaffManagement.Models.AccountModel>
+@using PagedList.Core.Mvc
+@*<link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />*@
+@{
+    ViewData["Title"] = "Index";
+}
+
+@* Page for Searching/Selecting/Reviewing accounts, filtered by permission and search criteria  *@
+
+<h1>Staff Search</h1>
+
+<p>
+    <a asp-action="Add">Add New Employee</a>
+</p>
+
+@* Start of Search panel *@
+
+<div class="container-fluid border-0">
+
+    <form class="row" asp-controller="Account" asp-action="Index" method="get">
+        <div class="col-12">
+
+            <div class="card">
+                <div class="card-header  fw-bold">
+                    Search Filters
+                </div>
+
+                <div class="card-body">
+
+                    <div class="form-group row  mb-1 p-1">
+
+                        <div class="col-md-3 p-2">
+                            <div class="form-floating">
+                                <input type="text" class="form-control" id="FirstName" name="FirstName" value="@TempData["FirstName"]">
+                                <label for="FirstName">Search by First name</label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3 p-2">
+                            <div class="form-floating">
+                                <input type="text" class="form-control" id="LastName" name="LastName" value="@TempData["LastName"]">
+                                <label for="LastName">Search by Last name</label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3 p-2">
+                            <div class="form-floating">
+                                <select class="form-control" id="UnitId" name="UnitId" asp-items="ViewBag.Unitdata">
+                                    <option value="0">-----ALL----- </option>
+                                </select>
+                                <label for="Unit">Search by Department</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group col-md-3 p-2">
+                            <div class="form-floating">
+                                <select class="form-control" id="TitleId" name="TitleId" asp-items="ViewBag.Titledata">
+                                    <option value="0">-----ALL----- </option>
+                                </select>
+                                <label for="Unit">Search by Title</label>
+
+                            </div>
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="form-group row  mb-1 p-1">
+
+                        <div class="col-md-3 p-2">
+                            <div class="form-floating">
+                                <input type="text" class="form-control" id="SystemId" name="SystemId" value="@TempData["SystemId"]">
+                                <label for="SystemId"> Search by ID</label>
+
+                            </div>
+                            <div class="float-end">
+                                <a id="IdSearch" href="#" data-microtip-position="top-left" data-microtip-size="large" role="tooltip" aria-label="Only search by EmployeeId and by Active Directory Account (systemId)">
+                                    <img src="~/images/question-circle.svg" class="">
+                                </a>
+                            </div>
+
+
+
+
+                        </div>
+
+                        <div class="col-md-3 p-2">
+                            <div class="form-floating">
+                                <select class="form-control" id="JobCodeId" name="JobCodeId" asp-items="ViewBag.JobCodedata">
+                                    <option value="0">-----ALL----- </option>
+                                </select>
+                                <label for="JobCode">Search by Job Code</label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3 p-2">
+                            <div class="form-floating">
+
+                                <select class="form-control" id="PersonnelCode" name="PersonnelCode" asp-items="ViewBag.PersonnelCodedata">
+                                    <option value="">-----ALL----- </option>
+                                </select>
+                                <label for="PersonnelCode">Search by Personnel Code</label>
+
+                            </div>
+                        </div>
+
+                        <div class="col-md-3 p-2">
+                            <div class="form-floating">
+
+                                <select class="form-control" id="BuildingId" name="BuildingId" asp-items="ViewBag.Buildingdata">
+                                    <option value="0">-----ALL----- </option>
+                                </select>
+                                <label for="Building">Search by Building</label>
+
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-group row  mb-1 p-1">
+
+                        <div class="col-md-12 mb-1 mt-1">
+                            <button name="submitAction" id="submitAction" type="submit" value="Search" class="btn btn-primary">Apply Search Filters</button>
+                        </div>
+
+                    </div>
+
+
+
+                </div>
+            </div>
+
+            @* End of Search panel *@
+
+            @* Start of Results table *@
+
+            <br />
+            <div class="card">
+                <div class="card-header  fw-bold">
+                    Search Results
+                </div>
+
+                <div class="card-body">
+
+
+                    <div class="form-row">
+                        <div class="form-group col-md-12 mb-1">
+                            Viewing <strong>@TempData["ResultCount"]</strong> results (of @TempData["TotalCount"])
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-12 mb-1">
+                            Page <strong>@(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber)</strong> of @Model.PageCount
+
+                        </div>
+                    </div>
+
+                    @*<div class="form-row mb-1">
+                        <div class="form-group col-md-12 text-success">
+                            @Html.Raw(TempData["ResultMessage"])
+                        </div>
+                    </div>*@
+                    @if (TempData["ResultMessage"] != null)
+                    {
+                        <div class="alert alert-success d-flex"  role="alert">
+                            <img src="~/lib/bootstrap-icons/icons/check-circle.svg" class="filter-green p-2">
+
+                            <div class="p-2">
+                                @Html.Raw(TempData["ResultMessage"])
+                            </div>
+                        </div>
+                    }
+
+                    <div class="form-row mb-1">
+                        <div class="form-group col-md-12 ">
+
+                            <table class="table table-sm  table-hover ">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th scope="col">
+                                            @Html.DisplayNameFor(model => model[0].SystemId)
+                                        </th>
+                                        <th scope="col">
+                                            @Html.DisplayNameFor(model => model[0].EmployeeId)
+                                        </th>
+                                        <th scope="col">
+
+                                            <a asp-controller="Account" asp-action="Index" asp-route-page="@Model.PageNumber" asp-route-pagesize="@TempData["PageSize"]" asp-route-sortorder="@TempData["FirstNameSort"]" asp-route-currentfilter="@ViewData["CurrentFilter"]">  @Html.DisplayNameFor(model => model[0].FirstName)</a>
+
+                                        </th>
+
+                                        <th scope="col">
+
+                                            <a asp-controller="Account" asp-action="Index" asp-route-page="@Model.PageNumber" asp-route-pagesize="@TempData["PageSize"]" asp-route-sortorder="@TempData["LastNameSort"]" asp-route-currentfilter="@ViewData["CurrentFilter"]">  @Html.DisplayNameFor(model => model[0].LastName)</a>
+
+                                        </th>
+
+                                        <th scope="col">
+
+                                            <a asp-controller="Account" asp-action="Index" asp-route-page="@Model.PageNumber" asp-route-pagesize="@TempData["PageSize"]" asp-route-sortorder="@TempData["AccountTypeSort"]" asp-route-currentfilter="@ViewData["CurrentFilter"]"> @Html.DisplayNameFor(model => model[0].AccountType.Description)</a>
+
+                                        </th>
+
+
+                                        <th scope="col">
+                                            <a asp-controller="Account" asp-action="Index" asp-route-page="@Model.PageNumber" asp-route-pagesize="@TempData["PageSize"]" asp-route-sortorder="@TempData["JobtitleSort"]" asp-route-currentfilter="@ViewData["CurrentFilter"]"> @Html.DisplayNameFor(model => model[0].JobTitle)</a>
+
+                                        </th>
+                                        <th scope="col">
+                                            <a asp-controller="Account" asp-action="Index" asp-route-page="@Model.PageNumber" asp-route-pagesize="@TempData["PageSize"]" asp-route-sortorder="@TempData["TitleGroupSort"]" asp-route-currentfilter="@ViewData["CurrentFilter"]"> @Html.DisplayNameFor(model => model[0].JobRecord.TitleGroup.Description)</a>
+
+                                        </th>
+
+                                        <th scope="col">
+                                            <a asp-controller="Account" asp-action="Index" asp-route-page="@Model.PageNumber" asp-route-pagesize="@TempData["PageSize"]" asp-route-sortorder="@TempData["TitleSort"]" asp-route-currentfilter="@ViewData["CurrentFilter"]"> @Html.DisplayNameFor(model => model[0].JobRecord.Title.Text)</a>
+
+                                        </th>
+
+                                        <th scope="col">
+                                            @Html.DisplayNameFor(model => model[0].PrimaryUnit.Name)
+                                        </th>
+                                        <th scope="col">
+                                            @Html.DisplayNameFor(model => model[0].PrimaryUnit.Building.Name)
+                                        </th>
+
+                                        <th scope="col">
+                                            @Html.DisplayNameFor(model => model[0].LastUpdate)
+                                        </th>
+
+                                        <th scope="col"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model)
+                                    {
+
+
+                                        <tr class="@((item.AccountIsActive == false ) ?  "table-danger" : string.Empty)">
+                                            <td>
+
+                                                @Html.DisplayFor(modelItem => item.SystemId)
+
+                                            </td>
+
+                                            <td>
+
+                                                @Html.DisplayFor(modelItem => item.EmployeeId)
+
+                                            </td>
+
+                                            <td>
+
+                                                @Html.DisplayFor(modelItem => item.FirstName)
+
+                                            </td>
+
+
+
+                                            <td>
+
+                                                @Html.DisplayFor(modelItem => item.LastName)
+
+                                            </td>
+
+                                            <td>
+
+                                                @Html.DisplayFor(modelItem => item.AccountType.Description)
+
+                                            </td>
+
+                                            <td>
+
+                                                @Html.DisplayFor(modelItem => item.JobTitle)
+
+                                            </td>
+                                            <td>
+
+                                                @Html.DisplayFor(modelItem => item.JobRecord.TitleGroup.Description)
+
+                                            </td>
+                                            <td>
+                                                @if (item.JobRecord.SubstituteFor != " ")
+                                                {
+
+                                                    @(item.JobRecord.Title.Text + " ( for " +  item.JobRecord.SubstituteFor + ")")
+
+
+                                                }
+                                                else
+                                                {
+
+                                                    @Html.DisplayFor(modelItem => item.JobRecord.Title.Text)
+
+                                                }
+                                            </td>
+
+
+                                            <td class="text-nowrap">
+
+                                                @Html.DisplayFor(modelItem => item.PrimaryUnit.Name)
+
+                                            </td>
+                                            <td class="text-nowrap">
+
+                                                @Html.DisplayFor(modelItem => item.PrimaryUnit.Building.Name)
+
+                                            </td>
+
+                                            <td class="text-nowrap">
+                                                <div data-microtip-position="bottom" role="tooltip" aria-label="@(item.LastUpdateInfo)">
+                                                    @Html.DisplayFor(modelItem => item.LastUpdate)
+                                                </div>
+                                            </td>
+
+                                            <td class="text-nowrap">
+                                                <div data-bs-toggle="tooltip" title="@((item.Employee.IsDeleted == true ) ?  "Inactive in HR System" : string.Empty)">
+
+                                                    <a asp-action="Edit" asp-route-id="@item.SystemId" asp-route-slug="@item.Slug">Edit</a> |
+                                                    <a target="_blank" asp-action="Edit" asp-route-id="@item.SystemId" asp-route-slug="@item.Slug">Edit in New Window</a>
+                                                    @*<a asp-action="Details" asp-route-id="@item.SystemId" asp-route-slug="@item.Slug">Details</a> |*@
+                                                    @*<a asp-action="Delete" asp-route-id="@item.SystemId" asp-route-slug="@item.Slug">Delete</a>*@
+                                                </div>
+                                            </td>
+                                        </tr>
+
+
+
+                                    }
+                                </tbody>
+
+
+                            </table>
+
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-12 mb-1">
+                            <br />
+                            Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+                            <br />
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-3 mb-1">
+                            show <input type="text" class="  text-sm-left" id="PageSize" name="PageSize" width="10" value="@TempData["PageSize"]"> at a time
+                            <br /> <br />
+                        </div>
+                        <div class="form-group col-md-9 mb-1">
+
+                        </div>
+
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-12 mb-1">
+                            <pager class="pager-container" list="@Model" asp-action="Index" asp-controller="Account" asp-route-sortorder="@TempData["CurrentSort"]" asp-route-pagesize="@TempData["PageSize"]" asp-route-search="@TempData["Search"]" />
+
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+</div>
+
+
+
+<!-- #region Scripts -->
+
+@section Scripts {
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('[data-toggle="tooltip"]').tooltip({
+                container: 'body', trigger: 'hover'
+            })
+        })
+    </script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('[data-bs-toggle="tooltip"]').tooltip({
+                container: 'body', trigger: 'hover'
+            })
+        })
+    </script>
+
+
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+<!-- #endregion -->

@@ -1,0 +1,15 @@
+C:\Users\sebad\source\repos\DFSSlateAnalyzer\DFSSlateAnalyzerCore\bin\Debug\net7.0\DFSSlateAnalyzerCore.deps.json
+C:\Users\sebad\source\repos\DFSSlateAnalyzer\DFSSlateAnalyzerCore\bin\Debug\net7.0\DFSSlateAnalyzerCore.dll
+C:\Users\sebad\source\repos\DFSSlateAnalyzer\DFSSlateAnalyzerCore\bin\Debug\net7.0\DFSSlateAnalyzerCore.pdb
+C:\Users\sebad\source\repos\DFSSlateAnalyzer\DFSSlateAnalyzerCore\bin\Debug\net7.0\DFSSlateAnalyzerData.dll
+C:\Users\sebad\source\repos\DFSSlateAnalyzer\DFSSlateAnalyzerCore\bin\Debug\net7.0\DFSSlateAnalyzerData.pdb
+C:\Users\sebad\source\repos\DFSSlateAnalyzer\DFSSlateAnalyzerCore\obj\Debug\net7.0\DFSSlateAnalyzerCore.csproj.AssemblyReference.cache
+C:\Users\sebad\source\repos\DFSSlateAnalyzer\DFSSlateAnalyzerCore\obj\Debug\net7.0\DFSSlateAnalyzerCore.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\sebad\source\repos\DFSSlateAnalyzer\DFSSlateAnalyzerCore\obj\Debug\net7.0\DFSSlateAnalyzerCore.AssemblyInfoInputs.cache
+C:\Users\sebad\source\repos\DFSSlateAnalyzer\DFSSlateAnalyzerCore\obj\Debug\net7.0\DFSSlateAnalyzerCore.AssemblyInfo.cs
+C:\Users\sebad\source\repos\DFSSlateAnalyzer\DFSSlateAnalyzerCore\obj\Debug\net7.0\DFSSlateAnalyzerCore.csproj.CoreCompileInputs.cache
+C:\Users\sebad\source\repos\DFSSlateAnalyzer\DFSSlateAnalyzerCore\obj\Debug\net7.0\DFSSlateAnalyzerCore.csproj.CopyComplete
+C:\Users\sebad\source\repos\DFSSlateAnalyzer\DFSSlateAnalyzerCore\obj\Debug\net7.0\DFSSlateAnalyzerCore.dll
+C:\Users\sebad\source\repos\DFSSlateAnalyzer\DFSSlateAnalyzerCore\obj\Debug\net7.0\refint\DFSSlateAnalyzerCore.dll
+C:\Users\sebad\source\repos\DFSSlateAnalyzer\DFSSlateAnalyzerCore\obj\Debug\net7.0\DFSSlateAnalyzerCore.pdb
+C:\Users\sebad\source\repos\DFSSlateAnalyzer\DFSSlateAnalyzerCore\obj\Debug\net7.0\ref\DFSSlateAnalyzerCore.dll

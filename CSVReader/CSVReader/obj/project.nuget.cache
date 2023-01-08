@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "vtKce7uwOPtNtJetSzyZu53vg0PKJfjPZ0dA/Z/GZj3jGHsrGnDR1OnfvIuhwvS0olHjOrnBN0Vn6wVPqbUOLw==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\sebad\\source\\repos\\Sebadiah26\\DFSSlateAnalyzer\\CSVReader\\CSVReader\\CSVReader.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\sebad\\.nuget\\packages\\csvhelper\\30.0.1\\csvhelper.30.0.1.nupkg.sha512"
+  ],
+  "logs": []
+}

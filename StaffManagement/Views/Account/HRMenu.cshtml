@@ -1,0 +1,31 @@
+﻿@model AppUser
+
+@{
+    ViewData["Title"] = "HR Tasks";
+}
+
+<section class="text-center bg-light">
+    <div class="container">
+        <h1 class="display-4">HR Tasks</h1>
+       
+
+      
+        <div class="list-group">
+
+            <a asp-controller="Account" asp-action="AssignEmployee" class="list-group-item list-group-item-action">Assign EmployeeID to Active Directory Account</a>
+            <a asp-controller="JobRecord" asp-action="UnlinkedEmployees" class="list-group-item list-group-item-action">HR Employees Without Active Directory account records</a>
+
+        </div>
+        <div class="form-row">
+            <div class="form-group col-lg-12 ">
+                &nbsp;
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-lg-12 ">
+                &nbsp;
+            </div>
+        </div>
+    </div>
+</section>
+

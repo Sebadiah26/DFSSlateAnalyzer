@@ -1,0 +1,132 @@
+﻿@model IEnumerable<StaffManagement.Models.EmployeeModel>
+
+
+<div class="container-fluid small">
+
+    <p class="lead">PHRST Employee search result(s)</p>
+    <div class="container-fluid small">
+
+        @if (Model.Any())
+        {
+
+
+
+
+            <table class="table table-sm table-bordered table-hover mb-1 pb-1">
+                <thead>
+                    <tr  >
+                        @*<th scope="col">
+
+        </th>*@
+                        <th scope="col">
+                            @Html.DisplayNameFor(model => model.EmployeeId)
+                        </th>
+                        <th scope="col">
+                            @Html.DisplayNameFor(model => model.FirstName)
+                        </th>
+
+                        <th scope="col">
+                            @Html.DisplayNameFor(model => model.LastName)
+                        </th>
+
+                        <th scope="col">
+                            @Html.DisplayNameFor(model => model.JobTitle)
+                        </th>
+
+                        <th scope="col">
+                            @Html.DisplayNameFor(model => model.Unit.Name)
+                        </th>
+
+                        <th scope="col">
+                            @Html.DisplayNameFor(model => model.IsDeleted)
+                        </th>
+                        <th scope="col">
+                            @Html.DisplayNameFor(model => model.EndDate)
+                        </th>
+                        <th scope="col">
+                            @Html.DisplayNameFor(model => model.LastUpdate)
+                        </th>
+
+
+
+
+
+
+
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        // display as red if deleted employee
+                    <tr  class="@((item.IsDeleted == true  ) ?  "table-danger" : string.Empty)" >
+                        @*<td>
+            <input  @(ViewBag.SelectedEmployee == item.EmployeeId ? "checked" : string.Empty )  type="radio" id="@item.EmployeeId" name="SelectedEmployee" value="@item.EmployeeId" />
+        </td>*@
+
+                        <td>
+                            @Html.DisplayFor(modelItem => item.EmployeeId)
+                        </td>
+
+                        <td>
+                            @Html.DisplayFor(modelItem => item.FirstName)
+                        </td>
+
+                        <td>
+                            @Html.DisplayFor(modelItem => item.LastName)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.JobTitle)
+                        </td>
+
+                        <td class="text-nowrap">
+                            @Html.DisplayFor(modelItem => item.Unit.Name)
+                        </td>
+
+                        <td class="text-nowrap">
+                            @*@Html.DisplayFor(modelItem => item.IsDeleted)*@
+                            @if (item.IsDeleted == null || item.IsDeleted == false)
+                            {
+                                @:Yes
+                            }
+                            else
+                            {
+                                @:No
+                            }
+                        </td>
+                        <td class="text-nowrap">
+                            @Html.DisplayFor(modelItem => item.EndDate)
+                        </td>
+                        <td class="text-nowrap">
+                            @Html.DisplayFor(modelItem => item.LastUpdate)
+                        </td>
+
+
+
+
+
+
+                    </tr>
+                    }
+
+
+                </tbody>
+            </table>
+            @*<div class="form-group small">
+                <input type="submit" name="SubmitAction" value="Select Employee" class="btn btn-primary small" />
+            </div>*@
+
+
+
+        }
+        else
+        {
+            @:<strong>No matches found.</strong><br /><br />
+        }
+
+    </div>
+</div>
+
+
+

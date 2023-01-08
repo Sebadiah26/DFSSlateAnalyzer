@@ -1,0 +1,100 @@
+﻿@model StaffManagement.Data.Contract
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>Contractor</h4>
+<hr />
+
+<div class="container-fluid">
+    <form asp-action="Create">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="row">
+            <div class="col-sm-3">
+
+
+                <div class="form-group">
+                    <label asp-for="Contractor.FirstName" class="control-label"></label>
+                    <input asp-for="Contractor.FirstName" class="form-control" />
+                    <span asp-validation-for="Contractor.FirstName" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <div class="form-group">
+                    <label asp-for="Contractor.MiddleName" class="control-label"></label>
+                    <input asp-for="Contractor.MiddleName" class="form-control" />
+                    <span asp-validation-for="Contractor.MiddleName" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-sm-5">
+                <div class="form-group">
+                    <label asp-for="Contractor.LastName" class="control-label"></label>
+                    <input asp-for="Contractor.LastName" class="form-control" />
+                    <span asp-validation-for="Contractor.LastName" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <div class="form-group">
+                    <label asp-for="Contractor.SuffixName" class="control-label"></label>
+                    <input asp-for="Contractor.SuffixName" class="form-control" />
+                    <span asp-validation-for="Contractor.SuffixName" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4">
+
+
+                <div class="form-group">
+                    <label asp-for="StartDate" class="control-label"></label>
+                    <input asp-for="StartDate" class="form-control" />
+                    <span asp-validation-for="StartDate" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label asp-for="EndDate" class="control-label"></label>
+                    <input asp-for="EndDate" class="form-control" />
+                    <span asp-validation-for="EndDate" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label asp-for="JobTitle" class="control-label"></label>
+                    <input asp-for="JobTitle" class="form-control" />
+                    <span asp-validation-for="JobTitle" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label asp-for="PrimaryUnitId" class="control-label"></label>
+                    <select asp-for="PrimaryUnitId" class="form-control" asp-items="ViewBag.PrimaryUnitId"></select>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="form-group">
+                    <input type="submit" value="Create" class="btn btn-primary" />
+                </div>
+            </div>
+        </div>
+
+    </form>
+</div>
+   
+
+    <div>
+        <a asp-action="Index">Back to List</a>
+    </div>
+
+    @section Scripts {
+        @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    }

@@ -1,0 +1,121 @@
+﻿@model AppUser
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+@* See "Views/Shared/_Layout.cshtml" for site layout/masterpage *@
+
+<div class="container-fluid">
+
+    <div class="row">
+
+
+
+        <div class="col-10 ps-2 bg-light text-center">
+
+            @*<section class="text-center bg-light">*@
+            <div class="container-fluid">
+                <h1 class="display-2 text-nowrap">BSD Staff Management</h1>
+                <p class="lead text-muted">A tool for managing staff-related data</p>
+
+                @*@if (Model.IsInLevel("Can View System Review Page") && Model.NeedsReviewCount > 0)
+                {
+                    <div class="alert alert-danger">
+                        <strong>Alert!</strong> There are @Model.NeedsReviewCount.ToString() employee changes needing your <a href="/JobRecord" class="alert-link">review</a>.
+                    </div>
+                }*@
+                <div class="form-row">
+                    <div class="form-group col-md-12 text-danger">
+                        @TempData["SecurityMessage"]
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group col-md-12 ">
+                        &nbsp;
+                    </div>
+                </div>
+
+                <div class="form-row">
+
+                    <div class="form-group col-6 offset-3 ">
+                        <div class="list-group">
+                            <a asp-controller="Account" asp-action="Add" class="list-group-item list-group-item-action">New Employee</a>
+                            <a asp-controller="Account" asp-action="Index" class="list-group-item list-group-item-action">Search Employees</a>
+                            <a asp-controller="JobRecord" asp-action="Menu" class="list-group-item list-group-item-action">Reports</a>
+                            @if (Model.IsInLevel("Can View System Review Page"))
+                            {
+
+                                @*<a asp-controller="JobRecord" asp-action="Menu" class="list-group-item list-group-item-action">Personnel Review @(Model.NeedsReviewCount > 0 ? "(" + Model.NeedsReviewCount.ToString() + ")" : "")</a>*@
+                                <a asp-controller="SystemReview" asp-action="Index" class="list-group-item list-group-item-action">Admin</a>
+                                @*<a asp-controller="Account" asp-action="HRMenu" class="list-group-item list-group-item-action">HR Tasks</a>*@
+                            }
+
+                        </div>
+                    </div>
+
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-12 ">
+                        &nbsp;
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-12 ">
+                        &nbsp;
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-12 ">
+                        &nbsp;
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-12 ">
+                        &nbsp;
+                    </div>
+                </div>
+
+
+            </div>
+            @*</section>*@
+
+
+        </div>
+
+
+        <div class="col-2 pe-2">
+            @if (Model.IsInLevel("Can View System Review Page"))
+            {
+                <vc:mismatched-employees systemid="0"></vc:mismatched-employees>
+            }
+
+           
+        </div>
+
+    </div>
+
+</div>
+
+
+@section Scripts {
+
+
+    <script type="text/javascript">
+        document.querySelector('#linkeduserInput').addEventListener('input', function (e) {
+            var input = e.target,
+                list = input.getAttribute('list'),
+                options = document.querySelectorAll('#' + list + ' option[value="' + input.value + '"]'),
+                hiddenInput = document.getElementById(input.getAttribute('id') + '-hidden');
+
+            if (options.length > 0) {
+                hiddenInput.value = options[0].dataset.id
+              
+
+            }
+
+        });
+    </script>
+
+}

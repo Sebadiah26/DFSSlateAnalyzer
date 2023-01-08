@@ -1,0 +1,163 @@
+﻿@model IEnumerable<StaffManagement.Data.JobRecord>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h3>Personnel Changes Needing Review</h3>
+<br />
+@*<vc:site-text sitetextid="2"></vc:site-text>
+<br />*@
+<br />
+@*<p>
+        <a asp-action="Create">Create New</a>
+    </p>*@
+
+
+<table class="table-sm table-hover table-bordered">
+    <thead>
+        <tr>
+            <th>
+                Name
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Unit)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Account.Employee.JobTitle)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsPrimary)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsActive)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.StartDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.EndDate)
+            </th>
+            @*<th>
+                    @Html.DisplayNameFor(model => model.IsPHRST)
+                </th>*@
+            <th>
+                @Html.DisplayNameFor(model => model.HrRecordNumber)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.HrWorkLocation)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.HrPersonnelCode)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.HrJobCode)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.HrPrimary)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.HrMatched)
+            </th>
+
+
+            <th>
+                @Html.DisplayNameFor(model => model.Account)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.NeedsReview)
+            </th>
+
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Account.FirstName) @Html.DisplayFor(modelItem => item.Account.LastName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Unit.AdgroupName)
+                </td>
+                <td class="text-nowrap">
+                    @Html.DisplayFor(modelItem => item.Account.Employee.JobTitle)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IsPrimary)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IsActive)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.StartDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.EndDate)
+                </td>
+                @*<td>
+                        @Html.DisplayFor(modelItem => item.IsPHRST)
+                    </td>*@
+                <td>
+                    @Html.DisplayFor(modelItem => item.HrRecordNumber)
+                </td>
+                <td class="text-nowrap">
+                    @Html.DisplayFor(modelItem => item.HrWorkLocation)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.HrPersonnelCode)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.HrJobCode)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.HrPrimary)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.HrMatched)
+                </td>
+
+
+                <td>
+                    @Html.DisplayFor(modelItem => item.Account.SystemId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.NeedsReview)
+                </td>
+
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.JobRecordId" asp-route-systemid="@item.SystemId" asp-route-slug="@item.Slug">Review</a>
+                    @*<a asp-action="Details" asp-route-id="@item.JobRecordId">Details</a> |
+                        <a asp-action="Delete" asp-route-id="@item.JobRecordId">Delete</a>*@
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<br />
+<br />
+<h3>Additional Resources</h3>
+
+<section class="jumbotron text-left bg-transparent ">
+    <div class="table">
+        <div class="row">
+            <div class="col-md-5">
+                @*<h1 class="display-4">Staff Management</h1>*@
+                @*<p class="lead text-muted">A tool for managing staff-related data</p>*@
+
+                <div class="list-group text-nowrap">
+
+                    <a asp-controller="JobRecord" asp-action="UnlinkedEmployees" class="list-group-item list-group-item-action">HR Employees Without Active Directory account records</a>
+                    <a asp-controller="JobRecord" asp-action="SendNotices" class="list-group-item list-group-item-action">Send Email Updates to Users regarding staff to review </a>
+                    <a asp-controller="JobRecord" asp-action="Queue_3" class="list-group-item list-group-item-action">Queue 3</a>
+                    <a asp-controller="JobRecord" asp-action="Queue_4" class="list-group-item list-group-item-action">Queue 4</a>
+
+
+                </div>
+            </div>
+            <div class="col-md-7">
+            </div>
+        </div>
+    </div>
+</section>

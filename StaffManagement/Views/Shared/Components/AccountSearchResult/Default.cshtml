@@ -1,0 +1,124 @@
+﻿@model IEnumerable<StaffManagement.Models.AccountModel>
+
+
+<div class="container-fluid small">
+
+    @if (Model == null)
+    {
+
+    }
+    else
+    {
+
+        <p class="lead">Account search result(s)</p>
+        <div class="container-fluid small">
+            <table class="table table-sm table-bordered table-hover">
+                <thead>
+                    <tr>
+                        <th scope="col"></th>
+                        <th scope="col">
+                            @Html.DisplayNameFor(model => model.SystemId)
+                        </th>
+                        <th scope="col">
+                            @Html.DisplayNameFor(model => model.AccountStatus)
+                        </th>
+                        <th scope="col">
+                            @Html.DisplayNameFor(model => model.FirstName)
+                        </th>
+
+
+
+                        <th scope="col">
+                            @Html.DisplayNameFor(model => model.LastName)
+                        </th>
+
+
+                        <th scope="col">
+                            @Html.DisplayNameFor(model => model.JobTitle)
+                        </th>
+                        <th scope="col">
+                            @Html.DisplayNameFor(model => model.JobRecord.TitleGroup.Description)
+                        </th>
+
+                        <th scope="col">
+                            @Html.DisplayNameFor(model => model.JobRecord.Title.Text)
+                        </th>
+
+                        <th scope="col">
+                            @Html.DisplayNameFor(model => model.JobRecord.Unit.Name)
+                        </th>
+
+
+                        <th scope="col">
+                            @Html.DisplayNameFor(model => model.User.Description)
+                        </th>
+
+
+
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        // if Account or User record set as deleted, show Red
+                    <tr class="@((item.IsActive == false || item.User.IsDisabled || item.User.IsDeleted  ) ?  "table-danger" : string.Empty)">
+
+                        <td class="text-nowrap">
+                            <a asp-action="Edit" asp-route-id="@item.SystemId">Edit</a>
+
+                        </td>
+
+                        <td>
+                            @Html.DisplayFor(modelItem => item.SystemId)
+                        </td>
+
+                        <td class="text-nowrap">
+                            @Html.DisplayFor(modelItem => item.AccountStatus)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.FirstName)
+                        </td>
+
+
+
+                        <td>
+                            @Html.DisplayFor(modelItem => item.LastName)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.JobTitle)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.JobRecord.TitleGroup.Description)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.JobRecord.Title.Text)
+                        </td>
+
+
+                        <td class="text-nowrap">
+                            @Html.DisplayFor(modelItem => item.JobRecord.Unit.Name)
+                        </td>
+
+
+
+                        <td class="text-nowrap">
+                            @Html.DisplayFor(modelItem => item.User.Description)
+                        </td>
+
+
+
+                    </tr>
+                    }
+                </tbody>
+
+
+            </table>
+        </div>
+
+    }
+
+</div>
+
+
+

@@ -1,0 +1,427 @@
+﻿@model IEnumerable<StaffManagement.Data.JobRecord>
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor;
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+
+@{
+    var jobrecordid = Convert.ToInt32(HttpContextAccessor.HttpContext.Request.RouteValues["id"]);
+    ViewData["JobRecordId"] = jobrecordid;
+    int index = 0;
+    int i = 0;
+
+
+    foreach (var item in Model)
+    {
+        if (item.JobRecordId == (int)jobrecordid)
+        {
+            index = i;
+            ViewData["Index"] = index;
+            ViewData["HrRecordNumber"] = item.HrRecordNumber;
+        }
+        i = i + 1;
+    }
+    index = 0;
+    i = 0;
+
+
+    foreach (var item in @Model.ElementAt((int)ViewData["Index"]).Account.Employee.EmployeeJobs)
+    {
+        if (item.JobId == (int)ViewData["HrRecordNumber"])
+        {
+            index = i;
+            ViewData["EmployeeJobIndex"] = index;
+
+        }
+        i = i + 1;
+    }
+
+}
+
+
+<h4>Edit- Job Record</h4>
+
+for @Model.First().Account.FirstName @Model.First().Account.LastName
+
+<hr />
+<p class="text-success">
+    @TempData["ResultMessage"]
+</p>
+
+<table class="table-lg table-hover table-bordered ml-2">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.NeedsReview)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Unit)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsPrimary)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsActive)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.StartDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.EndDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsPHRST)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.HrRecordNumber)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.HrWorkLocation)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.HrPersonnelCode)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.HrJobCode)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.HrPrimary)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.HrMatched)
+            </th>
+
+
+            <th>
+                @Html.DisplayNameFor(model => model.Account)
+            </th>
+            <th>
+
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+
+
+
+            <tr class="@(item.JobRecordId == (int)ViewData["JobRecordId"] ? "table-primary" : string.Empty )">
+                <td class="@(item.NeedsReview == true ? "table-danger" : string.Empty )">
+                    @Html.DisplayFor(modelItem => item.NeedsReview)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Unit.AdgroupName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IsPrimary)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IsActive)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.StartDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.EndDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IsPHRST)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.HrRecordNumber)
+                </td>
+                <td class="text-nowrap">
+                    @Html.DisplayFor(modelItem => item.HrWorkLocation)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.HrPersonnelCode)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.HrJobCode)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.HrPrimary)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.HrMatched)
+                </td>
+
+
+                <td>
+                    @Html.DisplayFor(modelItem => item.Account.SystemId)
+                </td>
+                <td>
+                    @{ if (item.JobRecordId != (int)ViewData["JobRecordId"])
+                        {
+                            <a asp-action="Edit" asp-route-id="@item.JobRecordId" asp-route-systemid="@item.SystemId" asp-route-jobrecordid="@item.JobRecordId">View</a>
+                        }
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<hr />
+
+
+
+<div class="table-lg table-hover ml-2 border float-left">
+    <form asp-action="Edit">
+        <div class="row border">
+
+            <div class="col-md-12">
+                <h5>Job Record for @Model.First().Account.FirstName @Model.First().Account.LastName (@Model.ElementAt((int)ViewData["Index"]).Unit.Name)</h5>
+            </div>
+
+        </div>
+        @*<div class="row border">
+
+            <div class="col-md-8 border float-left">
+                <vc:site-text sitetextid="1"></vc:site-text>
+            </div>
+            <br />
+        </div>
+        <br />*@
+        <div class="row">
+            <div class="col-md-4">
+
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="First().JobRecordId" />
+                <div class="form-group">
+                    <label asp-for="First().SystemId" class="control-label"></label>
+                    <input disabled="disabled" asp-for="First().SystemId" class="form-control" />
+
+                    <span asp-validation-for="First().SystemId" class="text-danger"></span>
+                </div>
+
+            </div>
+            <div class="col-md-4">
+                <div class="form-group form-check">
+                    <label class="form-check-label">
+                        <input class="form-check-input" asp-for="@Model.ElementAt((int)ViewData["Index"]).IsActive" /> @Html.DisplayNameFor(model => model.ElementAt((int)ViewData["Index"]).IsActive)
+                    </label>
+                </div>
+
+
+            </div>
+            <div class="col-md-4">
+
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label asp-for="@Model.ElementAt((int)ViewData["Index"]).UnitId" class="control-label"></label>
+                    <select asp-for="@Model.ElementAt((int)ViewData["Index"]).UnitId" class="form-control" asp-items="ViewBag.UnitId"></select>
+                    <span asp-validation-for="@Model.ElementAt((int)ViewData["Index"]).UnitId" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group form-check">
+                    <label class="form-check-label">
+                        <input class="form-check-input" asp-for="@Model.ElementAt((int)ViewData["Index"]).IsPrimary" /> @Html.DisplayNameFor(model => model.ElementAt((int)ViewData["Index"]).IsPrimary)
+                    </label>
+                </div>
+            </div>
+        </div>
+
+
+
+
+        <div class="row ">
+
+            <div class="col-md-12">
+                @*<vc:site-text sitetextid="4"></vc:site-text><br /><br />*@
+                You can add an employee to the BSD system who has not yet been copied over from our HR system (PHRST).  This employee will be entered as a New Hire will later need to be linked up with an HR record.  To reduce duplicate entries in our system you will first be asked to check whether the employee has ever been a BSD employee.
+            </div>
+
+        </div>
+
+        <div class="row">
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label asp-for="@Model.ElementAt((int)ViewData["Index"]).StartDate" class="control-label"></label>
+                    <input asp-for="@Model.ElementAt((int)ViewData["Index"]).StartDate" class="form-control" />
+                    <span asp-validation-for="@Model.ElementAt((int)ViewData["Index"]).StartDate" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label asp-for="@Model.ElementAt((int)ViewData["Index"]).EndDate" class="control-label"></label>
+                    <input asp-for="@Model.ElementAt((int)ViewData["Index"]).EndDate" class="form-control" />
+                    <span asp-validation-for="@Model.ElementAt((int)ViewData["Index"]).EndDate" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group form-check">
+                    <label class="form-check-label">
+                        <input disabled="disabled" class="form-check-input" asp-for="@Model.ElementAt((int)ViewData["Index"]).IsPHRST" /> @Html.DisplayNameFor(model => model.ElementAt((int)ViewData["Index"]).IsPHRST)
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <br />
+        <div class="row">
+            <div class="col-md-3  ">
+                <h6>Current Employee Job Record</h6><br />
+            </div>
+            <div class="col-md-1">
+
+            </div>
+            <div class="col-md-3  ">
+                <h6>New Employee Job Changes</h6><br />
+            </div>
+            <div class="col-md-3  ">
+            </div>
+        </div>
+        <div class="row">
+
+            <div class="col-md-3  table-primary">
+                <div class="form-group">
+                    <label asp-for="@Model.ElementAt((int)ViewData["Index"]).HrRecordNumber" class="control-label"></label>
+                    <input asp-for="@Model.ElementAt((int)ViewData["Index"]).HrRecordNumber" class="form-control" />
+                    <span asp-validation-for="@Model.ElementAt((int)ViewData["Index"]).HrRecordNumber" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-md-1">
+
+            </div>
+            <div class="col-md-3 table-primary">
+                <div class="form-group">
+                    <label asp-for="@Model.ElementAt((int)ViewData["Index"]).Account.Employee.EmployeeJobs.ElementAt((int)ViewData["EmployeeJobIndex"]).JobId" class="control-label"></label>
+                    <input asp-for="@Model.ElementAt((int)ViewData["Index"]).Account.Employee.EmployeeJobs.ElementAt((int)ViewData["EmployeeJobIndex"]).JobId" class="form-control" />
+                    <span asp-validation-for="@Model.ElementAt((int)ViewData["Index"]).Account.Employee.EmployeeJobs.ElementAt((int)ViewData["EmployeeJobIndex"]).JobId" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-md-3">
+
+            </div>
+        </div>
+        <div class="row ">
+            <div class="col-md-3 table-primary">
+                <div class="form-group">
+                    <label asp-for="@Model.ElementAt((int)ViewData["Index"]).HrWorkLocation" class="control-label"></label>
+                    <input asp-for="@Model.ElementAt((int)ViewData["Index"]).HrWorkLocation" class="form-control" />
+                    <span asp-validation-for="@Model.ElementAt((int)ViewData["Index"]).HrWorkLocation" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-md-1">
+
+            </div>
+            <div class="col-md-3  table-primary">
+                <div class="form-group">
+                    <label asp-for="@Model.ElementAt((int)ViewData["Index"]).Account.Employee.EmployeeJobs.ElementAt((int)ViewData["EmployeeJobIndex"]).FsfBuildingId" class="control-label"></label>
+                    <input asp-for="@Model.ElementAt((int)ViewData["Index"]).Account.Employee.EmployeeJobs.ElementAt((int)ViewData["EmployeeJobIndex"]).FsfBuildingId" class="form-control" />
+                    <span asp-validation-for="@Model.ElementAt((int)ViewData["Index"]).Account.Employee.EmployeeJobs.ElementAt((int)ViewData["EmployeeJobIndex"]).FsfBuildingId" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-md-3">
+
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-3  table-primary">
+                <div class="form-group">
+                    <label asp-for="@Model.ElementAt((int)ViewData["Index"]).HrPersonnelCode" class="control-label"></label>
+                    <input asp-for="@Model.ElementAt((int)ViewData["Index"]).HrPersonnelCode" class="form-control" />
+                    <span asp-validation-for="@Model.ElementAt((int)ViewData["Index"]).HrPersonnelCode" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-md-1">
+
+            </div>
+            <div class="col-md-3  table-primary">
+                <div class="form-group">
+                    <label asp-for="@Model.ElementAt((int)ViewData["Index"]).Account.Employee.EmployeeJobs.ElementAt((int)ViewData["EmployeeJobIndex"]).PersonnelCode" class="control-label"></label>
+                    <input asp-for="@Model.ElementAt((int)ViewData["Index"]).Account.Employee.EmployeeJobs.ElementAt((int)ViewData["EmployeeJobIndex"]).PersonnelCode" class="form-control" />
+                    <span asp-validation-for="@Model.ElementAt((int)ViewData["Index"]).Account.Employee.EmployeeJobs.ElementAt((int)ViewData["EmployeeJobIndex"]).PersonnelCode" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-md-3">
+
+            </div>
+        </div>
+        <div class="row ">
+            <div class="col-md-3  table-primary">
+
+                <div class="form-group">
+                    <label asp-for="@Model.ElementAt((int)ViewData["Index"]).HrJobCode" class="control-label"></label>
+                    <input asp-for="@Model.ElementAt((int)ViewData["Index"]).HrJobCode" class="form-control" />
+                    <span asp-validation-for="@Model.ElementAt((int)ViewData["Index"]).HrJobCode" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-md-1">
+
+            </div>
+            <div class="col-md-3  table-primary">
+                <div class="form-group">
+                    <label asp-for="@Model.ElementAt((int)ViewData["Index"]).Account.Employee.EmployeeJobs.ElementAt((int)ViewData["EmployeeJobIndex"]).Jobcode" class="control-label"></label>
+                    <input asp-for="@Model.ElementAt((int)ViewData["Index"]).Account.Employee.EmployeeJobs.ElementAt((int)ViewData["EmployeeJobIndex"]).Jobcode" class="form-control" />
+                    <span asp-validation-for="@Model.ElementAt((int)ViewData["Index"]).Account.Employee.EmployeeJobs.ElementAt((int)ViewData["EmployeeJobIndex"]).Jobcode" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-md-3">
+
+            </div>
+        </div>
+        <div class="row ">
+            <div class="col-md-3  table-primary">
+                <div class="form-group">
+                    <label asp-for="@Model.ElementAt((int)ViewData["Index"]).HrPrimary" class="control-label"></label>
+                    <input asp-for="@Model.ElementAt((int)ViewData["Index"]).HrPrimary" class="form-control" />
+                    <span asp-validation-for="@Model.ElementAt((int)ViewData["Index"]).HrPrimary" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-md-1">
+
+            </div>
+            <div class="col-md-3  table-primary ">
+                <div class="form-group">
+                    <label asp-for="@Model.ElementAt((int)ViewData["Index"]).Account.Employee.EmployeeJobs.ElementAt((int)ViewData["EmployeeJobIndex"]).IsPrimary" class="control-label"></label>
+                    <input asp-for="@Model.ElementAt((int)ViewData["Index"]).Account.Employee.EmployeeJobs.ElementAt((int)ViewData["EmployeeJobIndex"]).IsPrimary" class="form-control" />
+                    <span asp-validation-for="@Model.ElementAt((int)ViewData["Index"]).Account.Employee.EmployeeJobs.ElementAt((int)ViewData["EmployeeJobIndex"]).IsPrimary" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-md-4">
+
+            </div>
+        </div>
+        @*<div class="row">
+                <div class="col-md-4  ">
+                    <div class="form-group">
+                        <label asp-for="@Model.ElementAt((int)ViewData["Index"]).HrMatched" class="control-label"></label>
+                        <input disabled="disabled" asp-for="@Model.ElementAt((int)ViewData["Index"]).HrMatched" class="form-control" />
+                        <span asp-validation-for="@Model.ElementAt((int)ViewData["Index"]).HrMatched" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group form-check">
+                        <label class="form-check-label">
+                            <input disabled="disabled" class="form-check-input" asp-for="@Model.ElementAt((int)ViewData["Index"]).NeedsReview" /> @Html.DisplayNameFor(model => model.ElementAt((int)ViewData["Index"]).NeedsReview)
+                        </label>
+                    </div>
+                </div>
+
+
+            </div>*@
+        <div class="row">
+            <div class="col-md-12">
+                <div class="form-group">
+                    <br />
+                    <input type="submit" value="Save" class="btn btn-primary" data-toggle="tooltip" data-html="true" title="<em>Tooltip</em> <u>with</u> <b>HTML</b>" />
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div class="container-lg">
+    <a asp-action="Index">Back to List</a>
+</div>
+

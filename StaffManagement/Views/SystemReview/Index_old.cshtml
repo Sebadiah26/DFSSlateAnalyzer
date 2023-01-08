@@ -1,0 +1,31 @@
+﻿@model IEnumerable<StaffManagement.Data.StaffManagementView>
+
+@{
+    ViewData["Title"] = "System Review";
+}
+
+<h1>System Review</h1>
+
+
+<p>
+    <a asp-action="AuditLog">Review Staff Management Website Activity</a>
+</p>
+<br /><br />
+<table class="table">
+
+
+    @foreach (var view in Model)
+    {
+        <tr>
+            <td>
+                <h4>@view.Name </h4>
+
+
+                <a href="#@view.Active@view.ViewID" data-toggle="">View Staff</a>
+                <div id="@view.Active@view.ViewID" class="">
+                    <vc:group-assignment page="Default" systemid="0" viewid="@view.ViewID"></vc:group-assignment>
+                </div>
+            </td>
+        </tr>
+    }
+</table>

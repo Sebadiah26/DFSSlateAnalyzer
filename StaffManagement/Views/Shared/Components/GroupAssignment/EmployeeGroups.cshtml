@@ -1,0 +1,55 @@
+﻿@model IEnumerable<StaffManagement.Data.Select_Employee_AssignedGroups>
+
+
+<div class="container-fluid small">
+    
+        <table class="table-sm table-hover table-responsive border-1">
+            <thead>
+                <tr>
+                    <th>Group</th>
+                    <th></th>
+                   
+                </tr>
+            </thead>
+            <tbody>
+
+                @foreach (var item in Model)
+                {
+
+
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.OrganizationalUnitName) 
+                        /
+                        @Html.DisplayFor(modelItem => item.GroupName)
+                    </td>
+                    <td>
+                        @if (item.StaffGroupId != 0)
+                        {
+                            @:sgid: [@item.StaffGroupId ]
+                        }
+                        @if (item.StaffGroupAssociationId != 0)
+                        {
+                            @:sgaid: [@item.StaffGroupAssociationId ]
+                        }
+                      
+
+
+                    </td>
+                  
+
+
+                  
+
+                </tr>
+
+                }
+            </tbody>
+        </table>
+  
+</div>
+
+
+
+
+

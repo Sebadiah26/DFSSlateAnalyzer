@@ -1,0 +1,170 @@
+﻿@model IEnumerable<StaffManagement.Data.Select_PHRST_Mismatched_Employees>
+
+
+<div class="card border-0 align-self-center align-content-center align-items-xl-center" style="width: 14rem;">
+
+
+    @{ bool jobQueue = false, nameQueue = false, newQueue = false, endQueue = false;}
+
+    @* Determine which PHRST queues have records currently in them *@
+    @foreach (var item in Model)
+    {
+        switch (item.Reason)
+        {
+            case "Job":
+                jobQueue = true;
+                break;
+            case "Name":
+                nameQueue = true;
+                break;
+            case "New":
+                newQueue = true;
+                break;
+            case "End":
+                endQueue = true;
+                break;
+            default:
+                break;
+
+
+        }
+    }
+
+    @{var count = 0; }
+
+    <div class="card-body  align-items-center ">
+        <h5 class="card-title mb-3 text-center">PHRST Queue</h5>
+        @*<div class="list-group">*@
+
+        @if (jobQueue)
+        {
+
+            <h6 class="card-subtitle mt-4 mb-3 text-muted text-center">Job Changes</h6>
+
+
+            @foreach (var item in Model)
+            {
+                if (item.Reason == "Job")
+                {
+                    count += 1;
+                    <p class="card-text  text-center">
+                        <a target="_blank" asp-controller="Account" asp-action="Edit" asp-route-id="@item.SystemId" asp-route-jobrecordid="@item.JobRecordId">@Html.DisplayFor(modelItem => item.AccountFirstName)  @Html.DisplayFor(modelItem => item.AccountLastName)</a>
+                    </p>
+                }
+
+                if (count == 10)
+                {
+                    <a target="_blank" asp-controller="JobRecord" asp-action="UnlinkedEmployees">more...</a>
+                    break;
+                }
+
+            }
+
+        }
+
+        @if (nameQueue)
+        {
+            <h6 class="card-subtitle  mt-4  mb-3 text-muted text-center ">Name Changes</h6>
+
+            count = 0;
+
+            @foreach (var item in Model)
+            {
+
+                if (item.Reason == "Name")
+                {
+                    count += 1;
+                    <p class="card-text  text-center">
+                        <a target="_blank" asp-controller="Account" asp-action="Edit" asp-route-id="@item.SystemId">@Html.DisplayFor(modelItem => item.AccountFirstName)  @Html.DisplayFor(modelItem => item.AccountLastName)</a>
+                    </p>
+
+                }
+
+                if (count == 10)
+                {
+                    <a target="_blank" asp-controller="JobRecord" asp-action="UnlinkedEmployees">more...</a>
+                    break;
+                }
+
+
+            }
+
+
+
+        }
+
+
+
+
+        @if (newQueue)
+        {
+            count = 0;
+
+            <h6 class="card-subtitle  mt-4  mb-3 text-muted text-center">New</h6>
+
+
+            @foreach (var item in Model)
+            {
+
+
+                if (item.Reason == "New")
+                {
+                    count += 1;
+                    <p class="card-text  text-center">
+                        <a target="_blank" asp-fragment="divContinue" asp-controller="Account" asp-action="Add" asp-route-id="@item.Slug" asp-route-fromController="JobRecord" asp-route-fromAction="UnlinkedEmployees">@Html.DisplayFor(modelItem => item.EmployeeFirstName)  @Html.DisplayFor(modelItem => item.EmployeeLastName)</a>
+                    </p>
+
+                }
+
+                if (count == 10)
+                {
+                    <a target="_blank" asp-controller="JobRecord" asp-action="UnlinkedEmployees">more...</a>
+                    break;
+                }
+            }
+
+
+
+        }
+
+
+
+        @if (endQueue)
+        {
+            count = 0;
+
+            <h6 class="card-subtitle  mt-4  mb-3 text-muted text-center">Terminations</h6>
+
+
+            @foreach (var item in Model)
+            {
+
+
+                if (item.Reason == "End Date")
+                {
+                    count += 1;
+                    <p class="card-text  text-center">
+                        <a target="_blank" asp-controller="Account" asp-action="Edit" asp-route-id="@item.SystemId">@Html.DisplayFor(modelItem => item.AccountFirstName)  @Html.DisplayFor(modelItem => item.AccountLastName)</a>
+                    </p>
+
+                }
+
+                if (count == 10)
+                {
+                    <a target="_blank" asp-controller="JobRecord" asp-action="UnlinkedEmployees">more...</a>
+                    break;
+                }
+            }
+
+
+
+        }
+
+
+
+    </div>
+
+</div>
+
+
+

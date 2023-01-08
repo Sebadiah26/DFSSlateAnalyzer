@@ -1,0 +1,339 @@
+﻿@model StaffManagement.Models.TitleAdminModel
+
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+@* Page for editing Title Groups and Titles and their assocations  *@
+
+<h3 class="display-7 fw-bold pb-5">JobTitle Admin</h3>
+
+@* Start of Display panel *@
+
+@if (TempData["ResultMessage"] != null)
+{
+    <div class="alert alert-success">
+        @Html.Raw(TempData["ResultMessage"])
+    </div>
+}
+
+
+<form id="formTitles" name="formTitles" class="row" asp-controller="SystemReview" asp-action="JobTitleAdmin" method="post">
+
+
+
+
+
+
+
+
+
+    <div class="accordion" id="accordionJobTitleAdmin">
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingOne">
+                <button class="accordion-button @ViewBag.accordionButton[0]" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="@ViewBag.ariaExpanded[0]" aria-controls="collapseOne">
+
+
+                    Manage Title Associations
+
+
+
+                </button>
+            </h2>
+            <div id="collapseOne" class="accordion-collapse collapse @ViewBag.accordionCollapse[0]" aria-labelledby="headingOne" data-bs-parent="#accordionJobTitleAdmin">
+                <div class="accordion-body">
+
+
+                    <div class="row  mb-4">
+                        <div class="col-md-3">
+
+
+                            @* Dropdown for TitleGroups *@
+
+
+                            <label asp-for="@Model.TitleGroups"></label>
+                            <select class="form-control" asp-for="@Model.SelectedTitleGroupId" asp-items="@Model.TitleGroupsSelectList">
+                                <option value="">Choose Title Group</option>
+                            </select>
+
+
+                        </div>
+                    </div>
+
+
+                    <div class="row  mb-5">
+                        <div class="col-md-5 me-4 ">
+
+
+                            @if (Model.SelectedTitleGroupId != 0)
+
+                            {
+
+                                <ul>
+
+                                    @for (var i = 0; i < Model.AllTitles.Count; ++i)
+                                    {
+
+
+                                        @if (Model.AllTitles[i].Active)
+                                        {
+                                            <li>
+                                                <input type="checkbox" asp-for="@Model.AllTitles[i].Selected" />
+                                                <label asp-for="@Model.AllTitles[i].Selected">@Model.AllTitles[i].Text</label><span>@(Model.AllTitles[i].TitleCount > 0 ? " (" + Model.AllTitles[i].TitleCount + ")" : string.Empty)</span>
+                                                <input type="hidden" asp-for="@Model.AllTitles[i].TitleId" />
+                                                <input type="hidden" asp-for="@Model.AllTitles[i].Text" />
+                                            </li>
+                                        }
+                                        else
+                                        {
+                                            <li hidden="hidden">
+                                                <input type="hidden" asp-for="@Model.AllTitles[i].Selected" />
+                                                <input type="hidden" asp-for="@Model.AllTitles[i].TitleId" />
+                                                <input type="hidden" asp-for="@Model.AllTitles[i].Text" />
+                                            </li>
+                                        }
+
+
+
+
+
+                                    }
+
+                                </ul>
+
+                                <input type="submit" value="Save Titles" name="SubmitAction" class="btn btn-primary" />
+
+                            }
+
+                        </div>
+
+
+                        <div class="col-md-3 ">
+
+
+                            @if (Model.SelectedTitleGroupId != 0)
+
+                            {
+                                <ul class="list-group">
+                                    @for (var i = 0; i < Model.AllTitles.Count; ++i)
+                                    {
+
+                                        if (Model.AllTitles[i].Selected)
+                                        {
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+
+                                                @Model.AllTitles[i].Text
+                                                <span class="badge bg-primary rounded-pill">@Model.AllTitles[i].TitleCount</span>
+
+                                            </li>
+                                        }
+
+                                    }
+                                </ul>
+
+
+
+
+                            }
+
+
+                        </div>
+                    </div>
+
+                    @if (TempData["ResultMessage"] != null)
+                    {
+                        <div class="alert alert-success">
+                            @Html.Raw(TempData["ResultMessage"])
+                        </div>
+                    }
+
+
+
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingTwo">
+                <button class="accordion-button @ViewBag.accordionButton[1]" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="@ViewBag.ariaExpanded[1]" aria-controls="collapseTwo">
+                    Manage Titles
+                </button>
+            </h2>
+            <div id="collapseTwo" class="accordion-collapse collapse @ViewBag.accordionCollapse[1]" aria-labelledby="headingTwo" data-bs-parent="#accordionJobTitleAdmin">
+                <div class="accordion-body">
+
+
+                    <div class="row  mb-5">
+                        <div class="col-md-5 me-4  ">
+                            <ul class="list-group justify-content-end ">
+                                @for (var i = 0; i < Model.AllTitles.Count; ++i)
+                                {
+                                    //justify - content - between align - items - center
+
+                                    <li class="list-group-item d-flex   @((Model.AllTitles[i].Active == true) ? string.Empty : "list-group-item-secondary")">
+
+                                        <div class="p-2 flex-fill bd-highlight align-items-end ">
+
+
+                                            @Model.AllTitles[i].Text
+
+
+                                        </div>
+                                        <div class="p-2   align-items-end  bd-highlight">
+                                            <span class="badge bg-primary rounded-pill">@Model.AllTitles[i].TitleCount</span>
+                                            &nbsp;&nbsp;
+                                            <a asp-controller="SystemReview" asp-action="JobTitleAdmin" asp-route-selectedtitleid="@Model.AllTitles[i].TitleId" asp-route-mode="Edit" asp-route-selectedtitletext="@Model.AllTitles[i].Text">Edit</a> |
+                                            @if (Model.AllTitles[i].Active == true)
+                                            {
+                                                <a asp-controller="SystemReview" asp-action="JobTitleAdmin" asp-route-selectedtitleid="@Model.AllTitles[i].TitleId" asp-route-mode="DeActivate">De-Activate</a>
+                                            }
+                                            else
+                                            {
+                                                <a asp-controller="SystemReview" asp-action="JobTitleAdmin" asp-route-selectedtitleid="@Model.AllTitles[i].TitleId" asp-route-mode="Activate">Activate</a>
+                                            }
+
+
+                                        </div>
+
+                                    </li>
+
+
+                                }
+
+
+                            </ul>
+
+                        </div>
+                    </div>
+
+
+
+                    <div class="row  mb-5">
+
+                        <div class="form-group  col-md-4 me-2">
+
+                            @if (Model.SelectedTitleId != 0 && Model.SelectedTitleText != "")
+
+                            {
+                                <div class="input-group input-group-sm mb-3">
+                                    <label id="lblEditTitle" name="lblEditTitle" class="control-label">Edit Title</label>&nbsp;&nbsp;
+                                    <input type="text" class="form-control" id="EditTitleText" name="EditTitleText" aria-label="Small" aria-describedby="inputGroup-sizing-sm" value="@Model.SelectedTitleText">
+
+
+
+                                </div>
+                            }
+
+                        </div>
+
+
+                        <div class="col-md-2 me-2 ">
+                            @if (Model.SelectedTitleId != 0)
+
+                            {
+                                <input type="hidden" asp-for="@Model.SelectedTitleId" />
+                                <input type="hidden" asp-for="@Model.SelectedTitleText" />
+                                <div class="form-group col-2">
+                                    <input type="submit" value="Save Title" name="SubmitAction" class="btn btn-primary" />
+                                </div>
+                            }
+
+
+
+
+                        </div>
+
+
+                    </div>
+
+                    <div class="row  mb-2">
+
+                        <div class="form-group  col-md-4 me-2">
+
+                            <div class="input-group input-group-sm mb-3">
+                                <label id="lblNewTitle" name="lblNewTitle" class="control-label">Enter New Title</label>&nbsp;&nbsp;
+                                <input type="text" class="form-control" id="NewTitleText" name="NewTitleText" aria-label="Small" aria-describedby="inputGroup-sizing-sm" value="">
+
+
+
+                            </div>
+                        </div>
+
+                        <div class="col-md-2 me-2 ">
+                            <div class="form-group col-2">
+                                <input type="submit" value="Save New Title" name="SubmitAction" class="btn btn-primary" />
+                            </div>
+                        </div>
+
+
+
+                    </div>
+
+                    @if (TempData["ResultMessage"] != null)
+                    {
+                        <div class="alert alert-success">
+                            @Html.Raw(TempData["ResultMessage"])
+                        </div>
+                    }
+
+
+                </div>
+
+
+        @*<div class="accordion-item">
+                <h2 class="accordion-header" id="headingThree">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                        Manage Title Groups
+                    </button>
+                </h2>
+                <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionJobTitleAdmin">
+                    <div class="accordion-body">
+                        <strong>This is the third item's accordion body.</strong> It is hidden by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.
+                    </div>
+                </div>
+            </div>*@
+    </div>
+
+   
+
+
+
+
+
+
+
+
+
+
+
+    @*<input type="submit" value="SaveTitles" name="SubmitAction" class="btn btn-primary" />*@
+</form>
+
+
+
+
+
+<!-- #region Scripts -->
+
+@section Scripts {
+
+
+    <script type="text/javascript">
+        $(function () {
+            $("#SelectedTitleGroupId").on('change', function () {
+
+
+
+
+                this.form.submit();
+            });
+        });
+    </script>
+
+
+}

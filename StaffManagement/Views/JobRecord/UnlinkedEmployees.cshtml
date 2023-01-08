@@ -1,0 +1,224 @@
+﻿@model IEnumerable<StaffManagement.Data.Select_PHRST_Mismatched_Employees>
+
+@{
+    ViewData["Title"] = "Unlinked Employees";
+}
+
+<h3>Employees needing Active Directory Accounts</h3>
+
+<p>@TempData["ResultMessage"]</p>
+
+<hr />
+
+
+<form id="formEdit" name="formEdit" method="post" asp-controller="JobRecord" asp-action="UnlinkedEmployees">
+
+
+    <div class="table-lg   d-block">
+        <div class="row  mb-1 pb-1">
+            <div class="col-md-3">
+                <div class="form-check">
+                    <input name="chkJob" class="form-check-input" type="checkbox" id="chkJob" @(ViewBag.ShowJob == "true" ? "checked" : string.Empty) />
+                    <label class="form-check-label" for="chkHandled">
+                        Show Job Changes
+                    </label>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-check">
+                    <input name="chkName" class="form-check-input" type="checkbox" id="chkName" @(ViewBag.ShowName == "true" ? "checked" : string.Empty) />
+                    <label class="form-check-label" for="chkHandled">
+                        Show Name Changes
+                    </label>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-check">
+                    <input name="chkNew" class="form-check-input" type="checkbox" id="chkNew" @(ViewBag.ShowNew == "true" ? "checked" : string.Empty) />
+                    <label class="form-check-label" for="chkHandled">
+                        Show New Employees
+                    </label>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-check">
+                    <input name="chkEnd" class="form-check-input" type="checkbox" id="chkEnd" @(ViewBag.ShowEnd == "true" ? "checked" : string.Empty) />
+                    <label class="form-check-label" for="chkHandled">
+                        Show Terminations
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<table class="table-sm table-hover table-bordered m-2 p-2">
+    <thead>
+        <tr class="m-2 p-2">
+            <th>
+                @Html.DisplayNameFor(model => model.EmployeeId)
+            </th>
+            <th>
+                Name
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Reason)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Unit)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.JobTitle)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Building)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.JobCode)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PersonnelCode)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.EffectiveDate)
+            </th>
+            @*<th>
+                    @Html.DisplayNameFor(model => model.NeedsReview.needsReview)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.NeedsReview.Comment)
+                </th>*@
+            <th>
+
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+
+
+        @foreach (var item in Model)
+        {
+
+            <tr class="m-2 p-2">
+                @*<tr bgcolor="@(item.NeedsReview.needsReview.ToString() == "False" ? "gray" : string.Empty)">*@
+                <td class="m-2 p-2">
+                    @Html.DisplayFor(modelItem => item.EmployeeId)
+                </td>
+                <td class="m-2 p-2">
+                    @Html.DisplayFor(modelItem => item.EmployeeFirstName) @Html.DisplayFor(modelItem => item.EmployeeLastName)
+                </td>
+                <td class="m-2 p-2">
+                    @Html.DisplayFor(modelItem => item.Reason)
+                </td>
+                <td class="m-2 p-2">
+                    @Html.DisplayFor(modelItem => item.Unit)
+                </td>
+                <td class="m-2 p-2">
+                    @Html.DisplayFor(modelItem => item.JobTitle)
+                </td>
+                <td class="m-2 p-2">
+                    @Html.DisplayFor(modelItem => item.Building)
+                </td>
+                <td class="m-2 p-2">
+                    @Html.DisplayFor(modelItem => item.JobCode)
+                </td>
+                <td class="m-2 p-2">
+                    @Html.DisplayFor(modelItem => item.PersonnelCode)
+                </td>
+                <td class="m-2 p-2">
+                    @Html.DisplayFor(modelItem => item.EffectiveDate)
+                </td>
+                @*<td>
+                        @Html.DisplayFor(modelItem => item.NeedsReview.needsReview)
+                    </td>*@
+
+
+                <td class="text-nowrap m-2 p-2">
+                    @*<form id="formEdit" name="formEdit" method="post" asp-controller="JobRecord" asp-action="UnlinkedEmployees">*@
+                    @*<input asp-for="@item.NeedsReview.Comment" /> |
+                                <input type="hidden" id="NeedsReviewId" value="@item.NeedsReview.NeedsReviewId" name="NeedsReviewId" />
+                                <input type="hidden" id="needsReview" value="@item.NeedsReview.needsReview.ToString()" name="needsReview" />
+                                <input type="hidden" id="EmployeeId" value="@item.EmployeeId" name="EmployeeId" />
+                                <input type="hidden" id="chkHandled" value="@ViewBag.ShowHandled" name="chkHandled" />
+
+                                <input type="submit" class="btn btn-link " name="submit" value="@(item.NeedsReview.needsReview.ToString() == "False" ? "Reset to Unhandled" : "Mark Record As Handled")">
+                        |*@
+                    @{if (item.Reason != "New")
+                        {
+                            <a asp-controller="Account" asp-action="Edit" asp-route-id="@item.SystemId" asp-route-fromController="JobRecord" asp-route-fromAction="UnlinkedEmployees">Edit </a>
+                        }
+
+                        if (item.Reason == "New")
+                        {
+                            <a asp-fragment="divContinue" asp-controller="Account" asp-action="Add" asp-route-id="@item.Slug" asp-route-fromController="JobRecord" asp-route-fromAction="UnlinkedEmployees">Add Account</a>
+                        }
+
+                    }
+                </td>
+            </tr>
+
+        }
+
+
+    </tbody>
+</table>
+
+
+<div>
+    <a asp-action="Index">Back to Personnel Review Main Page</a>
+</div>
+
+
+@section Scripts {
+
+    <script type="text/javascript">
+        $(function () {
+            $("#chkJob").on('change', function () {
+
+
+
+                this.form.submit();
+            });
+        });
+    </script>
+
+    <script type="text/javascript">
+        $(function () {
+            $("#chkName").on('change', function () {
+
+
+                this.form.submit();
+            });
+        });
+    </script>
+
+
+    <script type="text/javascript">
+        $(function () {
+            $("#chkNew").on('change', function () {
+
+
+
+                this.form.submit();
+            });
+        });
+    </script>
+
+    <script type="text/javascript">
+        $(function () {
+            $("#chkEnd").on('change', function () {
+
+
+
+                this.form.submit();
+            });
+        });
+    </script>
+
+
+}
+
+
+
+
+

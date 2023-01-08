@@ -1,0 +1,42 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30717.126
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StaffManagement", "StaffManagement.csproj", "{0E4A163E-8730-459E-B00C-386BD458C8C6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StaffManagement.Data", "..\StaffManagement.Data\StaffManagement.Data.csproj", "{FF13DC94-DA40-42A7-AB81-F467188C5AF1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0E4A163E-8730-459E-B00C-386BD458C8C6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E4A163E-8730-459E-B00C-386BD458C8C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E4A163E-8730-459E-B00C-386BD458C8C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E4A163E-8730-459E-B00C-386BD458C8C6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FF13DC94-DA40-42A7-AB81-F467188C5AF1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF13DC94-DA40-42A7-AB81-F467188C5AF1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF13DC94-DA40-42A7-AB81-F467188C5AF1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF13DC94-DA40-42A7-AB81-F467188C5AF1}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8DA10AD5-0634-47A2-8F0B-6A208AD31FFC}
+	EndGlobalSection
+	GlobalSection(TeamFoundationVersionControl) = preSolution
+		SccNumberOfProjects = 3
+		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccTeamFoundationServer = https://tfs.bsd.k12.de.us:8443/tfs/bsddevelopment
+		SccLocalPath0 = .
+		SccProjectUniqueName1 = StaffManagement.csproj
+		SccLocalPath1 = .
+		SccProjectUniqueName2 = ..\\StaffManagement.Data\\StaffManagement.Data.csproj
+		SccProjectName2 = ../StaffManagement.Data
+		SccLocalPath2 = ..\\StaffManagement.Data
+	EndGlobalSection
+EndGlobal

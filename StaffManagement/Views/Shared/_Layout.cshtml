@@ -1,0 +1,118 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - StaffManagement</title>
+
+    <!--  CSS -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha-1EFC341E-0B60-48DD-97F0-5E85A99167C3" crossorigin="anonymous" />
+    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="https://unpkg.com/microtip@0.2.2/microtip.css" />  <!--   License (https://github.com/ghosh/microtip/blob/master/license.md) -->
+    
+    <!--  JS -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+
+
+    <link rel="icon" href="~/images/person-check-fill.svg" sizes="any" type="image/svg+xml">
+
+    @* _Layout.cshtml is akin to .Net masterpages, with    @RenderBody() in the middle rendering the specific page content *@
+
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg  navbar-light bg-light    ">
+            <div class="container-fluid ">
+                <a class="navbar-brand mb-0 h1" asp-area="" asp-controller="Home" asp-action="Index">BSD Staff Management</a>
+
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse " id="navbarCollaspse">
+
+                    <vc:menu current-user="@ViewBag.CurrentUser"></vc:menu>
+
+                </div>
+
+
+                <span class="float-xxl-end text-md-end ">
+                    <vc:impersonate selected-value="@ViewBag.ImpersonateUser"></vc:impersonate>
+                </span>
+
+
+
+            </div>
+        </nav>
+
+        <section class="text-center bg-light">
+            <div class="table  bg-light ">
+                <div class="row align-content-center">
+                    <div class="col-lg-12 text-xxl-center ">
+
+                        <vc:employee-filter selected-value="@ViewBag.SelectedUnit"></vc:employee-filter>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+    </header>
+
+    <div class="container-fluid ">
+    
+    <vc:breadcrumb ></vc:breadcrumb>
+    
+    </div>
+
+    <div class="container-fluid ">
+        <main role="main" class="pb-3 pt-1">
+            @RenderBody()
+        </main>
+    </div>
+
+    <vc:footer current-user="@ViewBag.CurrentUser"></vc:footer>
+
+   
+  
+
+
+    <script type="text/javascript">
+        $(document).scroll(function () {
+            localStorage['page'] = location.pathname;
+            localStorage['scrollTop'] = $(document).scrollTop();
+            //$(document.body).append(document.URL);
+            //$(document.body).append($(document).scrollTop());
+        });
+    </script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            if (localStorage['page'] == location.pathname) {
+                $(document).scrollTop(localStorage['scrollTop']);
+            }
+        });
+    </script>
+
+    <script type="text/javascript">
+        document.querySelector('#linkeduserInput').addEventListener('input', function (e) {
+            var input = e.target,
+                list = input.getAttribute('list'),
+                options = document.querySelectorAll('#' + list + ' option[value="' + input.value + '"]'),
+                hiddenInput = document.getElementById(input.getAttribute('id') + '-hidden');
+
+            if (options.length > 0) {
+                hiddenInput.value = options[0].dataset.id
+             
+
+            }
+
+        });
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

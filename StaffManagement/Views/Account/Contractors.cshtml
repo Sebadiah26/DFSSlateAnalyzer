@@ -1,0 +1,202 @@
+﻿@model IEnumerable<StaffManagement.Models.AccountModel>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+@* Page for Searching/Selecting/Reviewing accounts, filtered by permission and search criteria  *@
+
+<h1>Contractors</h1>
+
+@*<p>
+    <a asp-action="Add">Add New</a>
+</p>*@
+
+
+
+<form asp-controller="Account" asp-action="Contractors" method="get">
+    <div class="form-row">
+        <div class="form-group col-md-3">
+
+            <div class="input-group input-group-sm mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="inputGroup-sizing-sm">Search by Lastname</span>
+                </div>
+                <input type="text" class="form-control" id="Search" name="Search" aria-label="Small" aria-describedby="inputGroup-sizing-sm" value="@TempData["Search"]">
+
+
+
+            </div>
+        </div>
+
+        <div class="form-group col-md-5">
+
+            <div class="input-group input-group-sm mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="inputGroup-sizing-sm">Search by Department </span>
+                </div>
+                @Html.DropDownList("Unit", (SelectList)ViewBag.SearchUnitData, "--Select Department--")
+
+                @*<select class="form-control" ID="ddlUnit" asp-items="ViewBag.Unitdata">
+                        <option value="">Choose Location</option>
+                    </select>*@
+
+
+            </div>
+        </div>
+        <div class="form-group col-md-4">
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group col-md-12">
+            <button name="submitAction" id="submitAction" type="submit" value="Search" class="btn btn-primary">Apply Filters</button>
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group col-md-12">
+            Viewing @ViewData["ResultCount"] results
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="form-group col-md-12 text-success">
+            @TempData["ResultMessage"]
+        </div>
+    </div>
+   
+
+    <div class="container-fluid small">
+        <table class="table table-sm table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th scope="col">
+                        @Html.DisplayNameFor(model => model.SystemId)
+                    </th>
+                    <th scope="col">
+                        @Html.DisplayNameFor(model => model.EmployeeId)
+                    </th>
+                    <th scope="col">
+                        @Html.DisplayNameFor(model => model.AccountType.Description)
+                    </th>
+
+                    <th scope="col">
+                        @Html.DisplayNameFor(model => model.JobRecord.StartDate)
+                    </th>
+                    <th scope="col">
+                        @Html.DisplayNameFor(model => model.JobRecord.EndDate)
+                    </th>
+                    <th scope="col">
+                        @Html.DisplayNameFor(model => model.FirstName)
+                    </th>
+
+                    <th scope="col">
+                        @Html.DisplayNameFor(model => model.LastName)
+                    </th>
+
+
+
+                    <th scope="col">
+                        @Html.DisplayNameFor(model => model.JobRecord.TitleGroup.Description)
+                    </th>
+
+                    <th scope="col">
+                        @Html.DisplayNameFor(model => model.JobRecord.Title.Text)
+                    </th>
+
+                    <th scope="col">
+                        @Html.DisplayNameFor(model => model.PrimaryUnit.Name)
+                    </th>
+                    <th scope="col">
+                        @Html.DisplayNameFor(model => model.PrimaryUnit.Building.Name)
+                    </th>
+
+                    <th scope="col">
+                        @Html.DisplayNameFor(model => model.Status)
+                    </th>
+
+                    <th scope="col">
+                        @Html.DisplayNameFor(model => model.LastUpdate)
+                    </th>
+
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                <tr class="@((item.Status == "Inactive" ) ?  "table-danger" : string.Empty)" >
+                    <td>
+                        @Html.DisplayFor(modelItem => item.SystemId)
+                    </td>
+
+                    <td>
+                        @Html.DisplayFor(modelItem => item.EmployeeId)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.AccountType.Description)
+                    </td>
+                    <td>
+
+                        @item.JobRecord.DisplayStartDate
+                    </td>
+                    <td>
+
+                        @item.JobRecord.DisplayEndDate
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.FirstName)
+                    </td>
+
+
+
+                    <td>
+                        @Html.DisplayFor(modelItem => item.LastName)
+                    </td>
+
+                    <td>
+                        @Html.DisplayFor(modelItem => item.JobRecord.TitleGroup.Description)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.JobRecord.Title.Text)
+                    </td>
+
+
+                    <td class="text-nowrap">
+                        @Html.DisplayFor(modelItem => item.JobRecord.Unit.Name)
+                    </td>
+                    <td class="text-nowrap">
+                        @Html.DisplayFor(modelItem => item.JobRecord.Unit.Building.Name)
+                    </td>
+                    <td class="text-nowrap">
+                        @Html.DisplayFor(modelItem => item.Status)&nbsp;
+                        <a class="@((item.Status == "Inactive") ? "text-danger" : "text-success")"
+                           
+                           id="IdStatus" href="#"
+                           data-microtip-position="top"
+                           data-microtip-size="large" role="tooltip"
+                           aria-label="@item.DetailedStatus">
+                            
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-info-circle" viewBox="0 0 16 16">
+    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+    <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" />
+</svg>
+                        </a>
+                    </td>
+                    <td class="text-nowrap">
+                        @Html.DisplayFor(modelItem => item.LastUpdate)
+                    </td>
+
+                    <td class="text-nowrap">
+                        <a asp-action="Edit" asp-route-id="@item.SystemId" asp-route-slug="@item.Slug">Edit</a> |
+                       
+
+                    </td>
+                </tr>
+                }
+            </tbody>
+
+
+        </table>
+    </div>
+</form>

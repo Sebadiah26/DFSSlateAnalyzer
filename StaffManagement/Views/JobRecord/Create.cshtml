@@ -1,0 +1,94 @@
+﻿@model StaffManagement.Data.JobRecord
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>JobRecord</h4>
+<hr />
+<p>@ViewData["ResultMessage"]</p>
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="SystemId" class="control-label"></label>
+                <select asp-for="SystemId" class ="form-control" asp-items="ViewBag.SystemId"></select>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="IsPrimary" /> @Html.DisplayNameFor(model => model.IsPrimary)
+                </label>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="IsActive" /> @Html.DisplayNameFor(model => model.IsActive)
+                </label>
+            </div>
+            <div class="form-group">
+                <label asp-for="UnitId" class="control-label"></label>
+                <select asp-for="UnitId" class ="form-control" asp-items="ViewBag.UnitId"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="StartDate" class="control-label"></label>
+                <input asp-for="StartDate" class="form-control" />
+                <span asp-validation-for="StartDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EndDate" class="control-label"></label>
+                <input asp-for="EndDate" class="form-control" />
+                <span asp-validation-for="EndDate" class="text-danger"></span>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="IsPHRST" /> @Html.DisplayNameFor(model => model.IsPHRST)
+                </label>
+            </div>
+            <div class="form-group">
+                <label asp-for="HrRecordNumber" class="control-label"></label>
+                <input asp-for="HrRecordNumber" class="form-control" />
+                <span asp-validation-for="HrRecordNumber" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="HrWorkLocation" class="control-label"></label>
+                <input asp-for="HrWorkLocation" class="form-control" />
+                <span asp-validation-for="HrWorkLocation" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="HrPersonnelCode" class="control-label"></label>
+                <input asp-for="HrPersonnelCode" class="form-control" />
+                <span asp-validation-for="HrPersonnelCode" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="HrJobCode" class="control-label"></label>
+                <input asp-for="HrJobCode" class="form-control" />
+                <span asp-validation-for="HrJobCode" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="HrPrimary" class="control-label"></label>
+                <input asp-for="HrPrimary" class="form-control" />
+                <span asp-validation-for="HrPrimary" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="HrMatched" class="control-label"></label>
+                <input asp-for="HrMatched" class="form-control" />
+                <span asp-validation-for="HrMatched" class="text-danger"></span>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="NeedsReview" /> @Html.DisplayNameFor(model => model.NeedsReview)
+                </label>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+

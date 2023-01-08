@@ -1,0 +1,61 @@
+﻿@model AppUser
+@using System.ComponentModel;
+@using Microsoft.AspNetCore.Mvc.Controllers;
+
+@{
+    var controllerName = this.ViewContext.RouteData.Values["controller"].ToString();
+    var actionName = this.ViewContext.RouteData.Values["action"].ToString();
+
+    try
+    {
+
+
+        var controllerTypeInfoDisplayAttribute = (DisplayNameAttribute)((ControllerActionDescriptor)this.ViewContext.ActionDescriptor).ControllerTypeInfo.GetCustomAttributes(typeof(DisplayNameAttribute), true)[0];
+        var controllerDisplayName = controllerTypeInfoDisplayAttribute.DisplayName.ToString();
+
+        var actionMethodInfoDisplayAttribute = (DisplayNameAttribute)((ControllerActionDescriptor)this.ViewContext.ActionDescriptor).MethodInfo.GetCustomAttributes(typeof(DisplayNameAttribute), true)[0];
+        var actionMethodDisplayName = actionMethodInfoDisplayAttribute.DisplayName.ToString();
+
+       
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        @if (controllerDisplayName != "Home")
+        {
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" >Home</a></li>
+        }
+        <li class="breadcrumb-item"><a  asp-controller="@controllerName" asp-action="Index"  >@controllerDisplayName</a></li>
+        <li class="breadcrumb-item active" aria-current="page">@actionMethodDisplayName</li>
+    </ol>
+</nav>
+
+}
+catch (Exception ex)
+{
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        @if (controllerName != "Home")
+        {
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+        }
+        <li class="breadcrumb-item"><a asp-controller="@controllerName" asp-action="Index" >@controllerName</a></li>
+        <li class="breadcrumb-item active" aria-current="page">@actionName</li>
+    </ol>
+</nav>
+
+}
+
+
+
+
+
+
+@if (Model.IsInLevel("Can View System Review Page"))
+
+{
+
+
+}
+
+}

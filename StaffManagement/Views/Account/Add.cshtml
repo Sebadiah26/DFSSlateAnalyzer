@@ -1,0 +1,1043 @@
+﻿@model StaffManagement.Models.AccountModel
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor httpContextAccessor
+@inject StaffManagement.Models.AppUser appUser
+@{
+    ViewData["Title"] = "Add";
+}
+
+<h1>Add</h1>
+
+<h4>Employee</h4>
+
+@*<p class="text-success">
+        @TempData["ResultMessage"]
+    </p>*@
+
+
+@if (TempData["ResultMessage"] != null)
+{
+    <div class="alert alert-success d-flex" role="alert">
+        <img src="~/lib/bootstrap-icons/icons/check-circle.svg" class="filter-green p-2">
+
+        <div class="p-2">
+            @TempData["ResultMessage"]
+        </div>
+    </div>
+}
+    <hr />
+
+
+
+    <!-- #region Employee Check-->
+
+
+    <div class="card">
+
+        <div class="card-header">
+            1.   Check if Employee is already in system
+        </div>
+
+        <div class="card-body">
+            <br />
+
+
+
+            @if (TempData["EmployeeId"] != null)
+            {
+                <div class="table-lg   d-block" id="searchDiv">
+                    <div class="row">
+
+                        <div class="col-md-6">
+
+                            <div class="form-group">
+                                <label asp-for="@Model.EmployeeId" class="control-label"></label>
+                                <input type="text" name="@Model.EmployeeId" value="@TempData["EmployeeId"]" id="@Model.EmployeeId" class="form-control input-sm" />
+
+
+                            </div>
+                        </div>
+
+
+                    </div>
+                </div>
+            }
+            else
+            {
+                <form asp-controller="Account" asp-action="Add" method="get">
+                    <div class="table-lg   d-block" id="searchDiv">
+
+                        <div class="form-row">
+                            <div class="form-group col-4">
+                                Search for the employee's name in our system to avoid a duplicate entry
+
+                            </div>
+                            @* ACCOUNT SEARCH FIRST NAME  textbox *@
+                            <div class="form-group col-3">
+                                <div class="input-group input-group-sm mb-3">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text" id="inputGroup-sizing-sm">first name</span>
+                                    </div>
+                                    <input required="required" type="text" class="form-control" id="AccountSearchFirstName" name="AccountSearchFirstName" aria-label="Small" aria-describedby="inputGroup-sizing-sm" value="@TempData["AccountSearchFirstName"]">
+
+                                </div>
+                            </div>
+
+                            @* ACCOUNT SEARCH LAST NAME  textbox *@
+                            <div class="form-group  col-3">
+                                <div class="input-group input-group-sm mb-3">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text" id="inputGroup-sizing-sm">last name</span>
+                                    </div>
+                                    <input required="required" type="text" class="form-control" id="AccountSearchLastName" name="AccountSearchLastName" aria-label="Small" aria-describedby="inputGroup-sizing-sm" value="@TempData["AccountSearchLastName"]">
+
+                                </div>
+                            </div>
+
+                            @* SEARCH  button *@
+                            <div class="form-group col-2">
+                                <button id="submitsearch" aria-label="Search for Employee" data-microtip-position="right" type="submit" class="btn btn-primary" role="tooltip">Search</button>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </form>
+
+                @if (TempData["AccountSearchFirstName"] != null || TempData["AccountSearchLastName"] != null)
+                {
+                    @* ACCOUNT SEARCH  view component *@
+                    <br /><vc:account-search-result accountsearchfirstname="@TempData["AccountSearchFirstName"]" accountsearchlastname="@TempData["AccountSearchLastName"]" mode="Default"></vc:account-search-result>
+
+                    @* PHRST SEARCH  view component *@
+                    <br /><vc:account-employee-match employeesearchfirstname="@TempData["AccountSearchFirstName"]" employeesearchlastname="@TempData["AccountSearchLastName"]" mode="Search"></vc:account-employee-match> <br />
+                }
+
+                <div class="table-lg   d-block" id="searchDiv2">
+
+                    <div class="row  mb-1 pb-1">
+                        <div class="col-md-12">
+                            <div class="form-check">
+
+                                @if (TempData["AccountSearchFirstName"] != null && TempData["AccountSearchLastName"] != null)
+                                {
+                                    @* CONTINUE  checkbox *@
+                                    <input name="chkContinue" class="form-check-input" type="checkbox" id="chkContinue" @(ViewBag.Continue == "true" ? "checked" : string.Empty) />
+
+                                    <label class="form-check-label" for="chkContinue">
+                                        Check here to continue if you have verified that the employee is new
+                                    </label>
+
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+
+
+
+            }
+        </div>
+    </div>
+    <br />
+    <br />
+
+
+    <!-- #endregion -->
+    <!-- #region New Employee Form-->
+
+    <div class="table-lg " @(ViewBag.Continue == "true" ? string.Empty : "style=display:none" ) id="divContinue">
+
+        <form id="formAdd" name="formAdd" asp-controller="Account" asp-action="Add" method="post" enctype='multipart/form-data'>
+
+            <div class="card">
+
+                <div class="card-header">
+                    2.   New Employee Form
+                </div>
+
+                <div class="card-body">
+
+                    @*<div asp-validation-summary="All" class="text-danger"></div>*@
+                    <input type="hidden" id="AccountSearchFirstName" value="@TempData["AccountSearchFirstName"]" name="AccountSearchFirstName" />
+                    <input type="hidden" id="AccountSearchLastName" value="@TempData["AccountSearchLastName"]" name="AccountSearchLastName" />
+                    <input type="hidden" asp-for="@Model.EmployeeId" />
+                    <input type="hidden" asp-for="@Model.Employee.EmployeeId" />
+                    <input type="hidden" asp-for="@Model.Employee.JobTitle" />
+
+                    <input type="hidden" id="Source" value="NEWHIRE" name="Source" />
+                    <input type="hidden" id="fromController" value="@httpContextAccessor.HttpContext.Session.GetString("FromController")" name="fromController" />
+                    <input type="hidden" id="fromAction" value="@httpContextAccessor.HttpContext.Session.GetString("FromAction")" name="fromAction" />
+
+
+                    <div class="row  mb-1">
+                        <div class="col-md-6 pt-1 pb-1">
+
+                            <div class="form-group">
+
+                                @* ACCOUNT TYPE radio buttons *@
+
+                                @foreach (var item in Model.AccountType.AccountTypes)
+                                {
+                                    <input asp-for="@Model.AccountTypeId" type="radio" value="@item.Value" /> @item.Text @:&nbsp; &nbsp;
+
+                                }
+
+                                <span asp-validation-for="@Model.AccountTypeId" class="text-danger"></span>
+                            </div>
+
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="table-lg ">
+
+
+                        <div class="row mb-1 pb-1">
+
+
+                            @* FIRST NAME label *@
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <br />
+                                    <label asp-for="@Model.EditFirstName" class="control-label"></label>
+                                    <input asp-for="@Model.EditFirstName" class="form-control" />
+                                    <span asp-validation-for="@Model.EditFirstName" class="text-danger"></span>
+                                </div>
+                            </div>
+                            @* MIDDLE NAME label *@
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <br />
+                                    <label asp-for="@Model.EditMiddleName" class="control-label"></label>
+                                    <input asp-for="@Model.EditMiddleName" class="form-control" />
+                                    <span asp-validation-for="@Model.EditMiddleName" class="text-danger"></span>
+                                </div>
+                            </div>
+                            @* LAST NAME label *@
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <br />
+                                    <label asp-for="@Model.EditLastName" class="control-label"></label>
+                                    <input asp-for="@Model.EditLastName" class="form-control" />
+                                    <span asp-validation-for="@Model.EditLastName" class="text-danger"></span>
+                                </div>
+                            </div>
+                            @* SUFFIX label *@
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <br />
+                                    <label asp-for="@Model.EditSuffixName" class="control-label"></label>
+                                    <input asp-for="@Model.EditSuffixName" class="form-control" />
+                                    <span asp-validation-for="@Model.EditSuffixName" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+
+                            </div>
+                        </div>
+
+                        @if (Model.Employee.JobTitle != "")
+                        {
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <p class="fst-italic">PHRST/AD Job Title: @(Model.Employee.JobTitle)</p>
+                                </div>
+                            </div>
+                        }
+
+                        <div class="row mb-1 pb-1">
+                            @* TITLE GROUP dropdownlist *@
+                            <div class="col-md-3">
+                                <label asp-for="JobRecord.TitleGroupId" class="control-label"></label>
+                                <select class="form-control" asp-for="JobRecord.TitleGroupId" asp-items="@Model.JobRecord.TitleGroup.TitleGroups">
+                                    <option value=""> Choose Title Group</option>
+                                </select>
+
+
+                                <span asp-validation-for="JobRecord.TitleGroupId" class="text-danger"></span>
+                            </div>
+                            @* TITLE dropdownlist *@
+                            <div class="col-md-3">
+
+                                <label asp-for="JobRecord.TitleId" class="control-label"></label>
+                                <select class="form-control" asp-for="JobRecord.TitleId" asp-items="@Model.JobRecord.Title.Titles">
+                                    <option value=""> Choose Title</option>
+                                </select>
+                                <span asp-validation-for="JobRecord.TitleId" class="text-danger"></span>
+                                <br /><a class="btn btn-link" target="_blank" asp-action="JobTitleAdmin" asp-controller="SystemReview">Add/Manage Titles</a>&nbsp;  <button role="link" id="lnkRefresh" value="refresh" name="submitAction" class="btn btn-link">refresh titles</button><br />
+
+                            </div>
+                            @* SUBSTITUTE FOR radio buttons *@
+                            <div class="col-md-2">
+                                <label class="control-label">Substituting for an employee?</label><br />
+                                <input @(Model.Employee.IsSubstitute == true ? "checked" : string.Empty ) type="radio" id="Employee_IsSubstitute" name="Employee.IsSubstitute" value="true" />&nbsp;Yes&nbsp;&nbsp;&nbsp;
+                                <input @(Model.Employee.IsSubstitute == false ? "checked" : string.Empty ) type="radio" id="Employee_IsSubstitute" name="Employee.IsSubstitute" value="false" />&nbsp;No<br />
+                            </div>
+                            @* SUBSTITUTE FOR   dropdownlist *@
+                            <div id="divSubstitute" class="col-md-3" @(Model.Employee.IsSubstitute == true ? string.Empty : "style=display:none" )>
+
+                                <label for="Employees" class="control-label">Substitute for</label>
+                                <input class="form-control" value="@Model.Employee.SelectedEmployee" list="Employees" name="linkedemployeeInput" id="linkedemployeeInput" placeholder="Type to search employees...">
+                                <datalist id="Employees">
+                                    @foreach (var item in Model.Employee.Employees)
+                                    {
+                                        <option data-id="@item.Key" value="@item.Value"></option>
+                                    }
+                                    }
+                                </datalist>
+                                <input type="hidden" name="linkedemployee" value="@Model.Employee.SelectedEmployeeId" id="linkedemployeeInput-hidden">
+                            </div>
+
+                        </div>
+
+
+
+                        <div class="row mb-1 pb-1">
+                            @* UNIT  dropdownlist *@
+                            <div class="col-lg-4">
+                                <div class="form-group">
+                                    <label asp-for="@Model.JobRecord.UnitId" class="control-label"></label>
+
+                                    <select class="form-control" asp-for="@Model.JobRecord.UnitId" asp-items="@Model.JobRecord.Unit.Units">
+                                        <option value=""> Choose a Department</option>
+                                    </select>
+                                    <span asp-validation-for="@Model.JobRecord.UnitId" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-lg-4">
+                                @* BUILDING  dropdownlist *@
+
+
+
+                                @*@if (Model.JobRecord.UnitId != null)
+                                    {*@
+
+
+                                <div class="form-group" @(Model.JobRecord.UnitId != null ? "style=visibility:visible" : "style=visibility:hidden" )>
+                                    <label asp-for="@Model.JobRecord.BuildingId" class="control-label"></label>
+                                    <select class="form-control" asp-for="@Model.JobRecord.BuildingId" asp-items="@Model.JobRecord.Unit.Building.Buildings">
+                                        @if (ViewBag.BuildingCount > 1)
+                                        {
+                                            <option value=""> Choose a Building</option>
+                                        }
+                                    </select>
+                                    <span asp-validation-for="@Model.JobRecord.BuildingId" class="text-danger"></span>
+                                </div>
+                                @*}*@
+
+                            </div>
+                            <div class="col-lg-4">
+                            </div>
+
+                        </div>
+
+
+                        <div class="row  ">
+                            <div class="col">
+                                <span asp-validation-for="@Model.JobRecord" class="text-danger"></span>
+
+                            </div>
+                        </div>
+
+                        <div class="row mb-1 pb-1">
+                            @* STARTDATE  datepicker *@
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label asp-for="@Model.JobRecord.StartDate" class="control-label"></label>
+                                    <input asp-for="@Model.JobRecord.StartDate" asp-format="{0:dd/MM/yy}" class="form-control" />
+                                    <span asp-validation-for="@Model.JobRecord.StartDate" class="text-danger"></span>
+                                </div>
+                            </div>
+                            @* ENDDATE  datepicker *@
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label asp-for="@Model.JobRecord.EndDate" class="control-label"></label>
+                                    <input asp-for="@Model.JobRecord.EndDate" class="form-control" />
+                                    <span asp-validation-for="@Model.JobRecord.EndDate" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+
+
+
+                        <!-- #region Can Set Nickname-->
+                        @if (appUser.IsInLevel("Can Set Nickname"))
+                        {
+
+                            <div class="row  mb-1 pb-1">
+                                <div class="col-md-12">
+                                    <div class="form-check">
+
+                                        <input @(Model.Nickname != null ? "checked" : string.Empty ) name="chkNickname" class="form-check-input" type="checkbox" id="chkNickname" />
+
+                                        <label class="form-check-label" for="chkNickname">
+                                            Select here if your staff member has a nickname that needs to be entered separately from their first name.
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="divNickname" class="row mb-1 pb-1" @(Model.Nickname != null ? string.Empty : "style=display:none" )>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label asp-for="@Model.Nickname" class="control-label"></label> <a class="" id="ttNickname" href="#" data-microtip-size="large" data-microtip-position="right" role="tooltip" aria-label="This impacts the email system almost exclusively, changing the display name, and adding an alias. Please only use when necessary.">
+                                            <img src="~/images/question-circle.svg" class="">
+                                        </a>
+                                        <input asp-for="@Model.Nickname" class="form-control input-sm" />
+                                        <span asp-validation-for="@Model.Nickname" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        }
+                        else
+                        {
+                            <input type="hidden" asp-for="@Model.Nickname" />
+                        }
+                        <!-- #endregion -->
+                        <!-- #region Can Set Alt name-->
+                        @if (appUser.IsInLevel("Can Set Alternate Name"))
+                        {
+                            <div class="row  mb-1 pb-1">
+                                <div class="col-md-12">
+                                    <div class="form-check">
+
+                                        <input name="chkAlt" class="form-check-input" type="checkbox" id="chkAlt" @(ViewBag.chkAlt == "true" ? "checked" : string.Empty) />
+
+                                        <label class="form-check-label" for="chkAlt">
+                                            Select here if your staff member has an alternate first and last name to be used
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div id="divAlt" class="row mb-1 pb-1" @(ViewBag.chkAlt == "true" ? string.Empty : "style=display:none" )>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label asp-for="@Model.AlternateFirstName" class="control-label"></label>
+                                        <input asp-for="@Model.AlternateFirstName" class="form-control" />
+                                        <span asp-validation-for="@Model.AlternateFirstName" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label asp-for="@Model.AlternateLastName" class="control-label"></label>
+                                        <input asp-for="@Model.AlternateLastName" class="form-control" />
+                                        <span asp-validation-for="@Model.AlternateLastName" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        }
+                        else
+                        {
+                            <input type="hidden" asp-for="@Model.AlternateFirstName" />
+                            <input type="hidden" asp-for="@Model.AlternateLastName" />
+                        }
+
+                        <!-- #endregion -->
+                        <!-- #region Can Set Username Override-->
+                        @if (appUser.IsInLevel("Can Set Username Override"))
+                        {
+
+                            <div class="row  mb-1 pb-1">
+                                <div class="col-md-12">
+                                    <div class="form-check">
+
+
+                                        <input name="chkUsername" class="form-check-input" type="checkbox" id="chkUsername" @(ViewBag.chkUsername == "true" ? "checked" : string.Empty) />
+
+
+                                        <label class="form-check-label" for="chkUsername">
+                                            Select here if your staff member needs a special username rather than the default based on first and last name.
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="divUsername" class="row mb-1 pb-1" @(ViewBag.chkUsername == "true" ? string.Empty : "style=display:none" )>
+                                <div class="col-lg-4">
+                                    <div class="form-group">
+                                        <label asp-for="@Model.UsernameOverride" class="control-label"></label>
+                                        <input asp-for="@Model.UsernameOverride" class="form-control" />
+                                        <span asp-validation-for="@Model.UsernameOverride" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <input type="hidden" asp-for="@Model.UsernameOverride" />
+                        }
+
+
+                        <!-- #endregion -->
+
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <br />
+            <br />
+
+
+            <!-- #region PHRST Information-->
+
+            @if (Model.Employee.EmployeeId != 0)
+            {
+                <div class="card">
+
+                    <div class="card-header fw-bold">
+                        PHRST Information
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="row">
+
+                            <div class="col-md-3 pt-1 pb-1">
+                                <input type="hidden" asp-for="@Model.JobRecord.HrWorkLocation" />
+                                <label asp-for="@Model.JobRecord.HrWorkLocation" class="control-label"></label>
+                                @if ((Model.JobRecord.HrWorkLocation ?? "") != "")
+                                {
+
+
+
+
+                                    <select disabled asp-for="@Model.JobRecord.HrWorkLocation" class="form-control" asp-items="ViewBag.fsfBuildingdata">
+                                        <option value=""> Choose a Building</option>
+                                    </select>
+                                }
+                                else
+                                {
+                                    <input disabled asp-for="@Model.JobRecord.HrWorkLocation" class="form-control" />
+                                }
+                            </div>
+                            <div class="col-md-3 pt-1 pb-1">
+                                <input type="hidden" asp-for="@Model.JobRecord.HrPersonnelCode" />
+                                <label asp-for="@Model.JobRecord.HrPersonnelCode" class="control-label"></label>
+                                @if ((Model.JobRecord.HrPersonnelCode ?? "") != "")
+                                {
+                                    <select disabled asp-for="@Model.JobRecord.HrPersonnelCode" class="form-control" asp-items="ViewBag.PersonnelCodedata">
+                                        <option value=""> Choose a personnel code</option>
+                                    </select>
+                                }
+                                else
+                                {
+                                    <input disabled asp-for="@Model.JobRecord.HrPersonnelCode" class="form-control" />
+                                }
+                            </div>
+                            <div class="col-md-3 pt-1 pb-1">
+
+                                <input type="hidden" asp-for="@Model.JobRecord.HrJobCode" />
+                                <label asp-for="@Model.JobRecord.HrJobCode" class="control-label"></label>
+                                @if ((Model.JobRecord.HrJobCode ?? 0) != 0)
+                                {
+                                    <select disabled asp-for="@Model.JobRecord.HrJobCode" class="form-control" asp-items="ViewBag.JobCodedata">
+                                        <option value=""> Choose a job code</option>
+                                    </select>
+
+                                }
+                                else
+                                {
+                                    <input disabled asp-for="@Model.JobRecord.HrJobCode" class="form-control" />
+                                }
+                            </div>
+
+                            <div class="col-md-2 pt-1 pb-1">
+                                <input type="hidden" asp-for="@Model.JobRecord.HrPrimary" />
+
+
+                                <label class="form-check-label">
+                                    <input disabled class="form-check-input" asp-for="@Model.JobRecord.HrPrimary" /> @Html.DisplayNameFor(model => model.JobRecord.HrPrimary)
+                                </label>
+
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            }
+
+            <!-- #endregion -->
+
+
+            <br />
+            @*<div>
+                    Validation:
+                    <label id="lblValidation" class="control-label"></label><br />
+                </div>
+                <br />*@
+
+            <!-- #region Submit button-->
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <input style="background-color: #adb5bd" id="btnAdd" name="submitAction" type="submit" value="Add Employee" class="btn btn-primary disabled" />&nbsp;&nbsp;<input style="background-color: #adb5bd" id="btnAddContinue" name="submitAction" type="submit" value="Add Employee And Continue" class="btn btn-primary disabled" />
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- #endregion -->
+
+        </form>
+
+        <!-- #region Return link-->
+
+        <div class="container-fluid justify-content-start   d-block">
+
+            <br />
+
+            <a asp-action="@httpContextAccessor.HttpContext.Session.GetString("FromAction")" asp-controller="@httpContextAccessor.HttpContext.Session.GetString("FromController")">Back to List</a><br />
+            <br />
+            <br />
+
+        </div>
+
+        <!-- #endregion -->
+
+    </div>
+
+
+    <!-- #endregion -->
+    <!-- #region scripts -->
+
+    @section Scripts {
+
+        @{
+            //if (ViewBag.DisableValidation == null)
+            //{
+            await Html.RenderPartialAsync("_ValidationScriptsPartial");
+            @*}*@
+        }
+
+
+
+        <script type="text/javascript">
+            document.querySelector('#linkedemployeeInput').addEventListener('input', function (e) {
+                var input = e.target,
+                    list = input.getAttribute('list'),
+                    options = document.querySelectorAll('#' + list + ' option[value="' + input.value + '"]'),
+                    hiddenInput = document.getElementById(input.getAttribute('id') + '-hidden');
+
+                if (options.length > 0) {
+                    hiddenInput.value = options[0].dataset.id;
+
+
+                }
+
+            });
+        </script>
+
+
+
+        @*<script type="text/javascript">
+                $(function () {
+                    $("#AccountTypeId").on('change', function () {
+
+
+                        $("#formEdit").append(' <input type="hidden" name="command" value="changelayout" /> ');
+
+                        this.form.submit();
+                    });
+                });
+            </script>*@
+
+
+        <script type="text/javascript">
+            $(function () {
+                $("#chkUsername").click(function () {
+                    if ($(this).is(':checked')) {
+                        $("#divUsername").show();
+                    }
+                    else {
+                        $("#divUsername").hide();
+                    }
+                });
+            });
+        </script>
+
+        <script type="text/javascript">
+            $(function () {
+                $("#chkAlt").click(function () {
+                    if ($(this).is(':checked')) {
+                        $("#divAlt").show();
+                    }
+                    else {
+                        $("#divAlt").hide();
+                    }
+                });
+            });
+        </script>
+
+
+        <script type="text/javascript">
+            $(function () {
+                $("#chkNickname").click(function () {
+                    if ($(this).is(':checked')) {
+                        $("#divNickname").show();
+                    }
+                    else {
+                        $("#divNickname").hide();
+                    }
+                });
+            });
+        </script>
+
+
+
+        <script type="text/javascript">
+            $(function () {
+                $("#chkContinue").click(function () {
+                    if ($(this).is(':checked')) {
+                        $("#divContinue").show();
+                        SetButtonState();
+                        clearErrors();
+                    }
+                    else {
+                        $("#divContinue").hide();
+                    }
+                });
+            });
+        </script>
+
+
+
+        @*<script type="text/javascript">
+                $(function () {
+                    $("#JobRecord_UnitId").on('change', function () {
+
+
+                        $("#formAdd").append(' <input type="hidden" name="command" value="changelayout" /> ');
+
+                        this.form.submit();
+                    });
+                });
+            </script>*@
+
+
+
+        <script type="text/javascript">
+
+            $("#JobRecord_UnitId").on('change', function () {
+
+                var selectedUnitId = $("#JobRecord_UnitId").val();
+                var ddlJobRecord_BuildingId = $('#JobRecord_BuildingId');
+
+                ddlJobRecord_BuildingId.empty();   //clear building list before refresh
+
+
+                if (selectedUnitId != null && selectedUnitId != '') {
+
+
+                    $.ajax({
+                        type: "POST",
+
+                        url: "/account/UpdateBuildings",
+                        beforeSend: function (xhr) {
+                            xhr.setRequestHeader("XSRF-TOKEN",
+                                $('input:hidden[name="__RequestVerificationToken"]').val());
+                        },
+                        dataType: "JSON",
+                        data: selectedUnitId,
+                        contentType: 'application/json',
+                        success: function (buildings) {
+                            if (buildings != null && !jQuery.isEmptyObject(buildings)) {
+                                ddlJobRecord_BuildingId.append($('<option/>', {
+                                    value: "",
+                                    text: " Choose Building"
+                                }));
+
+                                //ddlJobRecord_BuildingId.append("<option value=''> Choose Building</option>");
+
+                                $.each(buildings, function (index, building) {
+
+                                    ddlJobRecord_BuildingId.append("<option value='" + building.Value + "'>" + building.Text + "</option>");
+                                });
+
+                                ddlJobRecord_BuildingId.css('visibility', 'visible');
+                                SetButtonState();
+
+                            };
+                        },
+                        failure: function (response) {
+                            alert(response);
+
+
+                        }
+                    });
+                }
+
+            });
+
+        </script>
+
+
+
+        @*<script type="text/javascript">
+                $(function () {
+                    $("#formAdd").on('change', 'input[name="AccountTypeId"]:radio', function () {
+                        $("#formAdd").append(' <input type="hidden" name="command" value="changelayout" /> ');
+
+                        this.form.submit();
+                    });
+                });
+            </script>*@
+
+
+
+
+
+
+        <script type="text/javascript">
+
+            $("#JobRecord_TitleGroupId").on('change', function () {
+
+                var selectedTitleGroupId = $("#JobRecord_TitleGroupId").val();
+                var ddlJobRecord_TitleId = $('#JobRecord_TitleId');
+
+                ddlJobRecord_TitleId.empty();   //clear title list before refresh
+
+
+                if (selectedTitleGroupId != null && selectedTitleGroupId != '') {
+
+
+                    $.ajax({
+                        type: "POST",
+
+                        url: "/account/UpdateTitles",
+                        beforeSend: function (xhr) {
+                            xhr.setRequestHeader("XSRF-TOKEN",
+                                $('input:hidden[name="__RequestVerificationToken"]').val());
+                        },
+                        dataType: "JSON",
+                        data: selectedTitleGroupId,
+                        contentType: 'application/json',
+                        success: function (titles) {
+                            if (titles != null && !jQuery.isEmptyObject(titles)) {
+                                ddlJobRecord_TitleId.append($('<option/>', {
+                                    value: "",
+                                    text: " Choose Title"
+                                }));
+
+                                //ddlJobRecord_TitleId.append("<option value=''> Choose Title</option>");
+
+                                $.each(titles, function (index, title) {
+
+                                    ddlJobRecord_TitleId.append("<option value='" + title.Value + "'>" + title.Text + "</option>");
+                                });
+
+                                SetButtonState();
+
+                            };
+                        },
+                        failure: function (response) {
+                            alert(response);
+
+
+                        }
+                    });
+                }
+
+            });
+
+        </script>
+
+
+        @*<script type="text/javascript">
+                $(function () {
+                    $("#Employee_IsSubstitute").on('change', function () {
+
+
+                        $("#formAdd").append(' <input type="hidden" name="command" value="changelayout" /> ');
+
+                        this.form.submit();
+                    });
+                });
+            </script>*@
+
+        <script type="text/javascript">
+            $(function () {
+                $("#lnkRefresh").on('click', function () {
+
+
+                    $("#formAdd").append(' <input type="hidden" name="command" value="changelayout" /> ');
+
+                    this.form.submit();
+                });
+            });
+        </script>
+
+
+
+        <script>
+            $.validator.addMethod('longtermsub', function (value, element, params) {
+                return element.checked;
+            });
+
+            $.validator.unobtrusive.adapters.addBool("longtermsub");
+
+        </script>
+
+
+
+        <script type="text/javascript">
+            function SetButtonState() {
+
+                var myform = $('#formAdd');
+                $.validator.unobtrusive.parse(myform);
+                myform.validate().form();
+
+                if (myform.valid() === false) {
+
+                    //  $('#lblValidation').text('NOT VALID');
+                    $('#btnAdd').addClass('disabled');
+                    $('#btnAdd').css("background-color", "#adb5bd");
+
+                    $('#btnAddContinue').addClass('disabled');
+                    $('#btnAddContinue').css("background-color", "#adb5bd");
+
+
+
+                } else {
+
+                    //  $('#lblValidation').text('VALID');
+
+                    $('#btnAdd').removeAttr("style");
+                    $('#btnAdd').removeClass('disabled');
+
+                    $('#btnAddContinue').removeAttr("style");
+                    $('#btnAddContinue').removeClass('disabled');
+                }
+
+
+
+            };
+
+            function validateForm() {
+                if ($('#formAdd').valid()) {
+                    $('#formAdd').find(".validation-summary-errors").html("");
+                }
+            };
+
+        </script>
+
+
+
+        <script type="text/javascript">
+
+            $(document).ready(function () {
+                $("#Employee_IsSubstitute").on('change', function () {
+                    var inputValue = $(this).attr("value");
+
+                    if ((inputValue == "true") && ($(this).is(':checked'))) {
+                        $("#divSubstitute").show();
+                    }
+
+                    if ((inputValue == "false") && ($(this).is(':checked'))) {
+                        $("#divSubstitute").hide();
+                    }
+
+                });
+            });
+
+            var myEnum = {
+                LongtermSub: "4"
+
+            };
+
+           
+
+            $(function () {
+                var rblAccountType = $("input[name=AccountTypeId]");
+                rblAccountType.click(function () {
+                    var checkedItem = rblAccountType.filter(":checked");
+                    var checkedValue = checkedItem.val();
+                    //alert(checkedValue);
+                    if (checkedValue == myEnum.LongtermSub) {
+
+                        $("#divSubstitute").show();
+                        var rblSubstitute = $("#Employee_IsSubstitute");
+                        var YesItem = rblSubstitute.filter(function () {
+                            return $(this).attr("value") === "true";
+                        }
+
+
+
+                        );
+
+                       //alert(YesItem.attr("value"));
+                        YesItem.prop('checked', true);
+                    }
+
+                })
+            })
+
+            function clearErrors() {
+                var $form = $('#formAdd');
+                var $validator = $form.validate();
+                var $errors = $form.find(".field-validation-error span");
+                $errors.each(function () { $validator.settings.success($(this)); })
+                $validator.resetForm();
+            };
+
+            $(document).ready(function () {
+                $('#formAdd').change(function () {
+                    SetButtonState();
+                    clearErrors();
+                });
+            });
+
+            $(document).ready(function () {
+                $('#btnAdd').hover(function () {
+                    SetButtonState();   
+                });
+            });
+
+            $(document).ready(function () {
+                $('#btnAddContinue').hover(function () {
+                    SetButtonState();
+                });
+            });
+
+            $(document).ready(function () {
+
+                SetButtonState();
+                clearErrors();
+               
+
+            });
+
+
+            jQuery.validator.addMethod("requiredifactionmethod",
+                function (value, element, param) {
+                    var requiredActionMethod = $(element).data('val-requiredactionmethod');
+                    var currentActionMethod = $(element).data('val-currentactionmethod');
+                    return (requiredActionMethod === currentActionMethod) && (value.length > 0);
+                }
+
+            );
+
+            jQuery.validator.unobtrusive.adapters.addBool("requiredifactionmethod");
+
+
+        </script>
+
+
+    }
+    <!-- #endregion -->

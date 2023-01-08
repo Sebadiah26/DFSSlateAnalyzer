@@ -1,0 +1,15 @@
+﻿
+1.  Where is the main "masterpage" for the site?
+
+	"Views/Shared/_Layout.cshtml"
+
+2. Where is the web app loaded/initialized?
+
+	Program.cs and Startup.cs
+
+3. Where are general settings such defaults, database login strings, etc.?
+
+	appsettings.json and "Common/Settings.cs"
+
+4.
+

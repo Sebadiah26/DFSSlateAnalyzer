@@ -1,0 +1,45 @@
+﻿@model IEnumerable<StaffManagement.Data.Select_StaffManagementView_Employees>
+
+<br /><h6>@Model.Count().ToString() Employees </h6>
+<div class="container-fluid ">
+    
+        <table class="table-sm table-hover table-responsive">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Job Title</th>
+                    <th>Building</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                @foreach (var item in Model)
+                {
+
+
+                <tr>
+                    <td>
+                        <a asp-controller="Account" asp-action="Edit" asp-route-id="@item.SystemId">
+                            @Html.DisplayFor(modelItem => item.FirstName) @Html.DisplayFor(modelItem => item.LastName)
+                        </a>
+                    </td>
+                    <td> @Html.DisplayFor(modelItem => item.JobTitle)</td>
+                    <td> @Html.DisplayFor(modelItem => item.Building)</td>
+                    <td>
+                        <vc:group-assignment page="EmployeeGroups" viewid="0" systemid="@item.SystemId"></vc:group-assignment>
+                    </td>
+                    <td>
+                        <vc:job-title-assignment systemid="@item.SystemId"></vc:job-title-assignment>
+                    </td>
+                </tr>
+
+                }
+            </tbody>
+        </table>
+  
+</div>
+
+
+
+
+

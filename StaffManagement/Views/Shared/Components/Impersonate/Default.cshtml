@@ -1,0 +1,95 @@
+﻿@model StaffManagement.Models.AppUser;
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Http
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor _httpContextAccessor
+@*p-0   text-sm-right float-right*@
+
+@if (Model.IsInLevel("Can Impersonate") || Model.SystemId == 0)
+{
+
+
+
+    <div class="table small text-sm-end">
+        @*<div class="row ">
+            <div class="col-12 text-sm-end ">
+                <span class=" text-muted text-sm-end small">
+                    <small>identity : @_httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Name).Value</small>
+                </span>
+                <span class=" text-muted text-sm-end small">
+                    <small>session id : @Context.Session.Id</small>
+                </span>
+            </div>
+        </div>*@
+
+        <div class="row ">
+            <div class="col-12 text-sm-end ">
+
+
+
+                <span class=" text-muted text-sm-end small"><small>logged in user : </small></span>
+                <span class=" text-muted text-sm-end small  "><small><b>@ViewBag.ActiveDirectoryName</b></small> </span>
+
+                &nbsp;-&nbsp; <span class=" text-muted text-sm-end small"><small> impersonated user : </small></span>
+                <span class=" text-muted text-sm-end small  ">
+                    <small>
+                        <b>
+                            @if (ViewBag.ImpersonateUser != null)
+                            {@ViewBag.ImpersonateUser;
+                            }
+                            else
+                            {
+                            @:none
+                            ;
+                            }
+                        </b>
+                    </small>
+                </span>
+
+            </div>
+        </div>
+
+        <div class="row text-sm-end ">
+            <div class="col-12 text-sm-end">
+                <form asp-controller="Home" asp-action="Index" class="d-flex">
+                    @*<select name="Users" class="small  "
+                asp-items="@(new SelectList(   Model.Items, "Key", "Value", ViewBag.ImpersonateUser))">
+            <option value="@Model.DefaultValue">--Select User--</option>
+
+        </select>*@
+
+                    @*<select class="small" asp-for="@Model.ImpersonateUser" asp-items="@Model.Users">
+                        <option value="">--Select User--</option>
+                    </select>*@
+
+
+                    <input class="small w-100 h1" value="@Model.SelectedUser" list="ImpersonateEmployees" name="linkeduserInput" id="linkeduserInput" placeholder="Type to search users...">
+                    <datalist id="ImpersonateEmployees">
+                        @foreach (var item in Model.Users)
+                        {
+                            @:<option selected='selected' data-id="@item.Value" value="@item.Text"></option>
+                        }
+                        }
+                    </datalist>
+                    <input type="hidden" name="ImpersonateUser" value="@Model.ImpersonateUser" id="linkeduserInput-hidden">
+
+
+                    &nbsp;<button class="btn btn-sm py-0 btn-outline-dark text-nowrap text-sm-center small h1 " type="submit">Change Impersonation</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+

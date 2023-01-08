@@ -1,0 +1,36 @@
+﻿@model DropDownViewModel
+
+
+
+
+
+         
+<div class="table">
+    <div class="row  ">
+        <div class="col-12">
+            <form asp-controller="Home" asp-action="Index" class="d-flex">
+                <select name="Units" class="small  "
+                        asp-items="@(new SelectList(Model.Items, "Key", "Value", ViewBag.SelectedUnitId))">
+                    <option value="@Model.DefaultValue">--All Departments--</option>
+                   
+                </select>
+
+
+
+                &nbsp;<button class="btn btn-sm py-0 btn-outline-dark " type="submit">Change Filter</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+         
+
+

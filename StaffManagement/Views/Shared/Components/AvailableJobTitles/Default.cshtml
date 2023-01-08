@@ -1,0 +1,20 @@
+﻿@model DropDownViewModel
+
+
+
+    <div class="form-group">
+        <label class="control-label" >Pick job title from available choices</label>
+        
+            <select name="JobTitles"
+                    asp-items="@(new SelectList(Model.Items, "Key", "Value" ))">
+            </select>
+        
+
+
+
+    </div>
+
+
+
+
+

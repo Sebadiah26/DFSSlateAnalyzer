@@ -1,0 +1,89 @@
+2022-06-30 14:34:06(UTC): ===Import Started=== 
+2022-06-30 14:34:06(UTC): Initializing job 
+2022-06-30 14:34:06(UTC): Node Options: undefined 
+2022-06-30 14:34:06(UTC): Node Heap Statistics (heap_size_limit): 1526909922 
+2022-06-30 14:34:06(UTC): Partial Blackout / Limited Imports enabled 
+2022-06-30 14:34:06(UTC): Preprocessor enabled 
+2022-06-30 14:34:09(UTC): Writing import files to temp directory 
+2022-06-30 14:34:09(UTC): Transferring extra file for Preprocessing 
+2022-06-30 14:34:10(UTC): Loading Preprocessor 
+2022-06-30 14:34:10(UTC): =Initializing Preprocessor job & updating job start= 
+2022-06-30 14:37:46(UTC): =Initializing Preprocessor job & updating job finished= (time elapsed: 215674ms) 
+2022-06-30 14:37:46(UTC): Checking files 
+2022-06-30 14:37:46(UTC): Updating job 
+2022-06-30 14:37:46(UTC): =Initializing job tables start= 
+2022-06-30 14:37:47(UTC): =Initializing job tables finished= (time elapsed: 1028ms) 
+2022-06-30 14:37:47(UTC): Initializing tableloaders 
+2022-06-30 14:37:47(UTC): Initializing tableloaders 
+2022-06-30 14:37:47(UTC): Initializing tableloaders 
+2022-06-30 14:37:47(UTC): Initializing tableloaders 
+2022-06-30 14:37:47(UTC): Initializing tableloaders 
+2022-06-30 14:37:47(UTC): Initializing tableloaders 
+2022-06-30 14:37:47(UTC): Initializing tableloaders 
+2022-06-30 14:37:47(UTC): Initializing tableloaders 
+2022-06-30 14:37:47(UTC): Initializing tableloaders 
+2022-06-30 14:37:47(UTC): Initializing tableloaders 
+2022-06-30 14:37:47(UTC): Initializing tableloaders 
+2022-06-30 14:37:47(UTC): Initializing tableloaders 
+2022-06-30 14:37:47(UTC): Initializing tableloaders 
+2022-06-30 14:37:47(UTC): =Parsing objects [academicSessions]= 
+2022-06-30 14:37:47(UTC): =Finished parsing objects [academicSessions]= (time elapsed: 13ms) 
+2022-06-30 14:37:47(UTC): =Parsing objects [orgs]= 
+2022-06-30 14:37:47(UTC): =Finished parsing objects [orgs]= (time elapsed: 3ms) 
+2022-06-30 14:37:47(UTC): =Parsing objects [courses]= 
+2022-06-30 14:37:48(UTC): =Finished parsing objects [courses]= (time elapsed: 603ms) 
+2022-06-30 14:37:48(UTC): =Parsing objects [classes]= 
+2022-06-30 14:37:49(UTC): =Finished parsing objects [classes]= (time elapsed: 780ms) 
+2022-06-30 14:37:49(UTC): =Parsing objects [users]= 
+2022-06-30 14:37:57(UTC): =Finished parsing objects [users]= (time elapsed: 8299ms) 
+2022-06-30 14:37:57(UTC): =Parsing objects [enrollments]= 
+2022-06-30 14:38:06(UTC): =Finished parsing objects [enrollments]= (time elapsed: 8927ms) 
+2022-06-30 14:38:06(UTC): =Parsing objects [demographics]= 
+2022-06-30 14:38:21(UTC): =Finished parsing objects [demographics]= (time elapsed: 15040ms) 
+2022-06-30 14:38:21(UTC): Couldn't find userOrgs file 
+2022-06-30 14:38:21(UTC): Waiting for objects to cache 
+2022-06-30 14:38:21(UTC): Building indexes 
+2022-06-30 14:38:22(UTC): Performing intermediate checks 
+2022-06-30 14:38:39(UTC): Checking for duplicates 
+2022-06-30 14:38:39(UTC): =Checking for duplicates for [academicSessions] start= 
+2022-06-30 14:38:39(UTC): =Checking for duplicates for [academicSessions] finished= (time elapsed: 38ms) 
+2022-06-30 14:38:39(UTC): =Checking for duplicates for [orgs] start= 
+2022-06-30 14:38:39(UTC): =Checking for duplicates for [orgs] finished= (time elapsed: 37ms) 
+2022-06-30 14:38:39(UTC): =Checking for duplicates for [classes] start= 
+2022-06-30 14:38:41(UTC): =Checking for duplicates for [classes] finished= (time elapsed: 1166ms) 
+2022-06-30 14:38:41(UTC): =Checking for duplicates for [courseResources] start= 
+2022-06-30 14:38:41(UTC): =Checking for duplicates for [courseResources] finished= (time elapsed: 39ms) 
+2022-06-30 14:38:41(UTC): =Checking for duplicates for [enrollments] start= 
+2022-06-30 14:39:15(UTC): =Checking for duplicates for [enrollments] finished= (time elapsed: 34713ms) 
+2022-06-30 14:39:15(UTC): =Checking for duplicates for [courses] start= 
+2022-06-30 14:39:16(UTC): =Checking for duplicates for [courses] finished= (time elapsed: 1049ms) 
+2022-06-30 14:39:16(UTC): =Checking for duplicates for [classResources] start= 
+2022-06-30 14:39:16(UTC): =Checking for duplicates for [classResources] finished= (time elapsed: 33ms) 
+2022-06-30 14:39:16(UTC): =Checking for duplicates for [demographics] start= 
+2022-06-30 14:40:50(UTC): =Checking for duplicates for [demographics] finished= (time elapsed: 93519ms) 
+2022-06-30 14:40:50(UTC): =Checking for duplicates for [resources] start= 
+2022-06-30 14:40:50(UTC): =Checking for duplicates for [resources] finished= (time elapsed: 74ms) 
+2022-06-30 14:40:50(UTC): =Checking for duplicates for [users] start= 
+2022-06-30 14:40:56(UTC): =Checking for duplicates for [users] finished= (time elapsed: 6373ms) 
+2022-06-30 14:40:56(UTC): =Checking for source collisions start= 
+2022-06-30 14:40:56(UTC): Checking for source collisions for [academicSessions] 
+2022-06-30 14:40:56(UTC): Checking for source collisions for [orgs] 
+2022-06-30 14:40:56(UTC): Checking for source collisions for [classes] 
+2022-06-30 14:40:56(UTC): Checking for source collisions for [courseResources] 
+2022-06-30 14:40:56(UTC): Checking for source collisions for [enrollments] 
+2022-06-30 14:41:11(UTC): Checking for source collisions for [courses] 
+2022-06-30 14:41:11(UTC): Checking for source collisions for [classResources] 
+2022-06-30 14:41:11(UTC): Checking for source collisions for [demographics] 
+2022-06-30 14:41:11(UTC): Checking for source collisions for [resources] 
+2022-06-30 14:41:11(UTC): Checking for source collisions for [users] 
+2022-06-30 14:41:13(UTC): =Checking for source collisions finished= (time elapsed: 16998ms) 
+2022-06-30 14:41:13(UTC): =Inserting Web Records start= 
+2022-06-30 14:41:20(UTC): =Inserting Web Records finished= (time elapsed: 6567ms) 
+2022-06-30 14:41:20(UTC): =Checking Relationships start= 
+2022-06-30 14:41:20(UTC): Inserting Web Records - Checking Foreign Key 
+2022-06-30 14:41:20(UTC): Inserting Web Records - Checking Foreign Key 
+2022-06-30 14:41:20(UTC): Inserting Web Records - Checking Foreign Key 
+2022-06-30 14:41:20(UTC): Inserting Web Records - Checking Foreign Key 
+2022-06-30 14:41:20(UTC): Inserting Web Records - Checking Foreign Key 
+2022-06-30 14:41:22(UTC): Inserting Web Records - Checking Foreign Key 
+2022-06-30 14:41:22(UTC): Inserting Web Records - Checking Many-to-Many 

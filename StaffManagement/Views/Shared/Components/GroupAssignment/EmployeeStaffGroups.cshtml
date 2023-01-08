@@ -1,0 +1,41 @@
+﻿@model IEnumerable<StaffManagement.Data.Select_Employee_StaffGroups>
+
+
+<div class="container-fluid small">
+    
+        <table class="table-sm table-hover table-responsive border-1">
+            <thead>
+                <tr>
+                    <th>Group</th>
+                    <th>Matched By</th>
+                  
+                </tr>
+            </thead>
+            <tbody>
+
+                @foreach (var item in Model)
+                {
+
+
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.GroupName)
+                    </td>
+                    <td> @Html.DisplayFor(modelItem => item.MatchedBy)</td>
+                   
+
+
+                  
+
+                </tr>
+
+                }
+            </tbody>
+        </table>
+  
+</div>
+
+
+
+
+

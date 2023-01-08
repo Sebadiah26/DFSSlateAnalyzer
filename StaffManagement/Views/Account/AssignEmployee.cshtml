@@ -1,0 +1,328 @@
+﻿@model StaffManagement.Models.AccountModel
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>HR Tools</h1>
+
+<h4>Set EmployeeId</h4>
+<hr />
+<p>@TempData["ResultMessage"]</p>
+
+<form asp-controller="Account" asp-action="AssignEmployee" method="get">
+
+
+
+
+    <div class="container-fluid">
+
+
+
+       
+
+        <div class="card">
+
+            <div class="card-header">
+                Step 1
+            </div>
+
+            <div class="card-body">
+                @*<vc:site-text sitetextid="3"></vc:site-text>*@
+                <br />@*<br />*@
+
+
+
+
+
+                <div class="table-lg   d-block" id="accountsearchDiv">
+
+                    <div class="form-row">
+                        <div class="form-group col-4">
+                            Search for the employee's name in Active Directory
+                        </div>
+                        <div class="form-group col-3">
+
+                            <div class="input-group input-group-sm mb-3">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" id="inputGroup-sizing-sm">first name</span>
+                                </div>
+                                <input  type="text" class="form-control" id="AccountSearchFirstName" name="AccountSearchFirstName" aria-label="Small" aria-describedby="inputGroup-sizing-sm" value="@ViewData["AccountSearchFirstName"]">
+
+
+
+                            </div>
+                        </div>
+
+                        <div class="form-group  col-3">
+
+                            <div class="input-group input-group-sm mb-3">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" id="inputGroup-sizing-sm">last name</span>
+                                </div>
+                                <input  type="text" class="form-control" id="AccountSearchLastName" name="AccountSearchLastName" aria-label="Small" aria-describedby="inputGroup-sizing-sm" value="@ViewData["AccountSearchLastName"]">
+
+
+
+                            </div>
+                        </div>
+
+                        <div class="form-group col-2">
+                            <button id="submitsearch" formnovalidate="formnovalidate" type="submit" class="btn btn-secondary btn-sm">Search Accounts</button><br /> <br />
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group col-12">
+                        @if (ViewData["AccountSearchFirstName"] != null || ViewData["AccountSearchLastName"] != null)
+                        {
+                            <br /> <br /><vc:account-search-result mode="Select" accountsearchfirstname="@ViewData["AccountSearchFirstName"]" accountsearchlastname="@ViewData["AccountSearchLastName"]"></vc:account-search-result>
+                        }
+
+                    </div>
+                </div>
+
+
+
+             
+
+
+                <div class="card">
+
+                    <div class="card-header">
+                        Link EmployeeID to Active Directory account
+                    </div>
+
+                    <div class="card-body">
+
+
+                        <div class="row">
+                            <div class="col-md-2">
+
+                                <div class="form-group">
+                                    @if (Model.SystemId != 0)
+                                    {
+                                    <input type="hidden" asp-for="@Model.SystemId" />
+
+                                    }
+                                    <label asp-for="@Model.Name" class="control-label"></label>
+                                    <input required="required" disabled="disabled" asp-for="@Model.Name" class="form-control input-sm" />
+                                    <span asp-validation-for="@Model.Name" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-10">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4">
+
+                                <div class="form-group">
+                                    <label class="control-label">Enter EmployeeId</label>
+                                    <input required="required" type="text" name="EmployeeId" value="@Model.EmployeeId" id="EmployeeId" class="form-control input-sm" />
+                                    @*title="<em>IMSUserRecId</em>-<b>@Model.Employee.Sis_Staff.ImsuserRecId.ToString()</b>"  class="form-control input-sm" data-toggle="tooltip" data-html="true"*@
+                                    <span asp-validation-for="@Model.EmployeeId" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+
+
+                                <br />or<br /><br /> Search for Employee by Name<br /><br />
+                            </div>
+                            <div class="col-md-6">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="input-group input-group-sm mb-3">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" id="inputGroup-sizing-sm">first name</span>
+                                </div>
+                                <input type="text" class="form-control" id="EmployeeSearchFirstName" name="EmployeeSearchFirstName" aria-label="Small" aria-describedby="inputGroup-sizing-sm" value="@ViewData["EmployeeSearchFirstName"]">
+
+
+
+                            </div>
+                            <div class="input-group input-group-sm mb-3">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" id="inputGroup-sizing-sm">last name</span>
+                                </div>
+                                <input type="text" class="form-control" id="EmployeeSearchLastName" name="EmployeeSearchLastName" aria-label="Small" aria-describedby="inputGroup-sizing-sm" value="@ViewData["EmployeeSearchLastName"]">
+
+
+
+                            </div>
+                            <div class="input-group input-group-sm mb-3">
+                                <button formnovalidate="formnovalidate" id="submitsearch" type="submit" class="btn btn-secondary btn-sm">Search Employees</button>
+                            </div>
+                        </div>
+
+
+
+
+                    </div>
+                            </div>
+
+                            <div class="table-lg " id="divMatchEmployee">
+                                @if (ViewData["EmployeeSearchFirstName"] != null && ViewData["EmployeeSearchFirstName"].ToString() != "")
+                            {
+                                <vc:account-employee-match employeesearchfirstname="@ViewData["EmployeeSearchFirstName"]" employeesearchlastname="@ViewData["EmployeeSearchLastName"]"></vc:account-employee-match>
+                            }
+                            </div>
+
+
+
+                        </div>
+                </div>
+
+
+
+                <br /><br />
+                <div class="card">
+
+                    <div class="card-header">
+                       Account History
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="row">
+                            <div class="col-md-3">
+
+                                <div class="form-group">
+                                   
+                                    <label asp-for="@Model.CreateDate" class="control-label"></label>
+                                    <input disabled="disabled" asp-for="@Model.CreateDate" class="form-control input-sm" />
+
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                   
+                                    <label asp-for="@Model.CreateUser" class="control-label"></label>
+                                    <input disabled="disabled" asp-for="@Model.CreateUser" class="form-control input-sm" />
+
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+
+                                <div class="form-group">
+                                 
+                                    <label asp-for="@Model.LastUpdate" class="control-label"></label>
+                                    <input disabled="disabled" asp-for="@Model.LastUpdate" class="form-control input-sm" />
+
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    
+                                    <label asp-for="@Model.LastUpdateUser" class="control-label"></label>
+                                    <input disabled="disabled" asp-for="@Model.LastUpdateUser" class="form-control input-sm" />
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+
+                        <div class="form-group">
+                            <input type="hidden" id="Source" value="@Model.Source" name="Source" />
+                            <input type="hidden" id="LastName" value="@Model.LastName" name="LastName" />
+                            <input type="hidden" id="FirstName" value="@Model.FirstName" name="FirstName" />
+                            <input type="hidden" id="PrimaryUnitId" value="@Model.PrimaryUnitId" name="PrimaryUnitId" />
+
+                            <br /><br />
+                            <input type="submit" value="Save" name="SubmitAction" class="btn btn-primary" />
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+
+       
+</form>
+
+    <div>
+        <a asp-action="Index">Back to List</a>
+    </div>
+
+    @section Scripts {
+
+        <script type="text/javascript">
+            $(document).ready(function () {
+                $("#lnkMatchEmployee").click(function () {
+
+                    $("#divMatchEmployee").show();
+
+                });
+            });
+        </script>
+
+        <script type="text/javascript">
+            $(function () {
+                $("#PrimaryUnitId").on('change', function () {
+
+
+                    $("#formEdit").append(' <input type="hidden" name="command" value="changelayout" /> ');
+
+                    this.form.submit();
+                });
+            });
+        </script>
+
+        <script type="text/javascript">
+            $(function () {
+                $("#TitleGroupId").on('change', function () {
+
+
+                    $("#formEdit").append(' <input type="hidden" name="command" value="changelayout" /> ');
+
+                    this.form.submit();
+                });
+            });
+        </script>
+
+        <script type="text/javascript">
+            $(function () {
+                $("#chkUsername").click(function () {
+                    if ($(this).is(':checked')) {
+                        $("#divUsername").show();
+                    }
+                    else {
+                        $("#divUsername").hide();
+                    }
+                });
+            });
+        </script>
+
+
+        <script type="text/javascript">
+            $(function () {
+                $("#chkAlt").click(function () {
+                    if ($(this).is(':checked')) {
+                        $("#divAlt").show();
+                    }
+                    else {
+                        $("#divAlt").hide();
+                    }
+                });
+            });
+        </script>
+
+
+        @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+
+
+
+    }

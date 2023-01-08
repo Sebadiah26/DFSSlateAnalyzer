@@ -1,0 +1,84 @@
+﻿@model IEnumerable<StaffManagement.Data.Contract>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Contractors</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table small">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Contractor)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.JobTitle)
+            </th>
+            <th>
+               Building
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.StartDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.EndDate)
+            </th>
+
+            <th>
+                @Html.DisplayNameFor(model => model.LastUpdate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.LastUpdateUser)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsActive)
+            </th>
+
+
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Contractor.FirstName)  @Html.DisplayFor(modelItem => item.Contractor.MiddleName)
+                @Html.DisplayFor(modelItem => item.Contractor.LastName)  @Html.DisplayFor(modelItem => item.Contractor.SuffixName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.JobTitle)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PrimaryUnit.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.StartDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.EndDate)
+            </td>
+
+            <td>
+                @Html.DisplayFor(modelItem => item.LastUpdate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.LastUpdateUser)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IsActive)
+            </td>
+
+
+            <td class="text-nowrap">
+                @Html.ActionLink("Edit", "Edit", new {  contractorid=item.ContractorId, contractorjobid=item.ContractorJobId  }) |
+                @*@Html.ActionLink("Details", "Details", new { contractorid = item.ContractorId, contractorjobid = item.ContractorJobId }) |*@
+                @Html.ActionLink("Delete", "Delete", new { contractorid = item.ContractorId, contractorjobid = item.ContractorJobId })
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

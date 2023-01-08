@@ -1,0 +1,30 @@
+﻿@model AppUser
+
+@{
+    var controllerName = this.ViewContext.RouteData.Values["controller"].ToString();
+    var actionName = this.ViewContext.RouteData.Values["action"].ToString();
+}
+
+
+
+
+
+
+<footer class="border-top footer text-muted">
+    <div class="container">
+        &copy; @DateTime.Now.Year - StaffManagement
+
+        <a asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+        - <a asp-area="" asp-controller="Account" asp-action="Index">Employees</a>
+       
+            - <a asp-area="" asp-controller="JobRecord" asp-action="Menu">Reports</a>
+       
+
+        @if (Model.IsInLevel("Can View System Review Page"))
+
+        {
+
+           @:- <a asp-area="" asp-controller="SystemReview" asp-action="Index">Admin</a>
+        }
+    </div>
+</footer>

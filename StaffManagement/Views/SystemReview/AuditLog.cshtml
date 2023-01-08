@@ -1,0 +1,109 @@
+﻿@model PagedList.Core.IPagedList<StaffManagement.Models.AuditLogViewModel>
+@using PagedList.Core.Mvc
+@using Microsoft.AspNetCore.Mvc.ViewFeatures
+<link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
+
+@{
+    ViewData["Title"] = "Audit Log";
+}
+
+<h3>Review Staff Management Website Activity</h3>
+
+
+@using (Html.BeginForm("AuditLog", "SystemReview", FormMethod.Get))
+{
+    <p>
+        Find by name: @Html.TextBox("SearchString", ViewBag.CurrentFilter as string)
+        <input type="submit" value="Search" />
+    </p>
+}
+<table class="table table-hover ">
+    <thead class="thead-light" >
+        <tr>
+            <th scope="col">
+                @Html.DisplayNameFor(model => model[0].LogId)
+            </th>
+
+            <th scope="col">
+                <a asp-controller="SystemReview" asp-action="AuditLog" asp-route-sortOrder="@ViewData["DateSort"]" asp-route-currentFilter="@ViewData["CurrentFilter"]"> @Html.DisplayNameFor(model => model[0].LogDate)</a>
+            </th>
+            <th scope="col">
+                @Html.DisplayNameFor(model => model[0].ReferenceTable)
+            </th>
+            <th scope="col">
+                @Html.DisplayNameFor(model => model[0].ReferenceID)
+            </th>
+
+            <th scope="col">
+                <a asp-controller="SystemReview" asp-action="AuditLog" asp-route-sortOrder="@ViewData["EmployeeSort"]" asp-route-currentFilter="@ViewData["CurrentFilter"]"> @Html.DisplayNameFor(model => model[0].Employee)</a>
+            </th>
+            <th scope="col">
+                @Html.DisplayNameFor(model => model[0].ActionType)
+            </th>
+            <th scope="col">
+                <a asp-controller="SystemReview" asp-action="AuditLog" asp-route-sortOrder="@ViewData["UserSort"]" asp-route-currentFilter="@ViewData["CurrentFilter"]"> @Html.DisplayNameFor(model => model[0].ApplicationUser)</a>
+
+            </th>
+            <th scope="col">
+                @Html.DisplayNameFor(model => model[0].ImpersonatedUser)
+            </th>
+            <th scope="col">
+                @Html.DisplayNameFor(model => model[0].Comment)
+            </th>
+
+            @*<th></th>*@
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+        <tr>
+            <th scope="row">
+                @Html.DisplayFor(modelItem => item.LogId)
+            </th>
+            <td>
+                @Html.DisplayFor(modelItem => item.LogDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ReferenceTable)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ReferenceID)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Employee)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ActionType)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ApplicationUser)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ImpersonatedUser)
+            </td>
+            <td>
+                @Html.Raw(item.CommentHTML)
+            </td>
+
+            @* <td>
+            <a asp-controller="Account" asp-action="Add" asp-route-id="@item.LogId">Add</a>
+           <a asp-action="Details" asp-route-id="@item.JobRecordId">Details</a> |
+        <a asp-action="Delete" asp-route-id="@item.JobRecordId">Delete</a>
+            </td>*@
+        </tr>
+        }
+    </tbody>
+</table>
+<br />
+Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+<br />
+<br />
+<pager  class="pager-container" list="@Model"  asp-action="AuditLog" asp-controller="SystemReview" />
+
+
+
+    <div class="container-lg">
+        <a asp-action="Index">Back to Personnel Review Main Page</a>
+    </div>
+

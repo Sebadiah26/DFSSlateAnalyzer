@@ -1,0 +1,50 @@
+﻿@model StaffManagement.Models.EmployeeJobTitleAssignmentInfo
+
+
+<div class="container-fluid small">
+
+    @if (Model == null)
+    {
+
+    }
+    else
+    {
+        <table class="table-sm table-hover table-responsive">
+            <thead>
+                <tr>
+                    <th class="text-nowrap">Current Job Title</th>
+                    <th class="text-nowrap">personnel code</th>
+                    <th>jobcode</th>
+                    <th class="text-nowrap">Matched JobTitle</th>
+                    <th>Match Type</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        @Model.EffectiveJobTitle
+                        @if (Model.JobTitleManual == "")
+                        {
+
+                        }
+                        else
+                        {
+                            @:(JobTitle Override)
+                        }
+
+                    </td>
+                    <td> @Model.personnel_code</td>
+                    <td> @Model.jobcode</td>
+                    <td> @Model.MatchedJobTitle</td>
+                    <td> @Enum.GetName(typeof(JobTitleMatchSource), @Model.MatchSourceID)</td>
+                </tr>
+
+            </tbody>
+        </table>
+
+    }
+
+</div>
+
+
+

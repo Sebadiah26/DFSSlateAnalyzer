@@ -1,0 +1,430 @@
+﻿@model List<StaffManagement.Models.GroupModel>
+@using PagedList.Core.Mvc
+<link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
+@{
+    ViewData["Title"] = "Index";
+}
+
+@* Page for Searching/Selecting/Reviewing accounts, filtered by permission and search criteria  *@
+
+<h1>@*Staff Group Association Admin*@</h1>
+
+@*<p>
+    <a asp-action="Add">Add New Employee</a>
+</p>*@
+
+@* Start of Display panel *@
+
+<div class="container-fluid border-1">
+
+    <form class="row" asp-controller="Account" asp-action="Index" method="get">
+        <div class="col-12">
+
+            @*
+
+        <div class="card">
+            <div class="card-header  fw-bold">
+                Search Filters
+            </div>
+
+            <div class="card-body">
+
+                <div class="form-group row  mb-1 p-1">
+
+                    <div class="col-md-3 p-2">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="FirstName" name="FirstName" value="@TempData["FirstName"]">
+                            <label for="FirstName">Search by First name</label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 p-2">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="LastName" name="LastName" value="@TempData["LastName"]">
+                            <label for="LastName">Search by Last name</label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 p-2">
+                        <div class="form-floating">
+                            <select class="form-control" id="Unit" name="Unit" asp-items="ViewBag.Unitdata">
+                                <option value="0">-----ALL----- </option>
+                            </select>
+                            <label for="Unit">Search by Department</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group col-md-3 p-2">
+                        <div class="form-floating">
+                            <select class="form-control" id="Title" name="Title" asp-items="ViewBag.Titledata">
+                                <option value="0">-----ALL----- </option>
+                            </select>
+                            <label for="Unit">Search by Title</label>
+
+                        </div>
+                    </div>
+
+                </div>
+
+
+
+                <div class="form-group row  mb-1 p-1">
+
+                    <div class="col-md-3 p-2">
+                        <div class="form-floating">
+
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 p-2">
+                        <div class="form-floating">
+                            <select class="form-control" id="JobCode" name="JobCode" asp-items="ViewBag.JobCodedata">
+                                <option value="0">-----ALL----- </option>
+                            </select>
+                            <label for="JobCode">Search by Job Code</label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 p-2">
+                        <div class="form-floating">
+
+                            <select class="form-control" id="PersonnelCode" name="PersonnelCode" asp-items="ViewBag.PersonnelCodedata">
+                                <option value="">-----ALL----- </option>
+                            </select>
+                            <label for="PersonnelCode">Search by Personnel Code</label>
+
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 p-2">
+                        <div class="form-floating">
+
+                            <select class="form-control" id="Building" name="Building" asp-items="ViewBag.Buildingdata">
+                                <option value="0">-----ALL----- </option>
+                            </select>
+                            <label for="Building">Search by Building</label>
+
+                        </div>
+                    </div>
+
+                </div>
+
+
+                <div class="form-group row  mb-1 p-1">
+
+                    <div class="col-md-12 mb-1 mt-1">
+                        <button name="submitAction" id="submitAction" type="submit" value="Search" class="btn btn-primary">Apply Search Filters</button>
+                    </div>
+
+                </div>
+
+
+
+            </div>
+        </div>*@
+
+            @* End of Search panel *@
+
+            @* Start of Results table *@
+
+            <select name="remaining" id="remaining" asp-items="@ViewBag.RemainingListofEmployees">
+                <option value="">----</option>
+
+            </select>
+
+            <br />
+
+            <div class="card">
+                <div class="card-header  fw-bold">
+                    Staff Group Associations
+                </div>
+
+                <div class="card-body">
+
+
+                    @*<div class="form-row">
+                    <div class="form-group col-md-12 mb-1">
+                        Viewing <strong>@TempData["ResultCount"]</strong> results (of @TempData["TotalCount"])
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-12 mb-1">
+                        Page <strong>@(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber)</strong> of @Model.PageCount
+
+                    </div>
+                </div>
+
+                <div class="form-row mb-1">
+                    <div class="form-group col-md-12 text-success">
+                        @Html.Raw(TempData["ResultMessage"])
+                    </div>
+                </div>*@
+
+                    <div class="form-row mb-1">
+                        <div class="form-group col-md-12 ">
+
+                            <table class="table table-sm  table-hover border-1 ">
+                                <thead class="thead-light">
+                                    <tr>
+
+                                        <th scope="col">
+                                            Unit
+                                        </th>
+                                        <th scope="col">
+                                            Group
+                                        </th>
+                                        @*<th scope="col">
+            @Html.DisplayNameFor(model => model[0].StaffGroup.GroupName)
+        </th>*@
+
+                                        @*<th scope="col">
+
+                                            @Html.DisplayNameFor(model => model[0].StaffGroup.StaffGroupId)
+                                        </th>*@
+
+                                        <th scope="col">
+                                            Actual Group Members
+                                        </th>
+                                        <th scope="col">
+
+                                            Actual Count
+                                        </th>
+
+
+
+                                        <!--<th scope="col">-->
+                                        @*@Html.DisplayNameFor(model => model[0].TitleId)*@
+                                        <!--</th>-->
+                                        @*<th scope="col">
+            Employees
+        </th>*@
+
+                                        @*<th scope="col">
+            Count
+        </th>*@
+
+
+                                        @*<th scope="col">
+            <a asp-controller="Account" asp-action="Index" asp-route-page="@Model.PageNumber" asp-route-pagesize="@TempData["PageSize"]" asp-route-sortorder="@TempData["JobtitleSort"]" asp-route-currentfilter="@ViewData["CurrentFilter"]"> @Html.DisplayNameFor(model => model[0].JobTitle)</a>
+
+        </th>*@
+
+                                        <th scope="col">Calculated Members</th>
+                                        <th scope="col">Calculated Count</th>
+                                    </tr>
+                                </thead>
+
+
+                                <tbody>
+
+
+                                    @{var i = 0;
+                                        foreach (var item in Model)
+                                        {
+                                            //if group has matches 
+                                            if(item.ActualMatchesCount > 0 || item.StaffGroup.EmployeeCount > 0)
+                                            { 
+
+                                            //class="@((item.Employee.IsDeleted == true ) ?  "table-danger" : string.Empty)"
+                                            i += 1;
+                                            @*@if (item.GroupHeader == true && i != 1)
+                                            {
+
+                                                <tr class="small">
+                                                    <td colspan="9">
+                                                        <div>Total : @item.PreviousGroupCount</div>
+                                                    </td>
+                                                </tr>
+
+
+                                            }*@
+
+
+                                    <tr class="small">
+                                        @*@if (item.GroupHeader == true)
+        {
+            <td>
+                <div>
+
+                    @Html.DisplayFor(modelItem => item.StaffGroup.GroupName)
+
+
+                </div>
+            </td>
+        }
+        else
+        {
+            <td>
+                <div>
+
+
+
+                </div>
+            </td>
+        }*@
+
+                                        <td>
+                                            <div>
+
+                                                @Html.DisplayFor(modelItem => item.OrganizationalUnit.OrganizationalUnitName)
+
+                                                @*@Html.DisplayFor(modelItem => item.UnitId)*@
+
+                                                @*<select asp-for="@item.UnitId" asp-items="@item.Unit.Units">
+                    <option value="">----</option>
+                    <option value="">Choose Department</option>
+                </select>*@
+
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div>
+                                                @Html.DisplayFor(modelItem => item.CommonName)
+                                                @*@Html.DisplayFor(modelItem => item.StaffGroupAssociationId)*@
+                                            </div>
+                                        </td>
+
+                                        <!--<td>
+                                <div>
+                                    @Html.DisplayFor(modelItem => item.StaffGroup.GroupName)
+                                    @*@Html.DisplayFor(modelItem => item.BuildingId)*@
+
+                                    @*<select asp-for="@item.BuildingId" asp-items="@item.Building.AllBuildings">
+        <option value="">----</option>
+        <option value="">Choose Building</option>
+    </select>*@
+
+
+                                <!--</div>
+                            </td>-->
+                                        @*<td>
+                                            <div>*@
+                                                @*@Html.DisplayFor(modelItem => item.StaffGroup.StaffGroupId)*@
+                                                @*@Html.DisplayFor(modelItem => item.TitleGroupId)*@
+
+                                                @*<select asp-for="@item.TitleGroupId" asp-items="@item.TitleGroup.TitleGroups">
+                    <option value="">----</option>
+                    <option value="">Choose Title Group</option>
+                </select>*@
+
+                                            @*</div>
+                                        </td>*@
+                                        <td>
+                                            <div>
+                                                <select name="matches" id="matches" asp-items="@item.ActualMatches">
+                                                    <option value="">----</option>
+
+                                                </select>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div>
+                                                @Html.DisplayFor(modelItem => item.ActualMatchesCount)
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div>
+
+
+
+                                                @foreach (var sga in item.StaffGroup.StaffGroupAssociations)
+                                                {
+                                                    @*@Html.DisplayFor(modelItem => sga.StaffGroupAssociationId)*@
+
+                                                    <select name="matches" id="matches" asp-items="@sga.CalculatedMatches">
+                                                        <option value="">----</option>
+
+                                                    </select><br />
+
+
+                                                }
+                                            </div>
+                                        </td>
+
+                                        <td>
+                                            <div>
+                                                @Html.DisplayFor(modelItem => item.StaffGroup.EmployeeCount)
+                                            </div>
+                                        </td>
+
+
+                                        @*@Html.DisplayFor(modelItem => item.TitleId)*@
+
+                                        @*<select asp-for="@item.TitleId" asp-items="@item.Title.AllTitles">
+            <option value="">----</option>
+            <option value="">Choose Title </option>
+        </select>*@
+
+
+                                        <!--<td>
+    <div>-->
+                                        @*@Html.DisplayFor(modelItem => item.Matches)*@
+
+                                        @**@
+
+                                        <!--</div>
+    </td>-->
+                                        <!--<td>
+    <div>-->
+                                        @*@Html.DisplayFor(modelItem => item.EmployeeCount)*@
+                                        <!--</div>
+    </td>-->
+
+
+                                        <td class="text-nowrap">
+                                            <div>
+                                                @*<a asp-action="Edit" asp-route-id="@item.StaffGroupAssociationId">Edit</a> |*@
+                                                @*<a asp-action="Details" asp-route-id="@item.SystemId" asp-route-slug="@item.Slug">Details</a> |*@
+                                                @*<a asp-action="Delete" asp-route-id="@item.SystemId" asp-route-slug="@item.Slug">Delete</a>*@
+                                            </div>
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                                            }
+                                        }
+                                    }
+                                </tbody>
+
+
+                            </table>
+
+                        </div>
+                    </div>
+
+                    @*<div class="form-row">
+                    <div class="form-group col-md-12 mb-1">
+                        <br />
+                        Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+                        <br />
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group col-md-3 mb-1">
+                        show <input type="text" class="  text-sm-left" id="PageSize" name="PageSize" width="10" value="@TempData["PageSize"]"> at a time
+                        <br /> <br />
+                    </div>
+                    <div class="form-group col-md-9 mb-1">
+
+                    </div>
+
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group col-md-12 mb-1">
+                        <pager class="pager-container" list="@Model" asp-action="Index" asp-controller="SystemReview" asp-route-pagesize="@TempData["PageSize"]" asp-route-search="@TempData["Search"]" />
+
+
+
+                    </div>
+                </div>*@
+                </div>
+            </div>
+        </div>
+    </form>
+
+</div>

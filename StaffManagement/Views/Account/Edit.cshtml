@@ -1,0 +1,1781 @@
+﻿@model StaffManagement.Models.AccountModel
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor httpContextAccessor
+@inject StaffManagement.Models.AppUser appUser
+@{
+    ViewData["Title"] = "Edit - " + Model.DerivedFullName;
+
+}
+
+<!-- #region header-->
+@*<h5>Edit</h5>
+
+    <h5>Employee</h5>*@
+<h5 class="lead fw-bold  pt-4">@Model.DerivedFullName </h5>
+
+<hr />
+<div class="justify-content-center d-flex pb-1 pt-2 small mb-2">
+    <div class="justify-content-center p-1  border border-1 border-dark w-75  ">
+
+        <div class="justify-content-center  d-flex">
+            <div class="p-2 fw-bold">Status:</div><div class="p-2 fw-bold @((Model.Status == "Inactive") ? "text-danger" : "text-success")">@Model.Status</div>
+        </div>
+
+        <div class="justify-content-center  d-flex  ">
+            <div class=" d-flex p-2">
+                <div class="p-2 ">&nbsp; </div>
+                <div class="p-2 ">Employee Status :</div> <div class="p-2 fw-bold @((Model.EmployeeStatus == "Inactive") ? "text-danger" : "text-success")">@Model.EmployeeStatus</div><div class="p-2"> | </div>
+                <div class="p-2 ">Active Directory Status :</div> <div class="p-2 fw-bold @((Model.UserStatus == "Inactive") ? "text-danger" : "text-success")">@Model.UserStatus</div><div class="p-2"> | </div>
+                <div class="p-2 ">PHRST Status :</div> <div class="p-2 fw-bold @((Model.IsCurrentWithPHRST == false) ? "text-danger" : "text-success")">@((Model.IsCurrentWithPHRST == false) ? "Needs Review" : "Current")</div>
+                <div class="p-2 ">&nbsp; </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+@if (TempData["ResultMessage"] != null)
+{
+    <div class="alert alert-success p-2 d-flex" role="alert">
+        <img src="~/lib/bootstrap-icons/icons/check-circle.svg" class="filter-green p-2">
+
+        <div class="p-2">
+            @Html.Raw(TempData["ResultMessage"])
+        </div>
+    </div>
+}
+<!-- #endregion header -->
+<!-- #region main form-->
+
+<div class="container-fluid mt-0 pt-0">
+    <form id="formEdit" name="formEdit" method="post" asp-action="Edit" enctype='multipart/form-data'>
+        <div asp-validation-summary="All" class="text-danger"></div>
+
+
+
+
+
+        <!-- #region Basic Information Card-->
+
+
+        <div class="card">
+
+            <div class="card-header fw-bold">
+                Basic Information
+            </div>
+
+            <div class="card-body">
+
+                <div class="row mb-3">
+                    <div class="col-md-6 pt-1 ">
+
+                        <div class="form-group">
+
+
+
+
+                            @foreach (var item in Model.AccountType.AccountTypes)
+                            {
+
+                                <input @((Model.AccountTypeId.ToString() == item.Value) ? "checked" : string.Empty ) id="AccountTypeId" name="AccountTypeId" type="radio" value="@item.Value" /> @item.Text @:&nbsp; &nbsp;
+
+                            }
+                            <span asp-validation-for="@Model.AccountTypeId" class="text-danger"></span>
+                        </div>
+
+
+
+
+                    </div>
+
+                </div>
+
+                @if ((Model.NameIsCurrentWithPHRST == false) && Model.IsLinkedToPHRST)
+
+                {
+
+                    <div class="row  mb-1 pb-1">
+
+                        <div class="col-md-12">
+                            <div class=" text-danger fst-italic fw-bold mb-1 mt-1">
+
+                                The name was changed in PHRST for this employee record.  Please save the record to acknowledge the change.
+                            </div>
+
+                        </div>
+                    </div>
+
+                }
+
+
+                <div class="row  mb-3  align-items-end">
+
+
+                    <div class="col-md-3 ">
+                        <div class="form-group align-self-end">
+                            <input type="hidden" asp-for="@Model.FirstName" />
+                            <input type="hidden" asp-for="@Model.Employee.FirstName" />
+
+
+                            @*has EmployeeId*@
+                            @if (Model.IsLinkedToPHRST)
+                            {
+                                //has mismatched name between employee record and  account, show mismatch
+                                if ((Model.NameIsCurrentWithPHRST == false) && (Model.FirstName != Model.Employee.FirstName))
+
+                                {
+
+                                    <div class=" text-danger fst-italic fw-bold mb-1 mt-1">
+                                        @Model.Employee.FirstName
+                                        @*<a class="" id="NameChange" href="#" data-microtip-position="right" role="tooltip" aria-label="The name was changed in PHRST for this employee record.  Please save the record to acknowledge the change.">
+                                                <img src="~/images/question-circle.svg" class="">
+                                            </a>*@
+                                    </div>
+                                    <label asp-for="@Model.FirstName" class="control-label fw-bold p-1"></label>
+                                    <input asp-for="@Model.FirstName" class="form-control input-sm" disabled />
+
+                                }
+
+                                else
+                                {
+
+                                    <label asp-for="@Model.EditFirstName" class="control-label fw-bold p-1"></label>
+                                    <input asp-for="@Model.EditFirstName" class="form-control input-sm" disabled />
+
+                                }
+                                <input type="hidden" asp-for="@Model.EditFirstName" />
+                            }
+                            else
+                            {
+                                <label asp-for="@Model.EditFirstName" class="control-label fw-bold p-1"></label>
+                                <input asp-for="@Model.EditFirstName" class="form-control input-sm" />
+                            }
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-md-2  align-text-bottom  align-bottom">
+                        <div class="form-group ">
+                            <input type="hidden" asp-for="@Model.Employee.MiddleName" />
+                            <input type="hidden" asp-for="@Model.MiddleName" />
+
+                            @*has EmployeeId*@
+                            @if (Model.IsLinkedToPHRST)
+                            {
+                                //has mismatched name between employee record and  account, show mismatch
+                                if ((Model.NameIsCurrentWithPHRST == false) && (Model.MiddleName != Model.Employee.MiddleName))
+
+                                {
+
+                                    <div class=" text-danger fst-italic  fw-bold mb-1 mt-1">
+                                        @Model.Employee.MiddleName
+                                        @*<a class="" id="NameChange" href="#" data-microtip-position="right" role="tooltip" aria-label="The name was changed in PHRST for this employee record.  Please save the record to acknowledge the change.">
+                                                <img src="~/images/question-circle.svg" class="">
+                                            </a>*@
+                                    </div>
+                                    <label asp-for="@Model.MiddleName" class="control-label  fw-bold p-1"></label>
+                                    <input asp-for="@Model.MiddleName" class="form-control input-sm" disabled />
+                                }
+
+                                else
+                                {
+
+                                    <label asp-for="@Model.EditMiddleName" class="control-label  fw-bold p-1"></label>
+                                    <input asp-for="@Model.EditMiddleName" class="form-control input-sm" disabled />
+
+                                }
+                                <input type="hidden" asp-for="@Model.EditMiddleName" />
+                            }
+                            else
+                            {
+                                <label asp-for="@Model.EditMiddleName" class="control-label  fw-bold p-1"></label>
+                                <input asp-for="@Model.EditMiddleName" class="form-control input-sm" />
+                            }
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-md-3  align-items-end">
+                        <div class="form-group ">
+                            <input type="hidden" asp-for="@Model.Employee.LastName" />
+                            <input type="hidden" asp-for="@Model.LastName" />
+
+                            @*has EmployeeId*@
+                            @if (Model.IsLinkedToPHRST)
+                            {
+                                //has mismatched name between employee record and  account, show mismatch
+                                if ((Model.NameIsCurrentWithPHRST == false) && (Model.LastName != Model.Employee.LastName))
+
+                                {
+
+                                    <div class=" text-danger fst-italic  fw-bold mb-1 mt-1">
+                                        @Model.Employee.LastName
+                                        @*<a class="" id="NameChange" href="#" data-microtip-position="right" role="tooltip" aria-label="The name was changed in PHRST for this employee record.  Please save the record to acknowledge the change.">
+                                                <img src="~/images/question-circle.svg" class="">
+                                            </a>*@
+                                    </div>
+                                    <label asp-for="@Model.LastName" class="control-label  fw-bold p-1"></label>
+                                    <input asp-for="@Model.LastName" class="form-control input-sm" disabled />
+                                }
+
+                                else
+                                {
+
+                                    <label asp-for="@Model.EditLastName" class="control-label fw-bold p-1"></label>
+                                    <input asp-for="@Model.EditLastName" class="form-control input-sm" disabled />
+
+                                }
+                                <input type="hidden" asp-for="@Model.EditLastName" />
+                            }
+                            else
+                            {
+                                <label asp-for="@Model.EditLastName" class="control-label fw-bold p-1"></label>
+                                <input asp-for="@Model.EditLastName" class="form-control input-sm" />
+                            }
+                        </div>
+                    </div>
+
+
+
+
+
+
+
+                    <div class="col-md-2  align-items-end">
+                        <div class="form-group ">
+                            <input type="hidden" asp-for="@Model.Employee.SuffixName" />
+                            <input type="hidden" asp-for="@Model.SuffixName" />
+
+                            @*has EmployeeId*@
+                            @if (Model.IsLinkedToPHRST)
+                            {
+                                //has mismatched name between employee record and  account, show mismatch
+                                if ((Model.NameIsCurrentWithPHRST == false) && (Model.LastName != Model.Employee.SuffixName))
+
+                                {
+
+                                    <div class=" text-danger fst-italic  fw-bold mb-1 mt-1">
+                                        @Model.Employee.SuffixName
+                                        @*<a class="" id="NameChange" href="#" data-microtip-position="right" role="tooltip" aria-label="The name was changed in PHRST for this employee record.  Please save the record to acknowledge the change.">
+                                                <img src="~/images/question-circle.svg" class="">
+                                            </a>*@
+                                    </div>
+                                    <label asp-for="@Model.SuffixName" class="control-label fw-bold p-1"></label>
+                                    <input asp-for="@Model.SuffixName" class="form-control input-sm" disabled />
+                                }
+
+                                else
+                                {
+
+                                    <label asp-for="@Model.EditSuffixName" class="control-label fw-bold p-1"></label>
+                                    <input asp-for="@Model.EditSuffixName" class="form-control input-sm" disabled />
+
+                                }
+                                <input type="hidden" asp-for="@Model.EditSuffixName" />
+                            }
+                            else
+                            {
+                                <label asp-for="@Model.EditSuffixName" class="control-label fw-bold p-1"></label>
+                                <input asp-for="@Model.EditSuffixName" class="form-control input-sm" />
+                            }
+                        </div>
+                    </div>
+
+                    <div class="col-md-2">
+
+                    </div>
+                </div>
+
+
+
+
+                <div class="row mb-2 ">
+                    <div class="col-md-1">
+
+                        <div class="form-group ">
+                            <input type="hidden" asp-for="@Model.SystemId" />
+                            <label asp-for="@Model.SystemId" class="control-label fw-bold p-1"></label>
+                            <input disabled="disabled" asp-for="@Model.SystemId" class="form-control input-sm text-sm-start" />
+
+
+                        </div>
+                    </div>
+
+                    <div class="col-md-2">
+
+                        <div class="form-group ">
+                            <label asp-for="@Model.EmployeeId" class="control-label fw-bold p-1"></label>
+                            <input type="text" name="EmployeeId" value="@Model.EmployeeId" id="EmployeeId" class="form-control input-sm" />
+                            @*title="<em>IMSUserRecId</em>-<b>@Model.Employee.Sis_Staff.ImsuserRecId.ToString()</b>"  class="form-control input-sm" data-toggle="tooltip" data-html="true"*@
+                            @if (Model.EmployeeId == null || Model.EmployeeId == 0)
+                            {
+
+
+                                <a name="lnkMatchEmployee" id="lnkMatchEmployee" href="#">Click here to match to existing HR employee record</a>
+
+
+
+                            }
+                        </div>
+                    </div>
+
+                    @{ var txtProposed = "";
+                        if (Model.IsDerivedUserField)
+                        {
+                            txtProposed = "<span class='text-danger'>(Proposed)</span>";
+                        }
+                    }
+                    <div class="col-md-3">
+                        <div class="form-group">
+
+                            <label asp-for="@Model.ADObjectGuid" class="control-label fw-bold p-1"></label>
+                            <input asp-for="@Model.ADObjectGuid" class="form-control input-sm" />
+                            <span asp-validation-for="@Model.ADObjectGuid" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+
+                            <label asp-for="@Model.User.SamaccountName" class="control-label fw-bold p-1"></label> @Html.Raw(txtProposed)
+
+                            <input disabled asp-for="@Model.User.SamaccountName" class="form-control input-sm" />
+
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+
+                            <label asp-for="@Model.User.Mail" class="control-label fw-bold p-1"></label> @Html.Raw(txtProposed)
+                            <input disabled asp-for="@Model.User.Mail" class="form-control input-sm" />
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row  mb-1 pb-1">
+                    <div class="col-md-12">
+
+                        <div class="table-lg " id="divMatchEmployee" style="display:none">
+                            <vc:account-employee-match employeesearchfirstname="@Model.DerivedFirstName" employeesearchlastname="@Model.DerivedLastName" mode="Default"></vc:account-employee-match>
+                        </div>
+
+
+
+                    </div>
+                </div>
+
+
+                <!-- #region Can Set Nickname-->
+                @if (appUser.IsInLevel("Can Set Nickname"))
+                {
+
+                    <div class="row  mb-1 pb-1">
+                        <div class="col-md-12">
+                            <div class="form-check">
+
+                                <input @((Model.Nickname ?? "") != "" ? "checked" : string.Empty ) name="chkNickname" class="form-check-input" type="checkbox" id="chkNickname" />
+
+                                <label class="form-check-label" for="chkNickname">
+                                    Select here if your staff member has a nickname that needs to be entered separately from their first name.
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="divNickname" class="row mb-1 pb-1" @((Model.Nickname ?? "") != "" ? string.Empty : "style=display:none" )>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label asp-for="@Model.Nickname" class="control-label fw-bold p-1"></label>    <a class="" id="ttNickname" href="#" data-microtip-size="large" data-microtip-position="right" role="tooltip" aria-label="This impacts the email system almost exclusively, changing the display name, and adding an alias. Please only use when necessary.">
+                                    <img src="~/images/question-circle.svg" class="">
+                                </a>
+                                <input asp-for="@Model.Nickname" class="form-control input-sm" />
+                                <span asp-validation-for="@Model.Nickname" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                }
+                else
+                {
+                    if (Model.Nickname != null)
+                    {
+                        <div class="row  mb-1 pb-1">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <input type="hidden" asp-for="@Model.Nickname" />
+                                    <label asp-for="@Model.Nickname" class="control-label fw-bold p-1"></label>
+                                    <input disabled asp-for="@Model.Nickname" class="form-control input-sm" />
+
+                                </div>
+                            </div>
+
+                        </div>
+
+                    }
+                    else
+                    {
+                        <input type="hidden" asp-for="@Model.Nickname" />
+                    }
+
+                }
+                <!-- #endregion -->
+                <!-- #region Can Set Alt name-->
+                @if (appUser.IsInLevel("Can Set Alternate Name"))
+                {
+                    <div class="row  mb-1 pb-1">
+                        <div class="col-md-12">
+                            <div class="form-check">
+
+
+                                <input @(Model.AlternateFirstName != null || Model.AlternateLastName != null ? "checked" : string.Empty ) name="chkAlt" class="form-check-input" type="checkbox" id="chkAlt" />
+
+
+                                <label class="form-check-label" for="chkAlt">
+                                    Select here if your staff member has an alternate first and last name to be used
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <div id="divAlt" class="row mb-1 pb-1" @(Model.AlternateFirstName != null || Model.AlternateLastName != null ? string.Empty : "style=display:none" )>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label asp-for="@Model.AlternateFirstName" class="control-label fw-bold p-1"></label>
+                                <input asp-for="@Model.AlternateFirstName" class="form-control" />
+                                <span asp-validation-for="@Model.AlternateFirstName" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label asp-for="@Model.AlternateLastName" class="control-label fw-bold p-1"></label>
+                                <input asp-for="@Model.AlternateLastName" class="form-control" />
+                                <span asp-validation-for="@Model.AlternateLastName" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                }
+                else
+                {
+                    if (Model.AlternateFirstName != null || Model.AlternateLastName != null)
+                    {
+                        <div class="row mb-1 pb-1">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <input type="hidden" asp-for="@Model.AlternateFirstName" />
+                                    <label asp-for="@Model.AlternateFirstName" class="control-label fw-bold p-1"></label>
+                                    <input disabled asp-for="@Model.AlternateFirstName" class="form-control" />
+
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <input type="hidden" asp-for="@Model.AlternateLastName" />
+                                    <label asp-for="@Model.AlternateLastName" class="control-label fw-bold p-1"></label>
+                                    <input disabled asp-for="@Model.AlternateLastName" class="form-control" />
+
+                                </div>
+                            </div>
+
+                        </div>
+
+                    }
+                    else
+                    {
+                        <input type="hidden" asp-for="@Model.AlternateFirstName" />
+                        <input type="hidden" asp-for="@Model.AlternateLastName" />
+                    }
+
+                }
+
+                <!-- #endregion -->
+                <!-- #region Can Set Username Override-->
+                @if (appUser.IsInLevel("Can Set Username Override"))
+                {
+                    <div class="row  mb-1 pb-1">
+                        <div class="col-md-12">
+                            <div class="form-check">
+
+                                <input @(Model.UsernameOverride != null && Model.UsernameOverride != "" ? "checked" : string.Empty ) name="chkUsername" class="form-check-input" type="checkbox" id="chkUsername" />
+
+                                <label class="form-check-label" for="chkUsername">
+                                    Select here if your staff member needs a special username rather than the default based on first and last name.
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div id="divUsername" class="row mb-1 pb-1" @((Model.UsernameOverride ?? "") != "" ? string.Empty : "style=display:none" )>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label asp-for="@Model.UsernameOverride" class="control-label fw-bold p-1"></label>
+                                <input asp-for="@Model.UsernameOverride" class="form-control" />
+                                <span asp-validation-for="@Model.UsernameOverride" class="text-danger"></span>
+                                @if (Model.UsernameOverride == null || Model.UsernameOverride == "")
+                                {
+                                    <input type="hidden" asp-for="@Model.UsernameOverride" />
+                                }
+
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                else
+                {
+                    if ((Model.UsernameOverride ?? "") != "")
+                    {
+                        <div class="row mb-1 pb-1">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <input type="hidden" asp-for="@Model.UsernameOverride" />
+                                    <label asp-for="@Model.UsernameOverride" class="control-label fw-bold p-1"></label>
+                                    <input disabled asp-for="@Model.UsernameOverride" class="form-control" />
+
+
+
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <input type="hidden" asp-for="@Model.UsernameOverride" />
+                    }
+
+                }
+
+                <!-- #endregion -->
+
+            </div>
+        </div>
+
+
+
+       
+        @if (Model.NameIsCurrentWithPHRST == false && Model.EmployeeId != null && Model.EmployeeId != 0)
+        {
+            <input type="submit" value="Confirm Name Change" name="SubmitAction" class="btn btn-primary mt-2 mb-2" />
+        }
+
+       
+        <!-- #endregion -->
+        <!--
+        #region Job Information Card -->
+
+        <div class="card  mt-3">
+
+            <div class="card-header fw-bold">
+                <div class="mb-1 pb-2 ">Job Information</div>
+                @*JOB INFORMATION CARD HEADER*@
+
+                @*tabs for job records (dbo.JobRecord)*@
+                <ul class="nav nav-tabs card-header-tabs justify-content-start" id="myTab" role="tablist">
+
+                    @* loop through job records to add tabs *@
+
+                    @{string currentJobs = Model.CurrentJob; }
+
+                    @foreach (var item in Model.JobRecords)
+                    {
+                        var current = "";
+                        if (item.IsCurrentJobRecord == true && ViewBag.JobRecordCount > 1)
+                        {
+                            current = "[CURRENT] ";
+                        }
+
+                        var review = "";
+                        if (item.JobRecordId == Model.MismatchedJobRecordId)
+                        {
+                            review = " (NEEDS REVIEW) ";
+                        }
+
+                        <li class="nav-item">
+                            <a class="nav-link @(review != "" ? "text-danger" : "" ) @(item.JobRecordId == Model.JobRecord.JobRecordId ? "active" : "fw-light" )" id="@item.JobRecordId-tab" asp-action="Edit" asp-route-jobrecordid="@item.JobRecordId" role="tab">@review @current @item.Title.Text - @item.Unit.Name</a>
+                        </li>
+                    }
+                    @* "New" tab *@
+
+                    @if ((Model.MismatchedJobRecordId == 0) && (Model.MismatchedJobCode != null))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link text-danger @(Model.JobRecord.JobRecordId == -1 ? "active" : "fw-light" )" id="-1-tab" asp-action="Edit" asp-route-jobrecordid="-1" role="tab">New (Needs New Job Record)</a>
+                        </li>
+                    }
+                    else
+                    {
+
+                        <li class="nav-item">
+                            <a class="nav-link  @(Model.JobRecord.JobRecordId == -1 ? "active" : "fw-light" )" id="-1-tab" asp-action="Edit" asp-route-jobrecordid="-1" role="tab">New</a>
+                        </li>
+                    }
+
+                </ul>
+
+
+            </div>
+
+            <div class="card-body">
+
+
+
+
+
+
+
+
+                @if (Model.PrimaryCount > 1)
+                {
+                    <div class="row">
+                        <div class="alert alert-danger">
+                            <strong>Warning! </strong> There are <strong>@Model.PrimaryCount </strong> current jobs set to Primary.  Please review.
+
+                        </div>
+                    </div>
+                }
+
+
+
+                @* If there is a mismatch between PHRST Employee Jobs and PHRST data on account's job records  *@
+                @if (Model.JobIsCurrentWithPHRST == false)
+                {
+                    //  Show grid of mismatches if matching condition (a current job record needs a change or a new job record is necessary)
+                    if ((Model.MismatchedJobRecordId == Model.JobRecord.JobRecordId) || ((Model.MismatchedJobCode != null) && (Model.JobRecord.JobRecordId == -1)))
+                    {
+
+
+                        @*//Card for PHRST changes*@
+                        <div class="card col-6">
+                            <div class="card-header  fw-bold">
+                                There are changes to PHRST that need to be reviewed.
+
+                            </div>
+
+                            <div class="card-body">
+
+
+
+                                @*//Detail of PHRST changes*@
+
+
+
+                                <div class="row p-2">
+                                    <div class="col-4 ">
+
+                                    </div>
+                                    <div class="col-4 fw-bold text-center">
+                                        CURRENT
+                                    </div>
+                                    <div class="col-4 fw-bold text-center">
+                                        NEW (from PHRST)
+                                    </div>
+                                </div>
+
+
+
+                                <div class="row p-2">
+
+                                    <div class="col-4 fw-bold  p-2 text-center">
+                                        Work Location
+                                    </div>
+                                    <div class="col-4 p-2 text-center">
+                                        @if (Model.JobRecord.HrWorkLocation != null && Model.JobRecord.HrWorkLocation != "")
+                                        {
+                                            @(((SelectList)ViewBag.fsfBuildingdata).Where(x => x.Value == Model.JobRecord.HrWorkLocation).FirstOrDefault().Text.ToString() )
+                                        }
+                                    </div>
+                                    <div class="col-4 p-2 rounded text-center @((Model.JobRecord.HrWorkLocation != Model.Employee.EmployeeJob.FsfBuildingId) ? "bg-warning" : String.Empty)">
+                                        @(((SelectList)ViewBag.fsfBuildingdata).Where(x => x.Value == Model.Employee.EmployeeJob.FsfBuildingId).FirstOrDefault().Text.ToString())
+
+                                    </div>
+
+                                </div>
+
+
+                                <div class="row p-2">
+                                    <div class="col-4 fw-bold p-2 text-center">
+                                        Personnel Code
+                                    </div>
+                                    <div class="col-4 p-2 text-center">
+                                        @if (Model.JobRecord.HrPersonnelCode != null && Model.JobRecord.HrPersonnelCode != "")
+                                        {
+                                            @(((SelectList)ViewBag.PersonnelCodedata).Where(x => x.Value == Model.JobRecord.HrPersonnelCode).FirstOrDefault().Text.ToString())
+                                        }
+                                    </div>
+                                    <div class="col-4  p-2 rounded text-center @((Model.JobRecord.HrPersonnelCode != Model.Employee.EmployeeJob.PersonnelCode ) ? "bg-warning" : String.Empty)">
+                                        @(((SelectList)ViewBag.PersonnelCodedata).Where(x => x.Value == Model.Employee.EmployeeJob.PersonnelCode).FirstOrDefault().Text.ToString())
+
+                                    </div>
+                                </div>
+
+                                <div class="row p-2">
+                                    <div class="col-4 fw-bold p-2 text-center">
+                                        Job Code
+                                    </div>
+                                    <div class="col-4 p-2 text-center">
+                                        @if (Model.JobRecord.HrJobCode != null && Model.JobRecord.HrJobCode != 0)
+                                        {
+                                            @(((SelectList)ViewBag.JobCodedata).Where(x => x.Value == (Model.JobRecord.HrJobCode ?? 0).ToString()).FirstOrDefault().Text.ToString())
+                                        }
+                                    </div>
+                                    <div class="col-4 p-2 rounded text-center  @((Model.JobRecord.HrJobCode != Model.Employee.EmployeeJob.Jobcode ) ? "bg-warning" : String.Empty) ">
+                                        @(((SelectList)ViewBag.JobCodedata).Where(x => x.Value == (Model.Employee.EmployeeJob.Jobcode ).ToString()).FirstOrDefault().Text.ToString())
+
+                                    </div>
+                                </div>
+
+                                <div class="row p-2">
+                                    <div class="col-4 fw-bold p-2 text-center">
+                                        Department
+                                    </div>
+                                    <div class="col-4 p-2 text-center">
+                                        @if ((Model.JobRecord.UnitId ?? 0) != 0)
+                                        {
+                                            @((Model.JobRecord.Unit.Units).Where(x => x.Value == (Model.JobRecord.UnitId ?? 0).ToString()).FirstOrDefault().Text.ToString())
+                                        }
+                                    </div>
+                                    <div class="col-4 p-2 rounded text-center  @((Model.JobRecord.UnitId != Model.Employee.EmployeeJob.UnitId ) ? "bg-warning" : String.Empty)">
+                                        @if ((Model.Employee.EmployeeJob.UnitId ?? 0) != 0)
+                                        {
+                                            @((Model.JobRecord.Unit.Units).Where(x => x.Value == (Model.Employee.EmployeeJob.UnitId ?? 0).ToString()).FirstOrDefault().Text.ToString())
+                                        }
+                                    </div>
+
+
+                                </div>
+
+                                <div class="row p-2">
+                                    <div class="col-4 fw-bold p-2 text-center">
+                                        Effective Date
+                                    </div>
+                                    <div class="col-4 p-2 text-center">
+                                        @if (Model.JobRecord.StartDate != null)
+                                        {
+                                            @(Model.JobRecord.StartDate)
+                                        }
+                                    </div>
+                                    <div class="col-4 p-2 rounded text-center  @((Model.JobRecord.StartDate != Model.Employee.EmployeeJob.EffectiveDate ) ? "bg-warning" : String.Empty)">
+                                        @if (Model.Employee.EmployeeJob.EffectiveDate != null)
+                                        {
+                                            @(Model.Employee.EmployeeJob.EffectiveDate)
+                                        }
+                                    </div>
+
+
+                                </div>
+
+
+
+                                @if (Model.JobIsCurrentWithPHRST == false && ((Model.MismatchedJobRecordId == Model.JobRecord.JobRecordId) || ((Model.MismatchedJobCode != null) && (Model.JobRecord.JobRecordId == -1))))
+                                {
+
+
+                                    <div class="row">
+
+                                        <div class=" pt-3 pb-3">
+                                            <label class="control-label fw-bold pb-1 mb-1">Please select the job summary from PHRST to confirm the update/change</label>
+                                            <select class="" asp-for="@Model.Employee.EmployeeJob.SelectedEmployeeJob" asp-items="@Model.Employee.EmployeeJob.EmployeeJobs">
+                                                <option value="">Choose a PHRST Job Description</option>
+                                            </select>
+
+                                        </div>
+                                    </div>
+                                }
+
+
+
+
+
+
+                            </div>  @*End Card body*@
+
+                        </div> @*End Card*@
+
+
+
+
+                    }
+
+                }
+
+
+
+
+
+
+
+                @*JOB INFORMATION CARD BODY*@
+                <div class="row">
+                    <div class="col-md-12 pt-3 pb-3">
+                        <label class="form-check-label">
+
+                            <input class="form-check-input" asp-for="@Model.JobRecord.IsPrimary" /> @Html.DisplayNameFor(model => model.JobRecord.IsPrimary)
+                        </label>
+
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <p class="fst-italic">PHRST/AD Job Title: @(Model.Employee.JobTitle + "-" + Model.User.JobTitle)</p>
+                    </div>
+                </div>
+
+
+                @if (Model.MismatchedJobRecordId == Model.JobRecord.JobRecordId && (Model.JobChanged == true) && (Model.NeedsReviewPersonnelCode != null || Model.NeedsReviewJobCode != null))
+                {
+                    <div class="row">
+
+                        <div class="col-md-12 pt-3 pb-1 text-danger fst-italic">
+                            Job change from PHRST: @Model.NeedsReviewPersonnelCode / @Model.NeedsReviewJobCode
+                            <a class="" id="JobChange" href="#" data-microtip-position="right" role="tooltip" aria-label="The job code and/or personnel code was changed in PHRST for this job record.  Please make the necessary changes to the job record.">
+                                <img src="~/images/question-circle.svg" class="">
+                            </a>
+                        </div>
+                    </div>
+                }
+
+
+                @*Row 1*@
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+
+                            <label asp-for="@Model.JobRecord.TitleGroupId" class="control-label"></label>
+                            <select class="form-control" asp-for="@Model.JobRecord.TitleGroupId" asp-items="@Model.JobRecord.TitleGroup.TitleGroups">
+                                <option value="">Choose Title Group</option>
+                            </select>
+
+                            <span asp-validation-for="@Model.JobRecord.TitleGroupId" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+
+                            <label asp-for="@Model.JobRecord.TitleId" class="control-label"></label>
+                            <select class="form-control" asp-for="@Model.JobRecord.TitleId" asp-items="@Model.JobRecord.Title.Titles">
+                                <option value="">Choose Title</option>
+                            </select>
+
+                            <span asp-validation-for="@Model.JobRecord.TitleId" class="text-danger"></span>
+
+
+                        </div>
+
+                        <input type="hidden" asp-for="@Model.JobTitle" />
+
+                    </div>
+
+
+
+                    <div class="col-md-2">
+                        <label class="control-label">Substituting for an employee?</label><br />
+                        <input @(Model.Employee.IsSubstitute == true ? "checked" : string.Empty ) type="radio" id="Employee_IsSubstitute" name="Employee.IsSubstitute" value="true" />&nbsp;Yes&nbsp;&nbsp;&nbsp;
+                        <input @(Model.Employee.IsSubstitute == false ? "checked" : string.Empty ) type="radio" id="Employee_IsSubstitute" name="Employee.IsSubstitute" value="false" />&nbsp;No<br />
+                    </div>
+
+                    <div id="divSubstitute" class="col-md-2" @(Model.Employee.IsSubstitute == true ? string.Empty : "style=display:none" )>
+
+                        <label for="Employees" class="control-label">Substitute for </label>
+                        <input class="form-control" value="@Model.Employee.SelectedEmployee" list="Employees" name="linkedemployeeInput" id="linkedemployeeInput" placeholder="Type to search employees...">
+                        <datalist id="Employees">
+                            @foreach (var item in Model.Employee.Employees)
+                            {
+                                @:<option @(Model.JobRecord.SubstituteForId == null ? string.Empty : "selected='selected'" ) data-id="@item.Key" value="@item.Value"></option>
+                            }
+                            }
+                        </datalist>
+                        <input type="hidden" name="linkedemployee" value="@Model.Employee.SelectedEmployeeId" id="linkedemployeeInput-hidden">
+                    </div>
+                    <div class="col-md-2">
+
+                    </div>
+                </div>
+                @*Row 2*@
+
+                @if (Model.MismatchedJobRecordId == Model.JobRecord.JobRecordId && (Model.WorkLocationChanged == true) && (Model.NeedsReviewBuilding != null || Model.NeedsReviewUnit != null))
+                {
+                    <div class="row">
+
+                        <div class="col-md-12 pt-3 pb-1 text-danger fst-italic">
+                            Location/Department change from PHRST: @Model.NeedsReviewBuilding / @Model.NeedsReviewUnit
+                            <a class="" id="JobChange" href="#" data-microtip-position="right" role="tooltip" aria-label="The building or department was changed in PHRST for this job record.  Please make the necessary changes to the job record.">
+                                <img src="~/images/question-circle.svg" class="">
+                            </a>
+
+                        </div>
+                    </div>
+                }
+
+
+                <div class="row">
+                    <div class="col-md-3 pt-3 pb-3">
+                        <div class="form-group">
+
+                            <label asp-for="@Model.JobRecord.UnitId" class="control-label"></label>
+                            <select class="form-control" asp-for="@Model.JobRecord.UnitId" asp-items="@Model.JobRecord.Unit.Units">
+                                <option value="">Choose a Department</option>
+                            </select>
+
+                            <span asp-validation-for="@Model.JobRecord.UnitId" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-3 pt-3 pb-3">
+                        @if (Model.JobRecord.UnitId != null)
+                        {
+                            <div class="form-group">
+                                <label asp-for="@Model.JobRecord.BuildingId" class="control-label"></label>
+                                <select class="form-control" asp-for="@Model.JobRecord.BuildingId" asp-items="@Model.JobRecord.Unit.Building.Buildings">
+                                    @if (ViewBag.JobRecordBuildingCount > 1)
+                                    {
+                                        <option value=""> Choose a Building</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="@Model.JobRecord.BuildingId" class="text-danger"></span>
+                            </div>
+                        }
+                    </div>
+                    <div class="col-md-6 pt-3 pb-3">
+                    </div>
+
+                </div>
+
+                <div class="row  ">
+                    <div class="col">
+
+                        <span class="field-validation-error text-danger">
+
+                            <span asp-validation-for="@Model.JobRecord" class="text-danger"></span>
+
+                        </span>
+                    </div>
+                </div>
+                @*Row 3*@
+                <div class="row  mb-1 pb-1">
+                    <div class="col-md-3 pt-3 pb-3">
+
+
+                        <label asp-for="@Model.JobRecord.StartDate" class="control-label"></label>
+                        <input asp-for="@Model.JobRecord.StartDate" class="form-control" />
+                    </div>
+                    <div class="col-md-3 pt-3 pb-3">
+                        <label asp-for="@Model.JobRecord.EndDate" class="control-label"></label>
+                        <input asp-for="@Model.JobRecord.EndDate" class="form-control" />
+                    </div>
+
+
+
+                    <div class="col-md-5 pt-3 pb-3">
+                    </div>
+                </div>
+                <div class="row  mb-1 pb-1">
+                    <div class="col-md-12 pt-3 pb-3">
+                        <label class="form-check-label">
+                            <input class="form-check-input" asp-for="@Model.JobRecord.IsActive" /> @Html.DisplayNameFor(model => model.JobRecord.IsActive)
+                        </label>
+                    </div>
+                </div>
+
+
+                <div class="row  mb-1 pb-1">
+                    <div class="col-md-12 pt-3 pb-3">
+                        @if (Model.CurrentJob != "")
+                        {
+                            <div class="fw-bold">Current Job(s):</div><p class="fst-italic"> @Html.Raw(Model.CurrentJob)</p>
+                        }
+                        @if (Model.FutureJob != "")
+                        {
+                            <div class="fw-bold">Future/Upcoming Job(s):</div> <p class="fst-italic">@Html.Raw(Model.FutureJob)</p>
+                        }
+                        @if (Model.PastJob != "")
+                        {
+                            <div class="fw-bold"> Past job(s):</div><p class="fst-italic"> @Html.Raw(Model.PastJob)</p>
+                        }
+                    </div>
+                </div>
+
+
+
+                <!-- #region PHRST Information card -->
+
+                <div class="card">
+
+                    <div class="card-header fw-bold">
+                        PHRST Information
+                    </div>
+
+                    <div class="card-body">
+
+
+
+
+
+
+                        <div class="row">
+
+                            <div class="col-md-3 pt-3 pb-3">
+                                <input type="hidden" asp-for="@Model.JobRecord.HrWorkLocation" />
+                                <label asp-for="@Model.JobRecord.HrWorkLocation" class="control-label"></label>
+                                @if ((Model.JobRecord.HrWorkLocation ?? "") != "")
+                                {
+
+
+
+
+                                    <select disabled asp-for="@Model.JobRecord.HrWorkLocation" class="form-control" asp-items="ViewBag.fsfBuildingdata">
+                                        <option value=""> Choose a Building</option>
+                                    </select>
+                                }
+                                else
+                                {
+                                    <input disabled asp-for="@Model.JobRecord.HrWorkLocation" class="form-control" />
+                                }
+                            </div>
+                            <div class="col-md-3 pt-3 pb-3">
+                                <input type="hidden" asp-for="@Model.JobRecord.HrPersonnelCode" />
+                                <label asp-for="@Model.JobRecord.HrPersonnelCode" class="control-label"></label>
+                                @if ((Model.JobRecord.HrPersonnelCode ?? "") != "")
+                                {
+                                    <select disabled asp-for="@Model.JobRecord.HrPersonnelCode" class="form-control" asp-items="ViewBag.PersonnelCodedata">
+                                        <option value=""> Choose a personnel code</option>
+                                    </select>
+                                }
+                                else
+                                {
+                                    <input disabled asp-for="@Model.JobRecord.HrPersonnelCode" class="form-control" />
+                                }
+                            </div>
+                            <div class="col-md-3 pt-3 pb-3">
+
+                                <input type="hidden" asp-for="@Model.JobRecord.HrJobCode" />
+                                <label asp-for="@Model.JobRecord.HrJobCode" class="control-label"></label>
+                                @if ((Model.JobRecord.HrJobCode ?? 0) != 0)
+                                {
+                                    <select disabled asp-for="@Model.JobRecord.HrJobCode" class="form-control" asp-items="ViewBag.JobCodedata">
+                                        <option value=""> Choose a job code</option>
+                                    </select>
+
+                                }
+                                else
+                                {
+                                    <input disabled asp-for="@Model.JobRecord.HrJobCode" class="form-control" />
+                                }
+                            </div>
+
+                            <div class="col-md-2 pt-3 pb-3">
+
+
+                                <div class="form-check">
+
+                                    <input disabled type="checkbox" name="JobRecord_HrPrimary" id="JobRecord_HrPrimary" @(Model.JobRecord.HrPrimary ?? "false" == "true" ? "checked" : string.Empty) />
+                                    <label class="form-check-label">Is Primary</label>
+
+
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <!-- #endregion -->
+
+
+
+                <div class="row  ">
+                    <div class="col-md-12 text-center pt-2 pb-1">
+                        Created: @Model.JobRecord.CreateDate | Last Updated: @Model.JobRecord.LastUpdate
+                    </div>
+                </div>
+
+
+                @*Job Information Card End*@
+            </div>
+        </div>
+
+
+        <!-- #endregion -->
+        <!--<br />
+        <div class="row">
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label asp-for="@Model.IsActive" class="control-label"></label><br />
+                    <input @(Model.IsActive == true ? "checked" : string.Empty ) type="radio" id="IsActive" name="IsActive" value="true" />&nbsp;Active&nbsp;&nbsp;&nbsp;
+                    <input @(Model.IsActive == false ? "checked" : string.Empty ) type="radio" id="IsActive" name="IsActive" value="false" />&nbsp;Inactive<br />-->
+        @*<input asp-for="@Model.IsActive" class="form-control input-sm" />*@
+        @*<span asp-validation-for="@Model.IsActive" class="text-danger"></span>*@
+        <!--</div>
+        </div>
+        <div class="col-md-3">-->
+        @*<div class="form-group">
+            <label asp-for="@Model.Source" class="control-label"></label>*@
+        <!--<input type="hidden" asp-for="@Model.Source" />-->
+        @*<span asp-validation-for="@Model.Source" class="text-danger"></span>*@
+        @*</div>*@
+        <!--</div>
+            <div class="col-md-6">
+            </div>
+        </div>-->
+        @*<div>
+                Validation:
+                <label id="lblValidation" class="control-label"></label><br />
+            </div>*@
+
+
+        <div class="row  mb-1 pb-1">
+            <div class="col-md-12">
+
+                <div class="form-group">
+
+                    @*<p class="text-success">
+                          <br />
+                         @Html.Raw(TempData["ResultMessage"])
+                        </p>*@
+
+                    @if (TempData["ResultMessage"] != null)
+                    {
+                        <div class="alert alert-success p-2 d-flex " role="alert">
+                            <img src="~/lib/bootstrap-icons/icons/check-circle.svg" class="filter-green">
+
+                            <div class="p-2">
+                                @Html.Raw(TempData["ResultMessage"])
+                            </div>
+                        </div>
+                    }
+                    <br />
+                    <input id="btnSave" type="submit" value="Save" name="SubmitAction" class="btn btn-primary" />&nbsp;&nbsp;<input id="btnSaveContinue" name="SubmitAction" type="submit" value="Save And Continue" class="btn btn-primary" />
+                    <br />
+
+
+                </div>
+            </div>
+        </div>
+
+
+
+
+        <!-- #region Auto Assignment Card -->
+
+        
+        <div class="card mt-3">
+
+            <div class="card-header  fw-bold">
+                Active Directory Group Assignment Info
+            </div>
+
+            <div class="card-body">
+
+
+                <div class="row">
+                    <div class="col-md-4 fw-bold ">
+                        Calculated Groups
+                    </div>
+                    <div class="col-md-4 fw-bold ">
+                        Actual Groups
+                    </div>
+                    <div class="col-md-4 fw-bold ">
+                        Organizational Unit
+                    </div>
+                </div>
+
+                <div class="row">
+                    @*<div class="col-md-4 ">
+                            <vc:job-title-assignment systemid="@Model.SystemId"></vc:job-title-assignment>
+                        </div>*@
+
+                    <div class="col-md-4 border-1 ">
+                        <vc:group-assignment page="EmployeeStaffGroups" viewid="0" systemid="@Model.SystemId"></vc:group-assignment>
+                    </div>
+
+                    <div class="col-md-4 border-1">
+                        <vc:group-assignment page="EmployeeGroups" viewid="0" systemid="@Model.SystemId"></vc:group-assignment>
+                    </div>
+                    <div class="col-md-4 ">
+
+                        @Model.User.OrganizationalUnit.OrganizationalUnitName
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+
+
+        <!-- #endregion -->
+        <!-- #region Account History Card -->
+
+     
+        <div class="card mt-3">
+
+            <div class="card-header  fw-bold">
+                Account Record History
+            </div>
+
+            <div class="card-body">
+
+                <div class="row">
+                    <div class="col-md-3">
+
+                        <div class="form-group">
+                            <input type="hidden" asp-for="@Model.CreateDate" />
+                            <label asp-for="@Model.CreateDate" class="control-label"></label>
+                            <input disabled="disabled" asp-for="@Model.CreateDate" class="form-control input-sm" />
+                            <span asp-validation-for="@Model.CreateDate" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <input type="hidden" asp-for="@Model.CreateUser" />
+                            <label asp-for="@Model.CreateUser" class="control-label"></label>
+                            <input disabled="disabled" asp-for="@Model.CreateUser" class="form-control input-sm" />
+                            <span asp-validation-for="@Model.CreateUser" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+
+                        <div class="form-group">
+                            <input type="hidden" asp-for="@Model.LastUpdate" />
+                            <label asp-for="@Model.LastUpdate" class="control-label"></label>
+                            <input disabled="disabled" asp-for="@Model.LastUpdate" class="form-control input-sm" />
+                            <span asp-validation-for="@Model.LastUpdate" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <input type="hidden" asp-for="@Model.LastUpdateUser" />
+                            <label asp-for="@Model.LastUpdateUser" class="control-label"></label>
+                            <input disabled="disabled" asp-for="@Model.LastUpdateUser" class="form-control input-sm" />
+                            <span asp-validation-for="@Model.LastUpdateUser" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                @if (Model.AuditLogView.Any())
+
+                {
+                    
+                    <div class="row mt-1">
+                        <div class="col-md-12">
+
+                            <table class="table table-hover ">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th scope="col">
+                                            @Html.DisplayNameFor(model => model.AuditLogView[0].LogId)
+                                        </th>
+
+                                        <th scope="col">
+                                            <a asp-controller="SystemReview" asp-action="AuditLog" asp-route-sortOrder="@ViewData["DateSort"]" asp-route-currentFilter="@ViewData["CurrentFilter"]"> @Html.DisplayNameFor(model => model.AuditLogView[0].LogDate)</a>
+                                        </th>
+                                        <th scope="col">
+                                            @Html.DisplayNameFor(model => model.AuditLogView[0].ReferenceTable)
+                                        </th>
+                                        <th scope="col">
+                                            @Html.DisplayNameFor(model => model.AuditLogView[0].ReferenceID)
+                                        </th>
+
+                                        <th scope="col">
+                                            <a asp-controller="SystemReview" asp-action="AuditLog" asp-route-sortOrder="@ViewData["EmployeeSort"]" asp-route-currentFilter="@ViewData["CurrentFilter"]"> @Html.DisplayNameFor(model => model.AuditLogView[0].Employee)</a>
+                                        </th>
+                                        <th scope="col">
+                                            @Html.DisplayNameFor(model => model.AuditLogView[0].ActionType)
+                                        </th>
+                                        <th scope="col">
+                                            <a asp-controller="SystemReview" asp-action="AuditLog" asp-route-sortOrder="@ViewData["UserSort"]" asp-route-currentFilter="@ViewData["CurrentFilter"]"> @Html.DisplayNameFor(model => model.AuditLogView[0].ApplicationUser)</a>
+
+                                        </th>
+                                        <th scope="col">
+                                            @Html.DisplayNameFor(model => model.AuditLogView[0].ImpersonatedUser)
+                                        </th>
+                                        <th scope="col">
+                                            @Html.DisplayNameFor(model => model.AuditLogView[0].Comment)
+                                        </th>
+
+                                        @*<th></th>*@
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.AuditLogView)
+                                    {
+                                        <tr>
+                                            <th scope="row">
+                                                @Html.DisplayFor(modelItem => item.LogId)
+                                            </th>
+                                            <td>
+                                                @Html.DisplayFor(modelItem => item.LogDate)
+                                            </td>
+                                            <td>
+                                                @Html.DisplayFor(modelItem => item.ReferenceTable)
+                                            </td>
+                                            <td>
+                                                @Html.DisplayFor(modelItem => item.ReferenceID)
+                                            </td>
+                                            <td>
+                                                @Html.DisplayFor(modelItem => item.Employee)
+                                            </td>
+                                            <td>
+                                                @Html.DisplayFor(modelItem => item.ActionType)
+                                            </td>
+                                            <td>
+                                                @Html.DisplayFor(modelItem => item.ApplicationUser)
+                                            </td>
+                                            <td>
+                                                @Html.DisplayFor(modelItem => item.ImpersonatedUser)
+                                            </td>
+                                            <td>
+                                                @Html.Raw(item.CommentHTML)
+                                            </td>
+
+                                            @* <td>
+                                                    <a asp-controller="Account" asp-action="Add" asp-route-id="@item.LogId">Add</a>
+                                                   <a asp-action="Details" asp-route-id="@item.JobRecordId">Details</a> |
+                                                <a asp-action="Delete" asp-route-id="@item.JobRecordId">Delete</a>
+                                                    </td>*@
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                }
+
+
+
+
+
+
+
+
+            </div>
+        </div>
+
+
+
+        <!-- #endregion -->
+        <!-- #region hidden form values -->
+        <input type="hidden" asp-for="@Model.ContractorId" />
+        <input type="hidden" asp-for="@Model.StudentId" />
+        <input type="hidden" asp-for="@Model.Description" />
+        <input type="hidden" asp-for="@Model.MismatchedJobRecordId" />
+        <input type="hidden" asp-for="@Model.MismatchedPersonnelCode" />
+        <input type="hidden" asp-for="@Model.MismatchedJobCode" />
+        <input type="hidden" asp-for="@Model.MismatchedWorkLocation" />
+
+        <input type="hidden" asp-for="@Model.JobRecord.SystemId" />
+        <input type="hidden" asp-for="@Model.JobRecord.BuildingId" />
+        <input type="hidden" asp-for="@Model.JobRecord.JobRecordId" />
+        <input type="hidden" asp-for="@Model.JobRecord.HrRecordNumber" />
+        <input type="hidden" asp-for="@Model.JobRecord.HrMatched" />
+        <input type="hidden" asp-for="@Model.JobRecord.NeedsReview" />
+        <input type="hidden" asp-for="@Model.Employee.FsfBuildingId" />
+        <input type="hidden" asp-for="@Model.Employee.PersonnelCode" />
+        <input type="hidden" asp-for="@Model.Employee.Jobcode" />
+        <input type="hidden" asp-for="@Model.Employee.EmployeeStatus" />
+        <input type="hidden" asp-for="@Model.Employee.UnitId" />
+        <input type="hidden" asp-for="@Model.Employee.UnitIdManual" />
+        <input type="hidden" asp-for="@Model.Employee.JobTitle" />
+        <input type="hidden" asp-for="@Model.Employee.JobTitleManual" />
+        <input type="hidden" asp-for="@Model.Employee.EndDate" />
+        <input type="hidden" asp-for="@Model.Employee.IsDeleted" />
+        <input type="hidden" asp-for="@Model.Employee.LastUpdate" />
+        <input type="hidden" asp-for="@Model.User.JobTitle" />
+        <input type="hidden" asp-for="@Model.User.GivenName" />
+        <input type="hidden" asp-for="@Model.User.Surname" />
+        <input type="hidden" asp-for="@Model.User.SamaccountName" />
+        <input type="hidden" asp-for="@Model.User.Mail" />
+        <input type="hidden" asp-for="@Model.User.IsDisabled" />
+        <input type="hidden" asp-for="@Model.User.IsDeleted" />
+        <input type="hidden" asp-for="@Model.User.OrganizationalUnit.OrganizationalUnitName" />
+        <!-- #endregion hidden form values -->
+
+
+    </form>
+</div>
+
+
+<div>
+    <br />
+    <a asp-action="Index">Back to List</a>
+</div>
+
+<!-- #endregion main form -->
+<!-- #region Scripts -->
+
+@section Scripts {
+
+
+    <script type="text/javascript">
+        document.querySelector('#linkedemployeeInput').addEventListener('input', function (e) {
+            var input = e.target,
+                list = input.getAttribute('list'),
+                options = document.querySelectorAll('#' + list + ' option[value="' + input.value + '"]'),
+                hiddenInput = document.getElementById(input.getAttribute('id') + '-hidden');
+
+            if (options.length > 0) {
+                hiddenInput.value = options[0].dataset.id
+
+            }
+
+        });
+    </script>
+
+    <script type="text/javascript">
+        $(function () {
+            $("#Employee_IsSubstitute").on('change', function () {
+
+
+                $("#formEdit").append(' <input type="hidden" name="command" value="changelayout" /> ');
+
+                this.form.submit();
+            });
+        });
+    </script>
+
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#lnkMatchEmployee").click(function () {
+
+                $("#divMatchEmployee").show();
+
+            });
+        });
+    </script>
+
+    @*<script type="text/javascript">
+        $(function () {
+            $("#JobRecord_UnitId").on('change', function () {
+
+
+                $("#formEdit").append(' <input type="hidden" name="command" value="changelayout" /> ');
+
+                this.form.submit();
+            });
+        });
+    </script>*@
+
+
+
+
+    @*<script type="text/javascript">
+        $(function () {
+            $("#formEdit").on('change', 'input[name="AccountTypeId"]:radio', function () {
+                $("#formEdit").append(' <input type="hidden" name="command" value="changelayout" /> ');
+
+                this.form.submit();
+            });
+        });
+    </script>*@
+
+
+
+    <script type="text/javascript">
+        $(function () {
+            $("#Employee_EmployeeJob_SelectedEmployeeJob").on('change', function () {
+
+
+                $("#formEdit").append(' <input type="hidden" name="command" value="changelayout" /> ');
+
+                this.form.submit();
+            });
+        });
+    </script>
+
+
+    <script type="text/javascript">
+
+        var myEnum = {
+            LongtermSub: "4"
+
+        };
+
+
+
+        $(function () {
+            var rblAccountType = $("input[name=AccountTypeId]");
+            rblAccountType.click(function () {
+                var checkedItem = rblAccountType.filter(":checked");
+                var checkedValue = checkedItem.val();
+                //alert(checkedValue);
+                if (checkedValue == myEnum.LongtermSub) {
+
+                    $("#divSubstitute").show();
+                    var rblSubstitute = $("#Employee_IsSubstitute");
+                    var YesItem = rblSubstitute.filter(function () {
+                        return $(this).attr("value") === "true";
+                    }
+
+
+
+                    );
+
+                    //alert(YesItem.attr("value"));
+                    YesItem.prop('checked', true);
+                }
+
+            })
+        })
+
+
+
+        $("#JobRecord_TitleGroupId").on('change', function () {
+
+            var selectedTitleGroupId = $("#JobRecord_TitleGroupId").val();
+            var ddlJobRecord_TitleId = $('#JobRecord_TitleId');
+
+            ddlJobRecord_TitleId.empty();   //clear title list before refresh
+
+
+            if (selectedTitleGroupId != null && selectedTitleGroupId != '') {
+
+
+                $.ajax({
+                    type: "POST",
+
+                    url: "/account/UpdateTitles",
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader("XSRF-TOKEN",
+                            $('input:hidden[name="__RequestVerificationToken"]').val());
+                    },
+                    dataType: "JSON",
+                    data: selectedTitleGroupId,
+                    contentType: 'application/json',
+                    success: function (titles) {
+                        if (titles != null && !jQuery.isEmptyObject(titles)) {
+                            ddlJobRecord_TitleId.append($('<option/>', {
+                                value: null,
+                                text: ""
+                            }));
+
+
+                            $.each(titles, function (index, title) {
+
+                                ddlJobRecord_TitleId.append("<option value='" + title.Value + "'>" + title.Text + "</option>");
+                            });
+
+                            validateForm();
+
+                        };
+                    },
+                    failure: function (response) {
+                        alert(response);
+
+
+                    }
+                });
+            }
+
+        });
+
+    </script>
+
+
+
+
+    <script type="text/javascript">
+
+        $("#JobRecord_UnitId").on('change', function () {
+
+            var selectedUnitId = $("#JobRecord_UnitId").val();
+            var ddlJobRecord_BuildingId = $('#JobRecord_BuildingId');
+
+            ddlJobRecord_BuildingId.empty();   //clear building list before refresh
+
+
+            if (selectedUnitId != null && selectedUnitId != '') {
+
+
+                $.ajax({
+                    type: "POST",
+
+                    url: "/account/UpdateBuildings",
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader("XSRF-TOKEN",
+                            $('input:hidden[name="__RequestVerificationToken"]').val());
+                    },
+                    dataType: "JSON",
+                    data: selectedUnitId,
+                    contentType: 'application/json',
+                    success: function (buildings) {
+                        if (buildings != null && !jQuery.isEmptyObject(buildings)) {
+                            ddlJobRecord_BuildingId.append($('<option/>', {
+                                value: "",
+                                text: " Choose Building"
+                            }));
+
+                            //ddlJobRecord_BuildingId.append("<option value=''> Choose Building</option>");
+
+                            $.each(buildings, function (index, building) {
+
+                                ddlJobRecord_BuildingId.append("<option value='" + building.Value + "'>" + building.Text + "</option>");
+                            });
+
+                            ddlJobRecord_BuildingId.css('visibility', 'visible');
+                            SetButtonState();
+
+                        };
+                    },
+                    failure: function (response) {
+                        alert(response);
+
+
+                    }
+                });
+            }
+
+        });
+
+    </script>
+
+
+
+    <script type="text/javascript">
+        $(function () {
+            $("#chkNickname").click(function () {
+                if ($(this).is(':checked')) {
+                    $("#divNickname").show();
+                }
+                else {
+                    $("#divNickname").hide();
+                }
+            });
+        });
+    </script>
+
+    <script type="text/javascript">
+        $(function () {
+            $("#chkAlt").click(function () {
+                if ($(this).is(':checked')) {
+                    $("#divAlt").show();
+                }
+                else {
+                    $("#divAlt").hide();
+                }
+            });
+        });
+    </script>
+
+
+
+    <script type="text/javascript">
+        $(function () {
+            $("#chkUsername").click(function () {
+                if ($(this).is(':checked')) {
+                    $("#divUsername").show();
+                }
+                else {
+                    $("#divUsername").hide();
+                }
+            });
+        });
+    </script>
+
+
+    @*<script type="text/javascript">
+        $(function () {
+            $("#AccountTypeId").on('change', function () {
+
+
+                $("#formEdit").append(' <input type="hidden" name="command" value="changelayout" /> ');
+
+                this.form.submit();
+            });
+        });
+    </script>*@
+
+
+
+
+
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script type="text/javascript">
+        function SetButtonState() {
+
+            var myform = $('#formEdit');
+            $.validator.unobtrusive.parse(myform);
+            myform.validate().form();
+
+          
+            if (myform.valid() === false) {
+
+               
+                $('#btnSave').addClass('disabled');
+                $('#btnSave').css("background-color", "#adb5bd");
+
+                $('#btnSaveContinue').addClass('disabled');
+                $('#btnSaveContinue').css("background-color", "#adb5bd");
+
+
+
+            } else {
+
+              
+
+                $('#btnSave').removeAttr("style");
+                $('#btnSave').removeClass('disabled');
+
+                $('#btnSaveContinue').removeAttr("style");
+                $('#btnSaveContinue').removeClass('disabled');
+            }
+
+
+        };
+
+        function validateForm() {
+            if ($("form").valid()) {
+                $("form").find(".validation-summary-errors").html("");
+            }
+        };
+
+          function clearErrors() {
+              var $form = $('#formEdit');
+                var $validator = $form.validate();
+                var $errors = $form.find(".field-validation-error span");
+                $errors.each(function () { $validator.settings.success($(this)); })
+                $validator.resetForm();
+        };
+
+
+
+    </script>
+
+
+
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            $('#formEdit').change(function () {
+                SetButtonState();
+                clearErrors();
+            });
+        });
+
+        $(document).ready(function () {
+
+            SetButtonState();
+            clearErrors();
+        });
+
+
+    </script>
+
+
+
+}
+<!-- #endregion -->
