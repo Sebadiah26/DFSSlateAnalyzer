@@ -1,5 +1,7 @@
 using DFSSlateAnalyzerCore.Repositories;
 using DFSSlateAnalyzerCore.Repositories.Interfaces;
+using System.Data.Entity;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,7 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 
-builder.Services.AddScoped<ISlateRepository, SlateRepository>();
+
 
 
 

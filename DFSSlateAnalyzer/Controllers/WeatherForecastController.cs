@@ -35,7 +35,7 @@ namespace DFSSlateAnalyzer.Controllers
         }
 
         [HttpGet(Name = "GetContest")]
-        public async Task<Contest> GetContest(int SlateID)
+        public async Task<ContestModel> GetContest(int SlateID)
         {
             // var contest = new Contest();
 

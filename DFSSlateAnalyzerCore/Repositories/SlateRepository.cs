@@ -15,12 +15,12 @@ namespace DFSSlateAnalyzerCore.Repositories
 
         }
 
-        public async Task<Contest> LoadContest(int ID)
+        public async Task<ContestModel> LoadContest(int ID)
         {
-            var contest = new Contest();
+            var contest = new ContestModel();
 
-            List<Entry> entryList = new List<Entry>();
-            List<Player> contestPlayerList = new List<Player>();
+            List<EntryModel> entryList = new List<EntryModel>();
+            List<PlayerModel> contestPlayerList = new List<PlayerModel>();
 
             var csvConfig = new CsvConfiguration(CultureInfo.InvariantCulture)
             {
@@ -40,8 +40,8 @@ namespace DFSSlateAnalyzerCore.Repositories
                 while (csv.Read())
                 {
 
-                    var entry = new Entry();
-                    var player = new Player();
+                    var entry = new EntryModel();
+                    var player = new PlayerModel();
 
 
                     // Get first entry from csv
@@ -87,20 +87,20 @@ namespace DFSSlateAnalyzerCore.Repositories
 
 
 
-            List<EntryMember> GetEntryMembers(string? lineup, string? entryId)
+            List<EntryMemberModel> GetEntryMembers(string? lineup, string? entryId)
             {
-                List<EntryMember> entryMembers = new List<EntryMember>();
+                List<EntryMemberModel> entryMembers = new List<EntryMemberModel>();
 
                 string[] words = (lineup ?? "").Split(' ');
 
-                entryMembers.Add(new EntryMember { EntryId = entryId, LineupSlot = GetLineupSlot(words[0]), Player = words[1] + " " + words[2], Position = words[0] });
-                entryMembers.Add(new EntryMember { EntryId = entryId, LineupSlot = GetLineupSlot(words[3]), Player = words[4] + " " + words[5], Position = words[3] });
-                entryMembers.Add(new EntryMember { EntryId = entryId, LineupSlot = GetLineupSlot(words[6]), Player = words[7] + " " + words[8], Position = words[6] });
-                entryMembers.Add(new EntryMember { EntryId = entryId, LineupSlot = GetLineupSlot(words[9]), Player = words[10] + " " + words[11], Position = words[9] });
-                entryMembers.Add(new EntryMember { EntryId = entryId, LineupSlot = GetLineupSlot(words[12]), Player = words[13] + " " + words[14], Position = words[12] });
-                entryMembers.Add(new EntryMember { EntryId = entryId, LineupSlot = GetLineupSlot(words[15]), Player = words[16] + " " + words[17], Position = words[15] });
-                entryMembers.Add(new EntryMember { EntryId = entryId, LineupSlot = GetLineupSlot(words[18]), Player = words[19] + " " + words[20], Position = words[18] });
-                entryMembers.Add(new EntryMember { EntryId = entryId, LineupSlot = GetLineupSlot(words[21]), Player = words[22] + " " + words[23], Position = words[21] });
+                entryMembers.Add(new EntryMemberModel { EntryId = entryId, LineupSlot = GetLineupSlot(words[0]), Player = words[1] + " " + words[2], Position = words[0] });
+                entryMembers.Add(new EntryMemberModel { EntryId = entryId, LineupSlot = GetLineupSlot(words[3]), Player = words[4] + " " + words[5], Position = words[3] });
+                entryMembers.Add(new EntryMemberModel { EntryId = entryId, LineupSlot = GetLineupSlot(words[6]), Player = words[7] + " " + words[8], Position = words[6] });
+                entryMembers.Add(new EntryMemberModel { EntryId = entryId, LineupSlot = GetLineupSlot(words[9]), Player = words[10] + " " + words[11], Position = words[9] });
+                entryMembers.Add(new EntryMemberModel { EntryId = entryId, LineupSlot = GetLineupSlot(words[12]), Player = words[13] + " " + words[14], Position = words[12] });
+                entryMembers.Add(new EntryMemberModel { EntryId = entryId, LineupSlot = GetLineupSlot(words[15]), Player = words[16] + " " + words[17], Position = words[15] });
+                entryMembers.Add(new EntryMemberModel { EntryId = entryId, LineupSlot = GetLineupSlot(words[18]), Player = words[19] + " " + words[20], Position = words[18] });
+                entryMembers.Add(new EntryMemberModel { EntryId = entryId, LineupSlot = GetLineupSlot(words[21]), Player = words[22] + " " + words[23], Position = words[21] });
 
 
                 return entryMembers;

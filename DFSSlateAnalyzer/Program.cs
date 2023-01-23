@@ -1,3 +1,7 @@
+using DFSSlateAnalyzerCore.Repositories.Interfaces;
+using DFSSlateAnalyzerCore.Repositories;
+using System.Data.Entity;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -13,6 +17,9 @@ services.AddSwaggerGen();
 
 services.AddDistributedMemoryCache();
 services.AddHttpContextAccessor();
+
+
+services.AddScoped<ISlateRepository, SlateRepository>();
 
 
 

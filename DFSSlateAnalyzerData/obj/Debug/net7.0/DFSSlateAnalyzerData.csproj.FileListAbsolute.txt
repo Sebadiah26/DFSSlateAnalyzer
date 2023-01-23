@@ -12,3 +12,17 @@ C:\Users\sebad\source\repos\DFSSlateAnalyzer\DFSSlateAnalyzerData\obj\Debug\net7
 C:\Users\sebad\source\repos\DFSSlateAnalyzer\DFSSlateAnalyzerData\obj\Debug\net7.0\DFSSlateAnalyzerData.pdb
 C:\Users\sebad\source\repos\DFSSlateAnalyzer\DFSSlateAnalyzerData\obj\Debug\net7.0\DFSSlateAnalyzerData.genruntimeconfig.cache
 C:\Users\sebad\source\repos\DFSSlateAnalyzer\DFSSlateAnalyzerData\obj\Debug\net7.0\ref\DFSSlateAnalyzerData.dll
+C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzerData\bin\Debug\net7.0\DFSSlateAnalyzerData.deps.json
+C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzerData\bin\Debug\net7.0\DFSSlateAnalyzerData.runtimeconfig.json
+C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzerData\bin\Debug\net7.0\DFSSlateAnalyzerData.dll
+C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzerData\bin\Debug\net7.0\DFSSlateAnalyzerData.pdb
+C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzerData\obj\Debug\net7.0\DFSSlateAnalyzerData.csproj.AssemblyReference.cache
+C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzerData\obj\Debug\net7.0\DFSSlateAnalyzerData.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzerData\obj\Debug\net7.0\DFSSlateAnalyzerData.AssemblyInfoInputs.cache
+C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzerData\obj\Debug\net7.0\DFSSlateAnalyzerData.AssemblyInfo.cs
+C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzerData\obj\Debug\net7.0\DFSSlateAnalyzerData.csproj.CoreCompileInputs.cache
+C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzerData\obj\Debug\net7.0\DFSSlateAnalyzerData.dll
+C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzerData\obj\Debug\net7.0\refint\DFSSlateAnalyzerData.dll
+C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzerData\obj\Debug\net7.0\DFSSlateAnalyzerData.pdb
+C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzerData\obj\Debug\net7.0\DFSSlateAnalyzerData.genruntimeconfig.cache
+C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzerData\obj\Debug\net7.0\ref\DFSSlateAnalyzerData.dll

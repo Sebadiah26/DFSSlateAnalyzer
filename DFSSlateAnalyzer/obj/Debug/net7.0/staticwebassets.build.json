@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "minJ8wiNJ1XX7VSOPMaUOGMGSENL7y2ELj7Tn2DcRS4=",
+  "Hash": "orlDCVJoh6HKBZyq3vIKqnFLopNlsrUSnh8ztoU3mHs=",
   "Source": "DFSSlateAnalyzerAPI",
   "BasePath": "_content/DFSSlateAnalyzerAPI",
   "Mode": "Default",
@@ -10,7 +10,7 @@
     {
       "Name": "DFSSlateAnalyzerAPI\\wwwroot",
       "Source": "DFSSlateAnalyzerAPI",
-      "ContentRoot": "C:\\Users\\sebad\\source\\repos\\DFSSlateAnalyzer\\DFSSlateAnalyzer\\wwwroot\\",
+      "ContentRoot": "C:\\Users\\sebad\\source\\repos\\Sebadiah26\\DFSSlateAnalyzer\\DFSSlateAnalyzer\\wwwroot\\",
       "BasePath": "_content/DFSSlateAnalyzerAPI",
       "Pattern": "**"
     }
