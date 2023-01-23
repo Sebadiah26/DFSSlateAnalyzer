@@ -38,6 +38,9 @@ namespace DFSSlateAnalyzerAngular.Controllers
 
             var contest = await _slateRepository.LoadContest(SlateID);
 
+             _slateRepository.SaveContestToDatabase(contest);
+
+
             return contest;
         }
 
