@@ -11224,23 +11224,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\sebad\\.nuget\\packages\\": {},
+    "C:\\Users\\craig.kielinski\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\sebad\\source\\repos\\Sebadiah26\\DFSSlateAnalyzer\\DFSSlateAnalyzerData\\DFSSlateAnalyzerData.csproj",
+      "projectUniqueName": "C:\\Projects\\GitHub\\DFSSlateAnalyzer\\DFSSlateAnalyzer\\DFSSlateAnalyzerData\\DFSSlateAnalyzerData.csproj",
       "projectName": "DFSSlateAnalyzerData",
-      "projectPath": "C:\\Users\\sebad\\source\\repos\\Sebadiah26\\DFSSlateAnalyzer\\DFSSlateAnalyzerData\\DFSSlateAnalyzerData.csproj",
-      "packagesPath": "C:\\Users\\sebad\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\sebad\\source\\repos\\Sebadiah26\\DFSSlateAnalyzer\\DFSSlateAnalyzerData\\obj\\",
+      "projectPath": "C:\\Projects\\GitHub\\DFSSlateAnalyzer\\DFSSlateAnalyzer\\DFSSlateAnalyzerData\\DFSSlateAnalyzerData.csproj",
+      "packagesPath": "C:\\Users\\craig.kielinski\\.nuget\\packages\\",
+      "outputPath": "C:\\Projects\\GitHub\\DFSSlateAnalyzer\\DFSSlateAnalyzer\\DFSSlateAnalyzerData\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\sebad\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\craig.kielinski\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -11325,7 +11325,11 @@
             "privateAssets": "all"
           }
         },
+<<<<<<< HEAD
         "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.102\\RuntimeIdentifierGraph.json"
+=======
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.101\\RuntimeIdentifierGraph.json"
+>>>>>>> 8aab05e60637d1196c225d31c8bcee79a9755d5f
       }
     }
   }
