@@ -1,10 +1,13 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DFSSlateAnalyzerData.Data
 {
     public class Contest 
     {
-        public int ContestID { get; set; }
+        [Key]
+        public int ID { get; set; }
+        public System.Int64 ContestID { get; set; }
         public string? Name { get; set; }
         public decimal? PercentComplete { get; set; }
         public int? Size { get; set; }

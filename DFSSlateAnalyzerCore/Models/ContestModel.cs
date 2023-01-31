@@ -2,7 +2,8 @@
 {
     public class ContestModel : BaseEntity
     {
-        public int ContestID { get; set; }
+        public int ID { get; set; }
+        public System.Int64 ContestID { get; set; }
         public string? Name { get; set; }
         public decimal? PercentComplete { get; set; }
         public int? Size { get; set; }
@@ -13,6 +14,18 @@
 
         public ContestModel()
         {
+            Entries = new List<EntryModel>();
+            ContestPlayers = new List<PlayerModel>();
+        }
+
+        public ContestModel(Int64 contestID, string? name, decimal? percentComplete, int? size, decimal? fee)
+        {
+            ContestID= contestID;   
+            Name= name; 
+            PercentComplete= percentComplete;   
+            Size= size; 
+            Fee= fee;   
+
             Entries = new List<EntryModel>();
             ContestPlayers = new List<PlayerModel>();
         }

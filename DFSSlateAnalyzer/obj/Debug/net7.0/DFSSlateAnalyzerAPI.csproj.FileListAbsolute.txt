@@ -105,6 +105,8 @@ C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzer\bin\Deb
 C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzer\bin\Debug\net7.0\Azure.Core.dll
 C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzer\bin\Debug\net7.0\Azure.Identity.dll
 C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzer\bin\Debug\net7.0\CsvHelper.dll
+C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzer\bin\Debug\net7.0\EntityFramework.SqlServer.dll
+C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzer\bin\Debug\net7.0\EntityFramework.dll
 C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzer\bin\Debug\net7.0\Humanizer.dll
 C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzer\bin\Debug\net7.0\Microsoft.AspNetCore.JsonPatch.dll
 C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzer\bin\Debug\net7.0\Microsoft.AspNetCore.Mvc.NewtonsoftJson.dll
@@ -178,6 +180,7 @@ C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzer\bin\Deb
 C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzer\bin\Debug\net7.0\System.Composition.Runtime.dll
 C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzer\bin\Debug\net7.0\System.Composition.TypedParts.dll
 C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzer\bin\Debug\net7.0\System.Configuration.ConfigurationManager.dll
+C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzer\bin\Debug\net7.0\System.Data.SqlClient.dll
 C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzer\bin\Debug\net7.0\System.Drawing.Common.dll
 C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzer\bin\Debug\net7.0\System.IdentityModel.Tokens.Jwt.dll
 C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzer\bin\Debug\net7.0\System.Memory.Data.dll
@@ -349,6 +352,11 @@ C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzer\bin\Deb
 C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzer\bin\Debug\net7.0\runtimes\win-x64\native\Microsoft.Data.SqlClient.SNI.dll
 C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzer\bin\Debug\net7.0\runtimes\win-x86\native\Microsoft.Data.SqlClient.SNI.dll
 C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzer\bin\Debug\net7.0\runtimes\win\lib\net6.0\Microsoft.Win32.SystemEvents.dll
+C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzer\bin\Debug\net7.0\runtimes\win-arm64\native\sni.dll
+C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzer\bin\Debug\net7.0\runtimes\win-x64\native\sni.dll
+C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzer\bin\Debug\net7.0\runtimes\win-x86\native\sni.dll
+C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzer\bin\Debug\net7.0\runtimes\unix\lib\netcoreapp2.1\System.Data.SqlClient.dll
+C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzer\bin\Debug\net7.0\runtimes\win\lib\netcoreapp2.1\System.Data.SqlClient.dll
 C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzer\bin\Debug\net7.0\runtimes\unix\lib\net6.0\System.Drawing.Common.dll
 C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzer\bin\Debug\net7.0\runtimes\win\lib\net6.0\System.Drawing.Common.dll
 C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzer\bin\Debug\net7.0\runtimes\win\lib\netstandard2.0\System.Runtime.Caching.dll
@@ -358,6 +366,7 @@ C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzer\bin\Deb
 C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzer\bin\Debug\net7.0\DFSSlateAnalyzerData.dll
 C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzer\bin\Debug\net7.0\DFSSlateAnalyzerCore.pdb
 C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzer\bin\Debug\net7.0\DFSSlateAnalyzerData.pdb
+C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzer\obj\Debug\net7.0\DFSSlateAnalyzerAPI.MvcApplicationPartsAssemblyInfo.cs
 C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzer\obj\Debug\net7.0\staticwebassets\msbuild.DFSSlateAnalyzerAPI.Microsoft.AspNetCore.StaticWebAssets.props
 C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzer\obj\Debug\net7.0\staticwebassets\msbuild.build.DFSSlateAnalyzerAPI.props
 C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzer\obj\Debug\net7.0\staticwebassets\msbuild.buildMultiTargeting.DFSSlateAnalyzerAPI.props
@@ -372,11 +381,3 @@ C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzer\obj\Deb
 C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzer\obj\Debug\net7.0\DFSSlateAnalyzerAPI.pdb
 C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzer\obj\Debug\net7.0\DFSSlateAnalyzerAPI.genruntimeconfig.cache
 C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzer\obj\Debug\net7.0\ref\DFSSlateAnalyzerAPI.dll
-C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzer\bin\Debug\net7.0\EntityFramework.SqlServer.dll
-C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzer\bin\Debug\net7.0\EntityFramework.dll
-C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzer\bin\Debug\net7.0\System.Data.SqlClient.dll
-C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzer\bin\Debug\net7.0\runtimes\win-arm64\native\sni.dll
-C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzer\bin\Debug\net7.0\runtimes\win-x64\native\sni.dll
-C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzer\bin\Debug\net7.0\runtimes\win-x86\native\sni.dll
-C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzer\bin\Debug\net7.0\runtimes\unix\lib\netcoreapp2.1\System.Data.SqlClient.dll
-C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzer\bin\Debug\net7.0\runtimes\win\lib\netcoreapp2.1\System.Data.SqlClient.dll

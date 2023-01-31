@@ -1,4 +1,6 @@
 ﻿using DFSSlateAnalyzerCore.Models;
+using DFSSlateAnalyzerData.Data;
+using DFSSlateAnalyzerCore.Repositories;
 using DFSSlateAnalyzerCore.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -31,14 +33,14 @@ namespace DFSSlateAnalyzerAngular.Controllers
         //    .ToArray();
         //}
 
-        [HttpGet(Name = "Contest")]
+        [HttpGet(Name = "contest")]
         public async Task<ContestModel> Contest(int SlateID = 0)
         {
             // var contest = new Contest();
 
-            var contest = await _slateRepository.LoadContest(SlateID);
+            var contest = await _slateRepository.GetContest(SlateID);
 
-             _slateRepository.SaveContestToDatabase(contest);
+            // _slateRepository.SaveContestToDatabase(contest);
 
 
             return contest;

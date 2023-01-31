@@ -24,11 +24,14 @@ namespace DFSSlateAnalyzerData.Migrations
 
             modelBuilder.Entity("DFSSlateAnalyzerData.Data.Contest", b =>
                 {
-                    b.Property<int>("ContestID")
+                    b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ContestID"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+
+                    b.Property<long>("ContestID")
+                        .HasColumnType("bigint");
 
                     b.Property<decimal?>("Fee")
                         .HasColumnType("decimal(18,2)");
@@ -42,21 +45,24 @@ namespace DFSSlateAnalyzerData.Migrations
                     b.Property<int?>("Size")
                         .HasColumnType("int");
 
-                    b.HasKey("ContestID");
+                    b.HasKey("ID");
 
                     b.ToTable("Contests");
                 });
 
             modelBuilder.Entity("DFSSlateAnalyzerData.Data.Entry", b =>
                 {
-                    b.Property<int>("EntryID")
+                    b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("EntryID"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
                     b.Property<int?>("ContestID")
                         .HasColumnType("int");
+
+                    b.Property<long>("EntryID")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("Lineup")
                         .HasColumnType("nvarchar(max)");
@@ -76,7 +82,7 @@ namespace DFSSlateAnalyzerData.Migrations
                     b.Property<string>("TimeRemaining")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("EntryID");
+                    b.HasKey("ID");
 
                     b.HasIndex("ContestID");
 
@@ -87,8 +93,8 @@ namespace DFSSlateAnalyzerData.Migrations
 
             modelBuilder.Entity("DFSSlateAnalyzerData.Data.EntryMember", b =>
                 {
-                    b.Property<int>("EntryID")
-                        .HasColumnType("int");
+                    b.Property<long>("EntryID")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("EntryMemberPlayerName")
                         .HasColumnType("nvarchar(450)");
@@ -163,11 +169,14 @@ namespace DFSSlateAnalyzerData.Migrations
 
             modelBuilder.Entity("DFSSlateAnalyzerData.Data.EntryMember", b =>
                 {
-                    b.HasOne("DFSSlateAnalyzerData.Data.Entry", null)
+                    b.HasOne("DFSSlateAnalyzerData.Data.Entry", "Entry")
                         .WithMany("EntryMembers")
                         .HasForeignKey("EntryID")
+                        .HasPrincipalKey("EntryID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Entry");
                 });
 
             modelBuilder.Entity("DFSSlateAnalyzerData.Data.Player", b =>

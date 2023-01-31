@@ -1,7 +1,7 @@
 using DFSSlateAnalyzerCore.Repositories;
 using DFSSlateAnalyzerCore.Repositories.Interfaces;
 using System.Data.Entity;
-
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +11,8 @@ builder.Services.AddControllersWithViews();
 
 
 
+//var controllerAssembly = Assembly.Load(new AssemblyName("DFSSlateAnalyzerAPI"));
+//builder.Services.AddMvc().AddApplicationPart(controllerAssembly).AddControllersAsServices();
 
 
 var app = builder.Build();
@@ -25,7 +27,8 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
-
+//builder.Services.AddMvc(options => options.EnableEndpointRouting = false);
+//app.UseMvcWithDefaultRoute();
 
 app.MapControllerRoute(
     name: "default",

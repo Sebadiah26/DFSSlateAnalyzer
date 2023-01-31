@@ -1,10 +1,12 @@
 ﻿using DFSSlateAnalyzerCore.Models;
+using DFSSlateAnalyzerData.Data;
 
 namespace DFSSlateAnalyzerCore.Repositories.Interfaces
 {
     public interface ISlateRepository
     {
-        Task<ContestModel> LoadContest(int ID);
-        void SaveContestToDatabase(ContestModel contest);   
+        Task<Contest> UploadContest(Int64 ID);
+        Task<ContestModel> GetContest(Int64 ID);
+        void SaveContestToDatabase(Contest contest);   
     }
 }

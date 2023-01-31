@@ -18,10 +18,15 @@ namespace DFSSlateAnalyzerData
         public DbSet<EntryMember> EntryMembers { get; set; }
         public DbSet<Owner> Owners { get; set; }
 
+        //public DFSSlateAnalyzerContext (DbContextOptions<DFSSlateAnalyzerContext> options) : base(options)
+        //{
+
+
+        //}
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer("Server=DESKTOP-FT0FCJQ\\CKIELINSKI;Database=Projects;Integrated Security=true;TrustServerCertificate=True;MultipleActiveResultSets=true");
+           optionsBuilder.UseSqlServer("Server=DESKTOP-FT0FCJQ\\CKIELINSKI;Database=Projects;Integrated Security=true;TrustServerCertificate=True;MultipleActiveResultSets=true");
 
 
         }
@@ -30,11 +35,19 @@ namespace DFSSlateAnalyzerData
         {
             modelBuilder.Entity<EntryMember>(entity =>
             {
+               // entity.HasNoKey();
                 entity.HasKey(e => new { e.EntryID, e.EntryMemberPlayerName });
+               
 
             });
 
-         }
+            modelBuilder.Entity<Entry>()
+          .HasMany(s => s.EntryMembers)
+          .WithOne(s => s.Entry)
+          .HasForeignKey(s => s.EntryID)
+          .HasPrincipalKey(s => s.EntryID)
+         ;
+        }
 
     }
 }

@@ -2,7 +2,8 @@
 {
     public class EntryModel : BaseEntity
     {
-        public int EntryID { get; set; }
+        public int ID { get; set; }
+        public System.Int64 EntryID { get; set; }
         public string? Name { get; set; }
         public string? TimeRemaining { get; set; }
         public string? Lineup { get; set; }

@@ -3,7 +3,7 @@
     public class EntryMemberModel : BaseEntity
     {
 
-        public int EntryId { get; set; }
+        public System.Int64 EntryId { get; set; }
 
         public int LineupSlot { get; set; }
         public string? Position { get; set; }
