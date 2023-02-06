@@ -35,9 +35,10 @@ namespace DFSSlateAnalyzerCore.Repositories
             _logger.LogInformation(DateTime.Now.ToString());
 
             contest = await _db.Contests
-                            .Include(s => s.Entries)
+                            .Include(s => s.Entries).ThenInclude(s => s.EntryMembers)
+                           .Where(s => s.ContestID == ID)
                             //.Include(s => s.ContestPlayers)
-                            .Where(s => s.ContestID == ID)
+
                             .SingleOrDefaultAsync();
 
             // .Where(x => x.ContestID == ID).SingleOrDefault();

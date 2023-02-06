@@ -37,6 +37,7 @@ namespace DFSSlateAnalyzerAngular.Controllers
             var contest = await _slateRepository.GetContest(SlateID);
             _slateRepository.UploadProjections(SlateID);
 
+
             contests.Add(contest);
 
 
