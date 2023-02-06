@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DFSSlateAnalyzerData.Data
 {
-    public class EntryMember 
+    public class EntryMember
     {
       
         public Int64 EntryID { get; set; }

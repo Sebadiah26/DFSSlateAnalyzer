@@ -30,3 +30,5 @@ C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzerCore\obj
 C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzerCore\obj\Debug\net7.0\DFSSlateAnalyzerCore.pdb
 C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzerCore\obj\Debug\net7.0\DFSSlateAnalyzerCore.genruntimeconfig.cache
 C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzerCore\obj\Debug\net7.0\ref\DFSSlateAnalyzerCore.dll
+C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzerCore\bin\Debug\net7.0\appsettings.Development.json
+C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzerCore\bin\Debug\net7.0\appsettings.json

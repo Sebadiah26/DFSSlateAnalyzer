@@ -1,3 +1,53 @@
+
+import { ModuleWithProviders } from '@angular/core';
+
+
+export interface IContest {
+  id?: string;
+  contestID: number;
+  name: string;
+  percentComplete: number;
+  size: number;
+  fee: number;
+  entries?: IEntry[];
+  players?: IPlayer[];
+}
+
+export interface IEntry {
+  id: number;
+  entryID: number;
+  name: string;
+  timeRemaining: number;
+  points: number;
+  rank: number;
+  entryMembers: IEntryMember[];
+  contestID: number;
+
+
+}
+
+
+export interface IPlayer {
+  id: number;
+  salary: string;
+  points: number;
+  projectedPoints: number;
+  position: string;
+  rosterPosition: string;
+  drafted: string;
+  fpts: string;
+
+}
+
+
+export interface IEntryMember {
+  entryID: number;
+  entryMemberPlayerName: string;
+  lineupSlot: number;
+  position: string;
+}
+
+
 //import { ModuleWithProviders } from '@angular/core';
 
 //export interface ICustomer {

@@ -18,7 +18,7 @@ import { ContestDataComponent } from './contest-data/contest-data.component';
     HomeComponent,
     CounterComponent,
     FetchDataComponent,
-   // ContestDataComponent
+    ContestDataComponent
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),

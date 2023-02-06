@@ -5,7 +5,7 @@
         public int ID { get; set; }
         public System.Int64 EntryID { get; set; }
         public string? Name { get; set; }
-        public string? TimeRemaining { get; set; }
+        public decimal? TimeRemaining { get; set; }
         public string? Lineup { get; set; }
         public decimal? Points { get; set; }
         public virtual List<EntryMemberModel> EntryMembers { get; set; }

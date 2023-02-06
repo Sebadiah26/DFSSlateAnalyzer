@@ -26,3 +26,4 @@ C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzerData\obj
 C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzerData\obj\Debug\net7.0\DFSSlateAnalyzerData.pdb
 C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzerData\obj\Debug\net7.0\DFSSlateAnalyzerData.genruntimeconfig.cache
 C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzerData\obj\Debug\net7.0\ref\DFSSlateAnalyzerData.dll
+C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzerData\bin\Debug\net7.0\appsettings.json

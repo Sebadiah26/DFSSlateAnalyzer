@@ -16,6 +16,10 @@ namespace DFSSlateAnalyzerCore.Models
         public string? Drafted { get; set; }
 
         public string? FPTS { get; set; }
+        public int? PlayerID { get; set; }
+
+        public decimal? BMProjection { get; set; }
+        public string? OPP { get; set; }
 
     }
 }

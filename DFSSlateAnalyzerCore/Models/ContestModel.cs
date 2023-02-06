@@ -18,7 +18,7 @@
             ContestPlayers = new List<PlayerModel>();
         }
 
-        public ContestModel(Int64 contestID, string? name, decimal? percentComplete, int? size, decimal? fee)
+        public ContestModel(Int64 contestID, string? name, decimal? percentComplete, int? size, decimal? fee, List<EntryModel> entries, List<PlayerModel> players)
         {
             ContestID= contestID;   
             Name= name; 
@@ -26,8 +26,8 @@
             Size= size; 
             Fee= fee;   
 
-            Entries = new List<EntryModel>();
-            ContestPlayers = new List<PlayerModel>();
+            Entries = entries;
+            ContestPlayers = players;
         }
 
     }

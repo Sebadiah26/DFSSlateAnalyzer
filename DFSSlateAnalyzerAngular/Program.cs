@@ -1,3 +1,4 @@
+using DFSSlateAnalyzerCore.Extensions;
 using DFSSlateAnalyzerCore.Repositories;
 using DFSSlateAnalyzerCore.Repositories.Interfaces;
 using System.Data.Entity;
@@ -13,6 +14,13 @@ builder.Services.AddControllersWithViews();
 
 //var controllerAssembly = Assembly.Load(new AssemblyName("DFSSlateAnalyzerAPI"));
 //builder.Services.AddMvc().AddApplicationPart(controllerAssembly).AddControllersAsServices();
+
+builder.Services.AddMvc()
+                .AddApplicationPart(typeof(ISlateRepository).Assembly)
+                ;
+
+
+builder.Services.AddDFSSlateAnalyzerCoreClasses();
 
 
 var app = builder.Build();

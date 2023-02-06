@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Reflection;
+using DFSSlateAnalyzerCore.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,13 +34,17 @@ services.AddDistributedMemoryCache();
 services.AddHttpContextAccessor();
 
 
-var controllerAssembly = Assembly.Load(new AssemblyName("DFSSlateAnalyzerCore"));
-services.AddMvc().AddApplicationPart(controllerAssembly).AddControllersAsServices();
+builder.Services.AddMvc()
+                .AddApplicationPart(typeof(ISlateRepository).Assembly)
+                ;
 
 
-services.AddTransient<ISlateRepository, SlateRepository>();
+builder.Services.AddDFSSlateAnalyzerCoreClasses();
 
-services.AddDbContext<DFSSlateAnalyzerContext>();
+
+//services.AddTransient<ISlateRepository, SlateRepository>();
+
+//services.AddDbContext<DFSSlateAnalyzerContext>();
               //(options => options
               //.UseSqlServer(config.GetConnectionString(config.GetConnectionString("ActiveDB") ?? ""))
              // .EnableSensitiveDataLogging());

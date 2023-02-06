@@ -3,6 +3,7 @@ using DFSSlateAnalyzerData.Data;
 using DFSSlateAnalyzerCore.Repositories;
 using DFSSlateAnalyzerCore.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace DFSSlateAnalyzerAngular.Controllers
 {
@@ -12,38 +13,39 @@ namespace DFSSlateAnalyzerAngular.Controllers
     {
 
 
-        private readonly ILogger<ContestController> _logger;
+        ILogger _logger;
         private readonly ISlateRepository _slateRepository;
 
-        public ContestController(ILogger<ContestController> logger, ISlateRepository slateRepository)
+        public ContestController(ILoggerFactory loggerFactory, ISlateRepository slateRepository)
         {
-            _logger = logger;
+            _logger =  loggerFactory.CreateLogger(nameof(ContestController));
             _slateRepository = slateRepository;
         }
 
-        //[HttpGet]
-        //public IEnumerable<WeatherForecast> Get()
-        //{
-        //    return Enumerable.Range(1, 5).Select(index => new WeatherForecast
-        //    {
-        //        Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-        //        TemperatureC = Random.Shared.Next(-20, 55),
-        //        Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-        //    })
-        //    .ToArray();
-        //}
+      
 
-        [HttpGet(Name = "contest")]
-        public async Task<ContestModel> Contest(int SlateID = 0)
+        [HttpGet]
+        public async Task<List<ContestModel>> GetContest(Int64 SlateID = 0)
         {
-            // var contest = new Contest();
+             var contests = new List<ContestModel>();
 
+            _logger.LogInformation("Started");
+            _logger.LogInformation(DateTime.Now.ToString());
+
+
+            SlateID = 141198362;
             var contest = await _slateRepository.GetContest(SlateID);
+            _slateRepository.UploadProjections(SlateID);
+
+            contests.Add(contest);
+
 
             // _slateRepository.SaveContestToDatabase(contest);
 
+            _logger.LogInformation("Ended");
+            _logger.LogInformation(DateTime.Now.ToString());
 
-            return contest;
+            return contests;
         }
 
 
