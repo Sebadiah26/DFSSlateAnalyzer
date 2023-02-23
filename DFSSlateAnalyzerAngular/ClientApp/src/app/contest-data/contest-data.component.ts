@@ -12,7 +12,7 @@ export class ContestDataComponent {
  
 
   constructor(http: HttpClient, @Inject('BASE_URL') baseUrl: string) {
-    http.get<IContest[]>(baseUrl + 'contest').subscribe(result => {
+    http.get<IContest[]>(baseUrl + 'contest'  ).subscribe(result => {
       this.contests = result
     }, error => console.error(error));
   }

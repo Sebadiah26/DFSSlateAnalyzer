@@ -47,7 +47,39 @@ namespace DFSSlateAnalyzerAPI.Migrations
 
                     b.HasKey("ID");
 
-                    b.ToTable("Contests");
+                    b.ToTable("Contest", "dfs");
+                });
+
+            modelBuilder.Entity("DFSSlateAnalyzerData.Data.DFSPlayer", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+
+                    b.Property<string>("BMFirstName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("BMLastName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DKPlayerName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("PlayerID")
+                        .IsRequired()
+                        .HasColumnType("int");
+
+                    b.Property<string>("RosterPosition")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Team")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("DFSPlayer", "dfs");
                 });
 
             modelBuilder.Entity("DFSSlateAnalyzerData.Data.Entry", b =>
@@ -88,11 +120,14 @@ namespace DFSSlateAnalyzerAPI.Migrations
 
                     b.HasIndex("OwnerName");
 
-                    b.ToTable("Entries");
+                    b.ToTable("Entry", "dfs");
                 });
 
             modelBuilder.Entity("DFSSlateAnalyzerData.Data.EntryMember", b =>
                 {
+                    b.Property<long>("ContestID")
+                        .HasColumnType("bigint");
+
                     b.Property<long>("EntryID")
                         .HasColumnType("bigint");
 
@@ -105,9 +140,11 @@ namespace DFSSlateAnalyzerAPI.Migrations
                     b.Property<string>("Position")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("EntryID", "EntryMemberPlayerName");
+                    b.HasKey("ContestID", "EntryID", "EntryMemberPlayerName");
 
-                    b.ToTable("EntryMembers");
+                    b.HasIndex("EntryID");
+
+                    b.ToTable("EntryMember", "dfs");
                 });
 
             modelBuilder.Entity("DFSSlateAnalyzerData.Data.Owner", b =>
@@ -117,7 +154,7 @@ namespace DFSSlateAnalyzerAPI.Migrations
 
                     b.HasKey("Name");
 
-                    b.ToTable("Owners");
+                    b.ToTable("Owner", "dfs");
                 });
 
             modelBuilder.Entity("DFSSlateAnalyzerData.Data.Player", b =>
@@ -133,6 +170,9 @@ namespace DFSSlateAnalyzerAPI.Migrations
 
                     b.Property<string>("Drafted")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EntryMemberPlayerName")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("FPTS")
                         .HasColumnType("nvarchar(max)");
@@ -158,11 +198,23 @@ namespace DFSSlateAnalyzerAPI.Migrations
                     b.Property<string>("Salary")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<long?>("entryMemberContestID")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("entryMemberEntryID")
+                        .HasColumnType("bigint");
+
                     b.HasKey("PlayerName", "ContestID");
 
                     b.HasIndex("ContestID");
 
-                    b.ToTable("Players");
+                    b.HasIndex("PlayerID")
+                        .IsUnique()
+                        .HasFilter("[PlayerID] IS NOT NULL");
+
+                    b.HasIndex("entryMemberContestID", "entryMemberEntryID", "EntryMemberPlayerName");
+
+                    b.ToTable("Player", "dfs");
                 });
 
             modelBuilder.Entity("DFSSlateAnalyzerData.Data.Entry", b =>
@@ -171,7 +223,7 @@ namespace DFSSlateAnalyzerAPI.Migrations
                         .WithMany("Entries")
                         .HasForeignKey("ContestID")
                         .HasPrincipalKey("ContestID")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("DFSSlateAnalyzerData.Data.Owner", null)
@@ -187,7 +239,7 @@ namespace DFSSlateAnalyzerAPI.Migrations
                         .WithMany("EntryMembers")
                         .HasForeignKey("EntryID")
                         .HasPrincipalKey("EntryID")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Entry");
@@ -199,10 +251,24 @@ namespace DFSSlateAnalyzerAPI.Migrations
                         .WithMany("ContestPlayers")
                         .HasForeignKey("ContestID")
                         .HasPrincipalKey("ContestID")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
+                    b.HasOne("DFSSlateAnalyzerData.Data.DFSPlayer", "DFSPlayer")
+                        .WithOne("Player")
+                        .HasForeignKey("DFSSlateAnalyzerData.Data.Player", "PlayerID")
+                        .HasPrincipalKey("DFSSlateAnalyzerData.Data.DFSPlayer", "PlayerID")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("DFSSlateAnalyzerData.Data.EntryMember", "entryMember")
+                        .WithMany()
+                        .HasForeignKey("entryMemberContestID", "entryMemberEntryID", "EntryMemberPlayerName");
+
                     b.Navigation("Contest");
+
+                    b.Navigation("DFSPlayer");
+
+                    b.Navigation("entryMember");
                 });
 
             modelBuilder.Entity("DFSSlateAnalyzerData.Data.Contest", b =>
@@ -210,6 +276,11 @@ namespace DFSSlateAnalyzerAPI.Migrations
                     b.Navigation("ContestPlayers");
 
                     b.Navigation("Entries");
+                });
+
+            modelBuilder.Entity("DFSSlateAnalyzerData.Data.DFSPlayer", b =>
+                {
+                    b.Navigation("Player");
                 });
 
             modelBuilder.Entity("DFSSlateAnalyzerData.Data.Entry", b =>

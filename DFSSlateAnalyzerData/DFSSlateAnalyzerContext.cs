@@ -14,6 +14,7 @@ namespace DFSSlateAnalyzerData
     public class DFSSlateAnalyzerContext : DbContext
     {
         public DbSet<Player> Players { get; set; }
+        public DbSet<DFSPlayer> DFSPlayers { get; set; }
         public DbSet<Entry> Entries { get; set; }
         public DbSet<Contest> Contests { get; set; }
         public DbSet<EntryMember> EntryMembers { get; set; }
@@ -39,33 +40,49 @@ namespace DFSSlateAnalyzerData
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+
+            modelBuilder.Entity<EntryMember>(entity =>
+             entity.ToTable("EntryMember", "dfs"));
+            modelBuilder.Entity<Entry>(entity =>
+           entity.ToTable("Entry", "dfs"));
+            modelBuilder.Entity<Contest>(entity =>
+           entity.ToTable("Contest", "dfs"));
+            modelBuilder.Entity<Owner>(entity =>
+           entity.ToTable("Owner", "dfs"));
+            modelBuilder.Entity<Player>(entity =>
+           entity.ToTable("Player", "dfs"));
+            modelBuilder.Entity<DFSPlayer>(entity =>
+           entity.ToTable("DFSPlayer", "dfs"));
+
+
+
             modelBuilder.Entity<EntryMember>(entity =>
             {
                // entity.HasNoKey();
-                entity.HasKey(e => new { e.EntryID, e.EntryMemberPlayerName });
+                entity.HasKey(e => new { e.ContestID, e.EntryID, e.EntryMemberPlayerName });
                
+
 
             });
 
-                modelBuilder.Entity<Entry>()
-              .HasMany(s => s.EntryMembers)
-              .WithOne(s => s.Entry)
-              .HasForeignKey(s => s.EntryID)
-              .HasPrincipalKey(s => s.EntryID) ;
+            modelBuilder.Entity<Entry>()
+          .HasMany(s => s.EntryMembers)
+          .WithOne(s => s.Entry)
+          .HasForeignKey(s => s.EntryID).HasPrincipalKey(s => s.EntryID).OnDelete(DeleteBehavior.NoAction);
 
-                    modelBuilder.Entity<Contest>()
+            modelBuilder.Entity<Contest>()
                
                .HasMany(s => s.Entries)
                .WithOne(s => s.Contest) 
-               .HasForeignKey(s => s.ContestID)
-               .HasPrincipalKey(s => s.ContestID) ;
+               .HasForeignKey(s => s.ContestID).OnDelete(DeleteBehavior.NoAction)
+               .HasPrincipalKey(s => s.ContestID).OnDelete(DeleteBehavior.NoAction);
 
                 modelBuilder.Entity<Contest>()
 
               .HasMany(s => s.ContestPlayers)
               .WithOne(s => s.Contest)
-              .HasForeignKey(s => s.ContestID)
-              .HasPrincipalKey(s => s.ContestID);
+              .HasForeignKey(s => s.ContestID).OnDelete(DeleteBehavior.NoAction)
+              .HasPrincipalKey(s => s.ContestID).OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<Player>(entity =>
             {
@@ -74,6 +91,20 @@ namespace DFSSlateAnalyzerData
 
 
             });
+
+            modelBuilder.Entity<EntryMember>()
+          .HasOne(s => s.Player)
+             .WithOne(s => s.entryMember)
+            .HasPrincipalKey<EntryMember>(s => new { s.ContestID, s.EntryMemberPlayerName }).OnDelete(DeleteBehavior.NoAction)
+            .HasForeignKey<Player>(s => new { s.ContestID, s.PlayerName }).OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<DFSPlayer>()
+                .HasOne(s => s.Player)
+                .WithOne(s => s.DFSPlayer)
+                .HasForeignKey<Player>(s => s.PlayerID).OnDelete(DeleteBehavior.NoAction)
+                .HasPrincipalKey<DFSPlayer>(s => s.PlayerID).OnDelete(DeleteBehavior.NoAction);
+               
+
         }
 
     }

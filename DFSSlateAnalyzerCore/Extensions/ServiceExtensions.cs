@@ -11,7 +11,10 @@ using DFSSlateAnalyzerCore.Repositories.Interfaces;
 using DFSSlateAnalyzerCore.Repositories;
 using DFSSlateAnalyzerData;
 using Microsoft.EntityFrameworkCore;
-
+using static DFSSlateAnalyzerCore.Services.FileServerProviderService;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.FileProviders;
+using Microsoft.AspNetCore.Http;
 
 namespace DFSSlateAnalyzerCore.Extensions
 {
@@ -33,9 +36,24 @@ namespace DFSSlateAnalyzerCore.Extensions
      );
                 services.AddScoped<ISlateRepository, SlateRepository>();
 
-                return services;
+                 //Add our IFileServerProvider implementation as a singleton
+                services.AddSingleton<IFileServerProvider>(new FileServerProvider(
+                        new List<FileServerOptions>
+                        {
+                        new FileServerOptions
+                        {
+                            FileProvider = new PhysicalFileProvider(@"\\DESKTOP-FT0FCJQ\DFSAnalyzer"),
+                            RequestPath = new PathString("/files"),
+                            EnableDirectoryBrowsing = true
+                        },
+                  
+                        }));
+
+
+            return services;
             }
         }
 
    
 }
+   

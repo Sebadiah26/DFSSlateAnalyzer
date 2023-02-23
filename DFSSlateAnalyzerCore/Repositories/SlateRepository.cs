@@ -11,6 +11,9 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Globalization;
 using System.Security.Cryptography.X509Certificates;
+using Microsoft.Extensions.FileProviders;
+
+
 
 namespace DFSSlateAnalyzerCore.Repositories
 {
@@ -18,15 +21,26 @@ namespace DFSSlateAnalyzerCore.Repositories
     {
         ILogger _logger;
         protected readonly DFSSlateAnalyzerContext _db;
+        IFileProvider _fileProvider;
 
         public SlateRepository(ILoggerFactory loggerFactory, DFSSlateAnalyzerContext db)
         {
             _db = db;
             _logger = loggerFactory.CreateLogger(nameof(SlateRepository));
+    //        _fileProvider = new FileServerProvider(
+    //new List<FileServerOptions>
+    //{
+    //        new FileServerOptions
+    //        {
+    //            FileProvider = new PhysicalFileProvider(@"\\DESKTOP-FT0FCJQ\DFSAnalyzer"),
+    //            RequestPath = new PathString("/files"),
+    //            EnableDirectoryBrowsing = true
+    //        },
+    //    }}
         }
 
 
-        public async Task<ContestModel> GetContest(Int64 ID)
+        public async Task<ContestModel> GetContest(DateTime date,   Int64 ID)
         {
             var contest = new Contest();
             //ID = 141168190;
@@ -35,10 +49,10 @@ namespace DFSSlateAnalyzerCore.Repositories
             _logger.LogInformation(DateTime.Now.ToString());
 
             contest = await _db.Contests
-                            .Include(s => s.Entries).ThenInclude(s => s.EntryMembers)
+                            .Include(s => s.Entries) //.ThenInclude(s => s.EntryMembers).ThenInclude(s => s.Player)
                            .Where(s => s.ContestID == ID)
                             //.Include(s => s.ContestPlayers)
-
+                            .AsNoTracking()
                             .SingleOrDefaultAsync();
 
             // .Where(x => x.ContestID == ID).SingleOrDefault();
@@ -49,7 +63,7 @@ namespace DFSSlateAnalyzerCore.Repositories
             if (contest == null)
             {
 
-                contest = await UploadContest(ID);
+                contest = await UploadContest(DateTime.Now, ID);
             }
 
             _logger.LogInformation("Loop through entries Started");
@@ -116,10 +130,10 @@ namespace DFSSlateAnalyzerCore.Repositories
         }
 
 
-        public async Task<Contest> UploadContest(Int64 ID)
+        public async Task<Contest> UploadContest(DateTime date, Int64 ID)
         {
             var contest = new Contest();
-
+             
             List<Entry> entryList = new List<Entry>();
             List<Player> contestPlayerList = new List<Player>();
 
@@ -153,11 +167,11 @@ namespace DFSSlateAnalyzerCore.Repositories
                     entry.TimeRemaining = decimal.Parse(csv.GetField<string>("TimeRemaining") ?? "0");
                     entry.Points = decimal.Parse(csv.GetField<string>("Points") ?? "0");
                     entry.Lineup = csv.GetField<string>("Lineup");
-
+                    entry.ContestID = ID;
 
 
                     if (entry.Lineup != null && entry.Lineup != "")
-                    { entry.EntryMembers = GetEntryMembers(entry.Lineup, entry.EntryID); }
+                    { entry.EntryMembers = GetEntryMembers(entry.Lineup, entry.EntryID, entry.ContestID); }
 
 
 
@@ -172,15 +186,35 @@ namespace DFSSlateAnalyzerCore.Repositories
                         player.RosterPosition = csv.GetField<string>("Roster Position");
                         player.Drafted = csv.GetField<string>("%Drafted");
                         player.FPTS = csv.GetField<string>("FPTS");
-                      //  player.Salary = csv.GetField<string>("Salary");
+                        player.ContestID = ID;
+                        //  player.Salary = csv.GetField<string>("Salary");
 
+                        var dfsPlayer = new DFSPlayer();
+
+                        dfsPlayer = _db?.DFSPlayers
+
+                              .Where(s => s.BMFirstName + " " + s.BMLastName == player.PlayerName )
+                              .SingleOrDefault();
+
+                        if (dfsPlayer != null)
+                        {
+                            player.PlayerID = dfsPlayer.PlayerID;
+                            dfsPlayer.DKPlayerName = player.PlayerName;  
+                            _db?.SaveChanges();
+                        }
+                        else
+                        {
+                            _logger.LogInformation(player.PlayerName + " not found");
+                        }
+
+                       
                         contestPlayerList.Add(player);
                     }
 
                 }
 
             }
-
+            
             contest.ContestID = ID;
             contest.Entries = entryList;
             contest.ContestPlayers = contestPlayerList;
@@ -189,22 +223,22 @@ namespace DFSSlateAnalyzerCore.Repositories
 
             return contest;
 
+        }
 
-
-            List<EntryMember> GetEntryMembers(string? lineup, Int64 entryId)
+        List<EntryMember> GetEntryMembers(string? lineup, Int64 entryId, Int64 contestID)
             {
                 List<EntryMember> entryMembers = new List<EntryMember>();
 
                 string[] words = (lineup ?? "").Split(' ');
 
-                entryMembers.Add(new EntryMember { EntryID = entryId, LineupSlot = GetLineupSlot(words[0]), EntryMemberPlayerName = words[1] + " " + words[2], Position = words[0] });
-                entryMembers.Add(new EntryMember { EntryID = entryId, LineupSlot = GetLineupSlot(words[3]), EntryMemberPlayerName = words[4] + " " + words[5], Position = words[3] });
-                entryMembers.Add(new EntryMember { EntryID = entryId, LineupSlot = GetLineupSlot(words[6]), EntryMemberPlayerName = words[7] + " " + words[8], Position = words[6] });
-                entryMembers.Add(new EntryMember { EntryID = entryId, LineupSlot = GetLineupSlot(words[9]), EntryMemberPlayerName = words[10] + " " + words[11], Position = words[9] });
-                entryMembers.Add(new EntryMember { EntryID = entryId, LineupSlot = GetLineupSlot(words[12]), EntryMemberPlayerName = words[13] + " " + words[14], Position = words[12] });
-                entryMembers.Add(new EntryMember { EntryID = entryId, LineupSlot = GetLineupSlot(words[15]), EntryMemberPlayerName = words[16] + " " + words[17], Position = words[15] });
-                entryMembers.Add(new EntryMember { EntryID = entryId, LineupSlot = GetLineupSlot(words[18]), EntryMemberPlayerName = words[19] + " " + words[20], Position = words[18] });
-                entryMembers.Add(new EntryMember { EntryID = entryId, LineupSlot = GetLineupSlot(words[21]), EntryMemberPlayerName = words[22] + " " + words[23], Position = words[21] });
+                entryMembers.Add(new EntryMember { EntryID = entryId, ContestID = contestID, LineupSlot = GetLineupSlot(words[0]), EntryMemberPlayerName = words[1] + " " + words[2], Position = words[0] });
+                entryMembers.Add(new EntryMember { EntryID = entryId, ContestID = contestID, LineupSlot = GetLineupSlot(words[3]), EntryMemberPlayerName = words[4] + " " + words[5], Position = words[3] });
+                entryMembers.Add(new EntryMember { EntryID = entryId, ContestID = contestID, LineupSlot = GetLineupSlot(words[6]), EntryMemberPlayerName = words[7] + " " + words[8], Position = words[6] });
+                entryMembers.Add(new EntryMember { EntryID = entryId, ContestID = contestID, LineupSlot = GetLineupSlot(words[9]), EntryMemberPlayerName = words[10] + " " + words[11], Position = words[9] });
+                entryMembers.Add(new EntryMember { EntryID = entryId, ContestID = contestID, LineupSlot = GetLineupSlot(words[12]), EntryMemberPlayerName = words[13] + " " + words[14], Position = words[12] });
+                entryMembers.Add(new EntryMember { EntryID = entryId, ContestID = contestID, LineupSlot = GetLineupSlot(words[15]), EntryMemberPlayerName = words[16] + " " + words[17], Position = words[15] });
+                entryMembers.Add(new EntryMember { EntryID = entryId, ContestID = contestID, LineupSlot = GetLineupSlot(words[18]), EntryMemberPlayerName = words[19] + " " + words[20], Position = words[18] });
+                entryMembers.Add(new EntryMember { EntryID = entryId, ContestID = contestID, LineupSlot = GetLineupSlot(words[21]), EntryMemberPlayerName = words[22] + " " + words[23], Position = words[21] });
 
 
                 return entryMembers;
@@ -250,7 +284,7 @@ namespace DFSSlateAnalyzerCore.Repositories
             }
 
 
-        }
+        
 
         public void SaveContestToDatabase(Contest contest)
         {
@@ -264,7 +298,105 @@ namespace DFSSlateAnalyzerCore.Repositories
         }
 
 
-        public void UploadProjections(Int64 ID)
+        public void UploadSlate(DateTime date, Int64 ID)
+        {
+            var contest = new Contest();
+
+            List<Entry> entryList = new List<Entry>();
+            List<Player> contestPlayerList = new List<Player>();
+
+            var csvConfig = new CsvConfiguration(CultureInfo.InvariantCulture)
+            {
+
+            };
+
+            using (var reader = new StreamReader("contest-standings-" + ID + ".csv"))
+
+            using (var csv = new CsvReader(reader, csvConfig))
+            {
+
+
+
+                csv.Read();
+                csv.ReadHeader();
+
+                while (csv.Read())
+                {
+
+                    var entry = new Entry();
+                    var player = new Player();
+
+
+                    // Get first entry from csv
+
+                    entry.Rank = int.Parse(csv.GetField<string>("Rank") ?? "0");
+                    entry.EntryID = csv.GetField<Int64>("EntryId");
+                    entry.Name = csv.GetField<string>("EntryName");
+                    entry.TimeRemaining = decimal.Parse(csv.GetField<string>("TimeRemaining") ?? "0");
+                    entry.Points = decimal.Parse(csv.GetField<string>("Points") ?? "0");
+                    entry.Lineup = csv.GetField<string>("Lineup");
+                    entry.ContestID = ID;
+
+
+                    if (entry.Lineup != null && entry.Lineup != "")
+                    { entry.EntryMembers = GetEntryMembers(entry.Lineup, entry.EntryID, entry.ContestID); }
+
+
+
+
+                    entryList.Add(entry);
+
+
+
+                    if (csv.GetField<string>("Player") != "")
+                    {
+                        player.PlayerName = csv.GetField<string>("Player");
+                        player.RosterPosition = csv.GetField<string>("Roster Position");
+                        player.Drafted = csv.GetField<string>("%Drafted");
+                        player.FPTS = csv.GetField<string>("FPTS");
+                        player.ContestID = ID;
+                        //  player.Salary = csv.GetField<string>("Salary");
+
+                        var dfsPlayer = new DFSPlayer();
+
+                        dfsPlayer = _db?.DFSPlayers
+
+                              .Where(s => s.BMFirstName + " " + s.BMLastName == player.PlayerName)
+                              .SingleOrDefault();
+
+                        if (dfsPlayer != null)
+                        {
+                            player.PlayerID = dfsPlayer.PlayerID;
+                            dfsPlayer.DKPlayerName = player.PlayerName;
+                            _db?.SaveChanges();
+                        }
+                        else
+                        {
+                            _logger.LogInformation(player.PlayerName + " not found");
+                        }
+
+
+                        contestPlayerList.Add(player);
+                    }
+
+                }
+
+            }
+
+            contest.ContestID = ID;
+            contest.Entries = entryList;
+            contest.ContestPlayers = contestPlayerList;
+
+            SaveContestToDatabase(contest);
+
+           // return contest;
+
+        }
+
+
+
+
+        public void UploadProjections(DateTime date, Int64 ID, Stream stream)
         {
             // var contest = new Contest();
 
@@ -276,7 +408,8 @@ namespace DFSSlateAnalyzerCore.Repositories
 
             };
 
-            using (var reader = new StreamReader("Export_2023_02_05.csv"))
+            using (var reader = new StreamReader(stream))
+              //  'C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzerAngular\files\Export_2023_02_23.csv'.
 
             using (var csv = new CsvReader(reader, csvConfig))
             {
@@ -304,15 +437,93 @@ namespace DFSSlateAnalyzerCore.Repositories
 
                     if (player != null)
                     {
-                        player.BMProjection = decimal.Parse(csv.GetField<string>("value") ?? "0");
-                        player.OPP = csv.GetField<string>("opponent");
-                        player.PlayerID = int.Parse(csv.GetField<string>("id") ?? "0");
-                        _db?.SaveChanges();
+
+
+                        var dfsPlayer = new DFSPlayer();
+                        dfsPlayer = _db?.DFSPlayers
+
+                          .Where(s => s.BMFirstName + ' ' + s.BMLastName == fullName )
+                          .SingleOrDefault();
+
+                        if (dfsPlayer == null)
+                        {
+                            var addDFSPlayer = new DFSPlayer();
+                            addDFSPlayer.BMFirstName = firstName;
+                            addDFSPlayer.BMLastName = lastName;
+                            addDFSPlayer.PlayerID = int.Parse(csv.GetField<string>("id") ?? "0");
+                            addDFSPlayer.Team = csv.GetField<string>("team");
+                            addDFSPlayer.RosterPosition = csv.GetField<string>("position");
+                            _db?.DFSPlayers.Add(addDFSPlayer);
+                            _db?.SaveChanges();
+
+                        }
+
+                            player.BMProjection = decimal.Parse(csv.GetField<string>("value") ?? "0");
+                            player.OPP = csv.GetField<string>("opponent");
+                            player.PlayerID = int.Parse(csv.GetField<string>("id") ?? "0");
+                            _db?.SaveChanges();
+
+
+
+                      
                     }
                     else
                     {
                         _logger.LogInformation(fullName + " not found");
                     }
+
+
+                }
+
+            }
+
+
+            return;
+
+
+
+        }
+
+        public void UploadPlayers(DateTime date , Int64 ID)
+        {
+            // var contest = new Contest();
+
+            // List<Entry> entryList = new List<Entry>();
+            // List<Player> contestPlayerList = new List<Player>();
+
+            var csvConfig = new CsvConfiguration(CultureInfo.InvariantCulture)
+            {
+
+            };
+
+            using (var reader = new StreamReader("Export_2023_02_13.csv"))
+
+            using (var csv = new CsvReader(reader, csvConfig))
+            {
+
+
+
+                csv.Read();
+                csv.ReadHeader();
+
+                while (csv.Read())
+                {
+                    // Get first entry from csv
+
+               
+
+
+                    var dfsPlayer = new DFSPlayer();
+                    dfsPlayer.PlayerID = csv.GetField<int>("id") ;
+                    dfsPlayer.BMFirstName = csv.GetField<string>("first_name");
+                    dfsPlayer.BMLastName = csv.GetField<string>("last_name");
+                    dfsPlayer.Team = csv.GetField<string>("team");
+                    dfsPlayer.RosterPosition = csv.GetField<string>("position");
+
+
+                    _db?.DFSPlayers.Add(dfsPlayer);    
+                    _db?.SaveChanges();
+                
 
 
                 }

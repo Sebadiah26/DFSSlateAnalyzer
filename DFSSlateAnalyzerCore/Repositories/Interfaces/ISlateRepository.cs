@@ -5,9 +5,11 @@ namespace DFSSlateAnalyzerCore.Repositories.Interfaces
 {
     public interface ISlateRepository
     {
-        Task<Contest> UploadContest(Int64 ID);
-        Task<ContestModel> GetContest(Int64 ID);
+        Task<Contest> UploadContest(DateTime date, Int64 ID);
+        Task<ContestModel> GetContest(DateTime date, Int64 ID);
         void SaveContestToDatabase(Contest contest);
-        void UploadProjections(Int64 ID);
+        void UploadProjections(DateTime date, Int64 ID, Stream stream);
+        void UploadPlayers(DateTime date, Int64 ID);
+        void UploadSlate(DateTime date, Int64 ID);
     }
 }

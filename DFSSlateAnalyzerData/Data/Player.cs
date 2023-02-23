@@ -27,7 +27,9 @@ namespace DFSSlateAnalyzerData.Data
         public int? PlayerID { get; set; }
 
         public decimal? BMProjection { get; set; }  
-        public string? OPP { get; set; } 
+        public string? OPP { get; set; }
+        public virtual EntryMember? entryMember { get; set; }
+        public virtual DFSPlayer? DFSPlayer { get; set; }
 
     }
 }
