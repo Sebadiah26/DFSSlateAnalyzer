@@ -45,26 +45,41 @@ namespace DFSSlateAnalyzerAngular.Controllers
             _logger.LogInformation(DateTime.Now.ToString());
 
 
-           SlateID = 141599279;
+           SlateID = 141198362;
 
             // _slateRepository.UploadSlate(_date, SlateID);    //  Entries.csv  
+            IFileInfo file;
+            Stream stream;
 
-            //  _slateRepository.UploadPlayers(_date, SlateID);    //  Export_2023_02_13.csv manual all 
+            //var file = _fileServerProvider.GetProvider("/files").GetFileInfo("/02-05-23/Export_2023_02_05.csv");
+            //Stream stream = file.CreateReadStream();
+
+            //_slateRepository.UploadPlayers(_date, SlateID, stream);    //  Export_2023_02_13.csv manual all 
 
 
-          //  var contents = _fileServerProvider.GetProvider("/files").GetDirectoryContents("");
-            var file = _fileServerProvider.GetProvider("/files").GetFileInfo("/02-23-23/Export_2023_02_23.csv");
-            Stream stream = file.CreateReadStream();
+
+            //  var contents = _fileServerProvider.GetProvider("/files").GetDirectoryContents("");
+            file = _fileServerProvider.GetProvider("/files").GetFileInfo("/02-05-23/contest-standings-" + SlateID + ".csv");
+            stream = file.CreateReadStream();
+
+            var contest = await _slateRepository.GetContest(_date, SlateID, stream);  //  _db.Contests  or "contest-standings-" + ID + ".csv"
+            contests.Add(contest);
+
+
+            file = _fileServerProvider.GetProvider("/files").GetFileInfo("/02-05-23/Export_2023_02_05.csv");
+             stream = file.CreateReadStream();
             
             //reader = new StreamReader(stream);
             _slateRepository.UploadProjections(_date, SlateID, stream);    //  Export_2023_02_13.csv  
 
 
-            var contest = await _slateRepository.GetContest(_date, SlateID);  //  _db.Contests  or "contest-standings-" + ID + ".csv"
+            
+            
+           
 
 
 
-            contests.Add(contest);
+           
 
 
             // _slateRepository.SaveContestToDatabase(contest);

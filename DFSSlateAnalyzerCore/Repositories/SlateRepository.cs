@@ -40,7 +40,7 @@ namespace DFSSlateAnalyzerCore.Repositories
         }
 
 
-        public async Task<ContestModel> GetContest(DateTime date,   Int64 ID)
+        public async Task<ContestModel> GetContest(DateTime date,   Int64 ID, Stream stream)
         {
             var contest = new Contest();
             //ID = 141168190;
@@ -63,7 +63,7 @@ namespace DFSSlateAnalyzerCore.Repositories
             if (contest == null)
             {
 
-                contest = await UploadContest(DateTime.Now, ID);
+                contest = await UploadContest(DateTime.Now, ID, stream);
             }
 
             _logger.LogInformation("Loop through entries Started");
@@ -130,7 +130,7 @@ namespace DFSSlateAnalyzerCore.Repositories
         }
 
 
-        public async Task<Contest> UploadContest(DateTime date, Int64 ID)
+        public async Task<Contest> UploadContest(DateTime date, Int64 ID, Stream stream)
         {
             var contest = new Contest();
              
@@ -142,7 +142,7 @@ namespace DFSSlateAnalyzerCore.Repositories
 
             };
 
-            using (var reader = new StreamReader("contest-standings-" + ID + ".csv"))
+            using (var reader = new StreamReader(stream))
 
             using (var csv = new CsvReader(reader, csvConfig))
             {
@@ -179,40 +179,54 @@ namespace DFSSlateAnalyzerCore.Repositories
                     entryList.Add(entry);
 
 
-
                     if (csv.GetField<string>("Player") != "")
                     {
-                        player.PlayerName = csv.GetField<string>("Player");
-                        player.RosterPosition = csv.GetField<string>("Roster Position");
-                        player.Drafted = csv.GetField<string>("%Drafted");
-                        player.FPTS = csv.GetField<string>("FPTS");
-                        player.ContestID = ID;
-                        //  player.Salary = csv.GetField<string>("Salary");
 
-                        var dfsPlayer = new DFSPlayer();
+                        player = _db?.Players
 
-                        dfsPlayer = _db?.DFSPlayers
+                          .Where(s => s.PlayerName == csv.GetField<string>("Player") && s.ContestID == ID)
+                          .SingleOrDefault();
 
-                              .Where(s => s.BMFirstName + " " + s.BMLastName == player.PlayerName )
-                              .SingleOrDefault();
-
-                        if (dfsPlayer != null)
+                        if (player == null)
                         {
-                            player.PlayerID = dfsPlayer.PlayerID;
-                            dfsPlayer.DKPlayerName = player.PlayerName;  
-                            _db?.SaveChanges();
-                        }
-                        else
-                        {
-                            _logger.LogInformation(player.PlayerName + " not found");
+
+                            player = new Player();
+                            player.PlayerName = csv.GetField<string>("Player");
+                            player.RosterPosition = csv.GetField<string>("Roster Position");
+                            player.Drafted = csv.GetField<string>("%Drafted");
+                            player.FPTS = csv.GetField<string>("FPTS");
+                            player.ContestID = ID;
+
+                            //  player.Salary = csv.GetField<string>("Salary");
+
+                            var dfsPlayer = new DFSPlayer();
+
+                            dfsPlayer = _db?.DFSPlayers
+
+                                  .Where(s => s.BMFirstName + " " + s.BMLastName == player.PlayerName)
+                                  .SingleOrDefault();
+
+                            if (dfsPlayer != null)
+                            {
+                                player.PlayerID = dfsPlayer.PlayerID;
+                                dfsPlayer.DKPlayerName = player.PlayerName;
+                                _db?.SaveChanges();
+                            }
+                            else
+                            {
+                                _logger.LogInformation(player.PlayerName + " not found");
+                            }
+
+
+
                         }
 
-                       
+                        _db.ChangeTracker.Clear();
+
                         contestPlayerList.Add(player);
                     }
 
                 }
-
             }
             
             contest.ContestID = ID;
@@ -292,8 +306,12 @@ namespace DFSSlateAnalyzerCore.Repositories
 
 
 
+           
+          //  _db.ChangeTracker. = EntityState.Detached;
+         //   _db.Entry("EntryMember").State = EntityState.Detached;
 
             _db?.Contests.Add(contest);
+
             _db?.SaveChanges();
         }
 
@@ -477,6 +495,8 @@ namespace DFSSlateAnalyzerCore.Repositories
 
             }
 
+            _db.ChangeTracker.Clear();
+
 
             return;
 
@@ -484,7 +504,7 @@ namespace DFSSlateAnalyzerCore.Repositories
 
         }
 
-        public void UploadPlayers(DateTime date , Int64 ID)
+        public void UploadPlayers(DateTime date , Int64 ID, Stream stream)
         {
             // var contest = new Contest();
 
@@ -496,7 +516,7 @@ namespace DFSSlateAnalyzerCore.Repositories
 
             };
 
-            using (var reader = new StreamReader("Export_2023_02_13.csv"))
+            using (var reader = new StreamReader(stream))
 
             using (var csv = new CsvReader(reader, csvConfig))
             {
@@ -510,25 +530,39 @@ namespace DFSSlateAnalyzerCore.Repositories
                 {
                     // Get first entry from csv
 
-               
-
-
                     var dfsPlayer = new DFSPlayer();
-                    dfsPlayer.PlayerID = csv.GetField<int>("id") ;
-                    dfsPlayer.BMFirstName = csv.GetField<string>("first_name");
-                    dfsPlayer.BMLastName = csv.GetField<string>("last_name");
-                    dfsPlayer.Team = csv.GetField<string>("team");
-                    dfsPlayer.RosterPosition = csv.GetField<string>("position");
+                    dfsPlayer = _db?.DFSPlayers.AsNoTracking()
+
+                      .Where(s => s.PlayerID == csv.GetField<int>("id"))
+                      .SingleOrDefault();
+
+                    if (dfsPlayer == null)
+                    {
+                        dfsPlayer = new DFSPlayer();
+                        dfsPlayer.PlayerID = csv.GetField<int>("id");
+                        dfsPlayer.BMFirstName = csv.GetField<string>("first_name");
+                        dfsPlayer.BMLastName = csv.GetField<string>("last_name");
+                        dfsPlayer.Team = csv.GetField<string>("team");
+                        dfsPlayer.RosterPosition = csv.GetField<string>("position");
 
 
-                    _db?.DFSPlayers.Add(dfsPlayer);    
-                    _db?.SaveChanges();
+                        _db?.DFSPlayers.Add(dfsPlayer);
+                        _db?.SaveChanges();
+
+                    }
+
+
+                  
                 
 
 
                 }
 
             }
+
+
+            _db.ChangeTracker.Clear();
+
 
 
             return;

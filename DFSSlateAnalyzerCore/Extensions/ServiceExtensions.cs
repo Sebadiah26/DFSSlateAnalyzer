@@ -42,7 +42,8 @@ namespace DFSSlateAnalyzerCore.Extensions
                         {
                         new FileServerOptions
                         {
-                            FileProvider = new PhysicalFileProvider(@"\\DESKTOP-FT0FCJQ\DFSAnalyzer"),
+                            //FileProvider = new PhysicalFileProvider(@"\\DESKTOP-FT0FCJQ\DFSAnalyzer"),
+                            FileProvider = new PhysicalFileProvider(@"C:\Projects\GitHub\DFSSlateAnalyzer\files"),
                             RequestPath = new PathString("/files"),
                             EnableDirectoryBrowsing = true
                         },
