@@ -47,14 +47,15 @@ namespace DFSSlateAnalyzerAngular.Controllers
 
            SlateID = 141198362;
 
-            // _slateRepository.UploadSlate(_date, SlateID);    //  Entries.csv  
+            // _slateRepository.UploadSlate(_date, SlateID);    //  Entries.csv
+            // 
             IFileInfo file;
             Stream stream;
 
             //var file = _fileServerProvider.GetProvider("/files").GetFileInfo("/02-05-23/Export_2023_02_05.csv");
-            //Stream stream = file.CreateReadStream();
+           // Stream stream = file.CreateReadStream();
 
-            //_slateRepository.UploadPlayers(_date, SlateID, stream);    //  Export_2023_02_13.csv manual all 
+          // _slateRepository.UploadPlayers(_date, SlateID, stream);    //  Export_2023_02_13.csv manual all 
 
 
 
@@ -66,11 +67,11 @@ namespace DFSSlateAnalyzerAngular.Controllers
             contests.Add(contest);
 
 
-            file = _fileServerProvider.GetProvider("/files").GetFileInfo("/02-05-23/Export_2023_02_05.csv");
-             stream = file.CreateReadStream();
+          //  file = _fileServerProvider.GetProvider("/files").GetFileInfo("/02-05-23/Export_2023_02_05.csv");
+           //  stream = file.CreateReadStream();
             
-            //reader = new StreamReader(stream);
-            _slateRepository.UploadProjections(_date, SlateID, stream);    //  Export_2023_02_13.csv  
+           
+          //  _slateRepository.UploadProjections(_date, SlateID, stream);    //  Export_2023_02_13.csv  
 
 
             

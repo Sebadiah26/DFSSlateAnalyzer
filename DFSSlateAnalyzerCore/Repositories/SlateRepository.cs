@@ -12,8 +12,7 @@ using System;
 using System.Globalization;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.Extensions.FileProviders;
-
-
+using Microsoft.Net.Http.Headers;
 
 namespace DFSSlateAnalyzerCore.Repositories
 {
@@ -49,7 +48,8 @@ namespace DFSSlateAnalyzerCore.Repositories
             _logger.LogInformation(DateTime.Now.ToString());
 
             contest = await _db.Contests
-                            .Include(s => s.Entries) //.ThenInclude(s => s.EntryMembers).ThenInclude(s => s.Player)
+                            .Include(s => s.Entries)
+                           .ThenInclude(s => s.EntryMembers)  //.ThenInclude(s => s.Player)
                            .Where(s => s.ContestID == ID)
                             //.Include(s => s.ContestPlayers)
                             .AsNoTracking()
@@ -244,15 +244,80 @@ namespace DFSSlateAnalyzerCore.Repositories
                 List<EntryMember> entryMembers = new List<EntryMember>();
 
                 string[] words = (lineup ?? "").Split(' ');
+                int[] startPositions = new int[8];
 
-                entryMembers.Add(new EntryMember { EntryID = entryId, ContestID = contestID, LineupSlot = GetLineupSlot(words[0]), EntryMemberPlayerName = words[1] + " " + words[2], Position = words[0] });
-                entryMembers.Add(new EntryMember { EntryID = entryId, ContestID = contestID, LineupSlot = GetLineupSlot(words[3]), EntryMemberPlayerName = words[4] + " " + words[5], Position = words[3] });
-                entryMembers.Add(new EntryMember { EntryID = entryId, ContestID = contestID, LineupSlot = GetLineupSlot(words[6]), EntryMemberPlayerName = words[7] + " " + words[8], Position = words[6] });
-                entryMembers.Add(new EntryMember { EntryID = entryId, ContestID = contestID, LineupSlot = GetLineupSlot(words[9]), EntryMemberPlayerName = words[10] + " " + words[11], Position = words[9] });
-                entryMembers.Add(new EntryMember { EntryID = entryId, ContestID = contestID, LineupSlot = GetLineupSlot(words[12]), EntryMemberPlayerName = words[13] + " " + words[14], Position = words[12] });
-                entryMembers.Add(new EntryMember { EntryID = entryId, ContestID = contestID, LineupSlot = GetLineupSlot(words[15]), EntryMemberPlayerName = words[16] + " " + words[17], Position = words[15] });
-                entryMembers.Add(new EntryMember { EntryID = entryId, ContestID = contestID, LineupSlot = GetLineupSlot(words[18]), EntryMemberPlayerName = words[19] + " " + words[20], Position = words[18] });
-                entryMembers.Add(new EntryMember { EntryID = entryId, ContestID = contestID, LineupSlot = GetLineupSlot(words[21]), EntryMemberPlayerName = words[22] + " " + words[23], Position = words[21] });
+
+          //   C Joel Embiid F Trey Murphy III G James Harden PF Santi Aldama PG Tyus Jones SF Naji Marshall SG Desmond Bane UTIL Bruce Brown
+            //   0  1     2   3   4    5      6  7    8    9    10   11    12   13  14   15   16   17   18     19    20    21   22   23    24
+
+
+                for (int i = 0; i < words.Length; i++)
+                {
+
+               
+
+                    switch (words[i])
+                        {
+                            case "PG":
+                                startPositions[0] = i;
+                                break;
+                            case "SG":
+                                startPositions[1] = i;
+                                break;
+                            case "SF":
+                                startPositions[2] = i;
+                                break;
+                            case "PF":
+                                startPositions[3] = i;
+                                break;
+                            case "C":
+                                startPositions[4] = i;
+                                break;
+                            case "G":
+                                startPositions[5] = i;
+                                break;
+                            case "F":
+                                startPositions[6] = i;
+                                break;
+                            case "UTIL":
+                                startPositions[7] = i;
+                                break;
+                            default:
+                            break;
+        
+               
+
+                        }
+
+
+                 }
+
+
+                entryMembers.Add
+                (new EntryMember 
+                    { EntryID = entryId, ContestID = contestID, LineupSlot = GetLineupSlot(words[startPositions[0]]),
+                    EntryMemberPlayerName = words[startPositions[0] + 1] + " " + words[startPositions[0] + 2], Position = words[startPositions[0]] });
+                entryMembers.Add
+                (new EntryMember { EntryID = entryId, ContestID = contestID, LineupSlot = GetLineupSlot(words[startPositions[1]]), 
+                    EntryMemberPlayerName = words[startPositions[1] + 1] + " " + words[startPositions[1] + 2], Position = words[startPositions[1]] });
+                entryMembers.Add
+                (new EntryMember { EntryID = entryId, ContestID = contestID, LineupSlot = GetLineupSlot(words[startPositions[2]]),
+                    EntryMemberPlayerName = words[startPositions[2] + 1] + " " + words[startPositions[2] + 2], Position = words[startPositions[2]] });
+                entryMembers.Add
+                (new EntryMember { EntryID = entryId, ContestID = contestID, LineupSlot = GetLineupSlot(words[startPositions[3]]),
+                    EntryMemberPlayerName = words[startPositions[3] + 1] + " " + words[startPositions[3] + 2], Position = words[startPositions[3]] });
+                entryMembers.Add
+                (new EntryMember { EntryID = entryId, ContestID = contestID, LineupSlot = GetLineupSlot(words[startPositions[4]]), 
+                    EntryMemberPlayerName = words[startPositions[4] + 1] + " " + words[startPositions[4] + 2], Position = words[startPositions[4]] });
+                entryMembers.Add
+                (new EntryMember { EntryID = entryId, ContestID = contestID, LineupSlot = GetLineupSlot(words[startPositions[5]]),
+                    EntryMemberPlayerName = words[startPositions[5] + 1] + " " + words[startPositions[5] + 2], Position = words[startPositions[5]] });
+                entryMembers.Add
+                (new EntryMember { EntryID = entryId, ContestID = contestID, LineupSlot = GetLineupSlot(words[startPositions[6]]),
+                    EntryMemberPlayerName = words[startPositions[6] + 1] + " " + words[startPositions[6] + 2], Position = words[startPositions[6]] });
+                entryMembers.Add
+                (new EntryMember { EntryID = entryId, ContestID = contestID, LineupSlot = GetLineupSlot(words[startPositions[7]]),
+                    EntryMemberPlayerName = words[startPositions[7] + 1] + " " + words[startPositions[7] + 2], Position = words[startPositions[7]] });
 
 
                 return entryMembers;

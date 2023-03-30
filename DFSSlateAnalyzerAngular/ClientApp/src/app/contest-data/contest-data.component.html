@@ -12,15 +12,26 @@
       <th>rank</th>
       <th>points</th>
       <th>adjusted ranking</th>
+      <th>players</th>
     </tr>
   </thead>
   <tbody>
     <tr *ngFor="let entry of contests[0].entries">
       <td>{{ entry.name }}</td>
-      <td *ngIf="entry.timeRemaining">{{ entry.timeRemaining }}</td>
-      <td>{{ entry.points }}</td>
+      <td>{{ entry.timeRemaining }}</td>
       <td>{{ entry.rank }}</td>
-
+      <td>{{ entry.points }}</td>
+      <td></td>
+      <td>
+        <div>
+          <span *ngFor="let entryMember of entry.entryMembers">
+            {{entryMember.entryMemberPlayerName}}
+            &nbsp;
+            {{entryMember.}}
+            &nbsp;
+          </span>
+        </div>
+      </td>
     </tr>
   </tbody>
 </table>
