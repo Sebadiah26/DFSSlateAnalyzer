@@ -49,7 +49,8 @@ namespace DFSSlateAnalyzerCore.Repositories
 
             contest = await _db.Contests
                             .Include(s => s.Entries)
-                           .ThenInclude(s => s.EntryMembers)  //.ThenInclude(s => s.Player)
+                           .ThenInclude(s => s.EntryMembers) 
+                           .ThenInclude(s => s.Player)
                            .Where(s => s.ContestID == ID)
                             //.Include(s => s.ContestPlayers)
                             .AsNoTracking()
@@ -89,6 +90,9 @@ namespace DFSSlateAnalyzerCore.Repositories
                     entryMemberModel.EntryMemberPlayerName = entryMember.EntryMemberPlayerName;
                     entryMemberModel.Position = entryMember.Position;
                     entryMemberModel.LineupSlot = entryMember.LineupSlot;
+                    entryMemberModel.Player.Fpts = entryMember.Player?.FPTS;
+                    entryMemberModel.Player.PlayerName = entryMember.Player?.PlayerName;
+                    entryMemberModel.Player.BMProjection = entryMember.Player?.BMProjection;
 
                     entryModel.EntryMembers.Add(entryMemberModel);
                 }
@@ -109,7 +113,7 @@ namespace DFSSlateAnalyzerCore.Repositories
 
                 playerModel.PlayerName = player.PlayerName;
                 playerModel.Position = player.Position;
-                playerModel.FPTS = player.FPTS;
+                playerModel.Fpts = player.FPTS;
                 playerModel.RosterPosition = player.RosterPosition;
                 playerModel.Points = player.Points;
                 playerModel.ProjectedPoints = player.ProjectedPoints;

@@ -45,7 +45,7 @@ export interface IEntryMember {
   entryMemberPlayerName: string;
   lineupSlot: number;
   position: string;
-  player?: IPlayer[];
+  player : IPlayer;
 
 }
 

@@ -22,14 +22,18 @@
       <td>{{ entry.rank }}</td>
       <td>{{ entry.points }}</td>
       <td></td>
-      <td>
+      <td  *ngFor="let entryMember of entry.entryMembers"  >
         <div>
-          <span *ngFor="let entryMember of entry.entryMembers">
-            {{entryMember.entryMemberPlayerName}}
-            &nbsp;
-            {{entryMember.}}
-            &nbsp;
-          </span>
+
+          {{entryMember.entryMemberPlayerName}}
+          &nbsp;
+          <!--<span *ngFor="let player of entryMember.player">-->
+          <!--<div *ngIf="!entryMember.player?.fpts.length">-->
+          {{entryMember.player.fpts}}
+          <!--</div>-->
+          <!--</span>-->
+          &nbsp;
+
         </div>
       </td>
     </tr>
