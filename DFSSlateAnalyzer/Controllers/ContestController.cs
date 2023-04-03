@@ -45,42 +45,51 @@ namespace DFSSlateAnalyzerAngular.Controllers
             _logger.LogInformation(DateTime.Now.ToString());
 
 
-           SlateID = 141198362;
+           SlateID = 141599279;
 
-            // _slateRepository.UploadSlate(_date, SlateID);    //  Entries.csv
-            // 
+          
+
+
             IFileInfo file;
             Stream stream;
 
-            //var file = _fileServerProvider.GetProvider("/files").GetFileInfo("/02-05-23/Export_2023_02_05.csv");
-           // Stream stream = file.CreateReadStream();
+           
+             
 
-          // _slateRepository.UploadPlayers(_date, SlateID, stream);    //  Export_2023_02_13.csv manual all 
+
+
+          //  file = _fileServerProvider.GetProvider("/files").GetFileInfo("/02-23-23/Export_2023_02_23.csv");
+          // stream = file.CreateReadStream();
+
+          //_slateRepository.UploadPlayers(_date, SlateID, stream);    //  Export_2023_02_23.csv manual all 
 
 
 
             //  var contents = _fileServerProvider.GetProvider("/files").GetDirectoryContents("");
-            file = _fileServerProvider.GetProvider("/files").GetFileInfo("/02-05-23/contest-standings-" + SlateID + ".csv");
+            file = _fileServerProvider.GetProvider("/files").GetFileInfo("/02-23-23/contest-standings-" + SlateID + ".csv");
             stream = file.CreateReadStream();
 
             var contest = await _slateRepository.GetContest(_date, SlateID, stream);  //  _db.Contests  or "contest-standings-" + ID + ".csv"
             contests.Add(contest);
 
 
-          //  file = _fileServerProvider.GetProvider("/files").GetFileInfo("/02-05-23/Export_2023_02_05.csv");
-           //  stream = file.CreateReadStream();
+            //file = _fileServerProvider.GetProvider("/files").GetFileInfo("/02-23-23/Export_2023_02_23.csv");
+            // stream = file.CreateReadStream();
             
            
-          //  _slateRepository.UploadProjections(_date, SlateID, stream);    //  Export_2023_02_13.csv  
+            //_slateRepository.UploadProjections(_date, SlateID, stream);    //  Export_2023_02_23.csv  
 
 
-            
-            
-           
+            file = _fileServerProvider.GetProvider("/files").GetFileInfo("/02-23-23/DKEntries.csv");
+            stream = file.CreateReadStream();
+
+            _slateRepository.UploadSlate(_date, SlateID, stream);    //  Entries.csv
 
 
 
-           
+
+
+
 
 
             // _slateRepository.SaveContestToDatabase(contest);

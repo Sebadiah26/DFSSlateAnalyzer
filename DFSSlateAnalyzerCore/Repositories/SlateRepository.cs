@@ -13,6 +13,8 @@ using System.Globalization;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Net.Http.Headers;
+using System.IO;
+using System.Numerics;
 
 namespace DFSSlateAnalyzerCore.Repositories
 {
@@ -48,9 +50,11 @@ namespace DFSSlateAnalyzerCore.Repositories
             _logger.LogInformation(DateTime.Now.ToString());
 
             contest = await _db.Contests
+                            // .Include(s => s.ContestPlayers)
                             .Include(s => s.Entries)
+                             
                            .ThenInclude(s => s.EntryMembers) 
-                           .ThenInclude(s => s.Player)
+                          // .ThenInclude(s => s.Player)
                            .Where(s => s.ContestID == ID)
                             //.Include(s => s.ContestPlayers)
                             .AsNoTracking()
@@ -67,12 +71,40 @@ namespace DFSSlateAnalyzerCore.Repositories
                 contest = await UploadContest(DateTime.Now, ID, stream);
             }
 
+            List<Player> contestPlayerList = await _db.Players
+
+                           .Where(s => s.ContestID == ID)
+                            .ToListAsync();
+
+            var playerModelList = new List<PlayerModel>();
+
+
+            foreach (var player in contestPlayerList!)
+            {
+
+                var playerModel = new PlayerModel();
+
+                playerModel.PlayerName = player.PlayerName;
+                playerModel.Position = player.Position;
+                playerModel.Fpts = player.FPTS;
+                playerModel.RosterPosition = player.RosterPosition;
+                playerModel.Points = player.Points;
+                playerModel.Bmprojection = player.BMProjection.ToString();
+                playerModel.Drafted = player.Drafted;
+                playerModel.Salary = player.Salary;
+
+                playerModelList.Add(playerModel);
+            }
+
+
             _logger.LogInformation("Loop through entries Started");
             _logger.LogInformation(DateTime.Now.ToString());
 
             List<EntryModel> entryList = new List<EntryModel>();
 
-            foreach (var entry in contest!.Entries!)
+            var entries = contest!.Entries!.Take(100);
+
+            foreach (var entry in entries!)
             {
 
 
@@ -86,13 +118,18 @@ namespace DFSSlateAnalyzerCore.Repositories
                 foreach (var entryMember in entry!.EntryMembers!)
                 {
                     var entryMemberModel = new EntryMemberModel();
+                    var playerModel = new PlayerModel();
                     entryMemberModel.EntryId = entryMember.EntryID;
                     entryMemberModel.EntryMemberPlayerName = entryMember.EntryMemberPlayerName;
                     entryMemberModel.Position = entryMember.Position;
                     entryMemberModel.LineupSlot = entryMember.LineupSlot;
-                    entryMemberModel.Player.Fpts = entryMember.Player?.FPTS;
-                    entryMemberModel.Player.PlayerName = entryMember.Player?.PlayerName;
-                    entryMemberModel.Player.BMProjection = entryMember.Player?.BMProjection;
+
+                    playerModel = playerModelList.Where(x => x.PlayerName == entryMemberModel.EntryMemberPlayerName).SingleOrDefault();
+                    entryMemberModel.Player.Fpts = playerModel?.Fpts;
+                    entryMemberModel.Player.PlayerName = playerModel?.PlayerName;
+                    entryMemberModel.Player.Bmprojection = playerModel?.Bmprojection;
+                    entryMemberModel.Player.Salary = playerModel?.Salary;
+                    entryMemberModel.Player.Position = playerModel?.Position;
 
                     entryModel.EntryMembers.Add(entryMemberModel);
                 }
@@ -104,27 +141,10 @@ namespace DFSSlateAnalyzerCore.Repositories
             _logger.LogInformation("Loop through entries Ended");
             _logger.LogInformation(DateTime.Now.ToString());
 
-            List<PlayerModel> contestPlayerList = new List<PlayerModel>();
-
-            foreach (var player in contest!.ContestPlayers!)
-            {
-
-                var playerModel = new PlayerModel();
-
-                playerModel.PlayerName = player.PlayerName;
-                playerModel.Position = player.Position;
-                playerModel.Fpts = player.FPTS;
-                playerModel.RosterPosition = player.RosterPosition;
-                playerModel.Points = player.Points;
-                playerModel.ProjectedPoints = player.ProjectedPoints;
-                playerModel.Drafted = player.Drafted;
-                playerModel.Salary = player.Salary;
-
-                contestPlayerList.Add(playerModel);
-            }
+          
 
             var contestModel =
-              new ContestModel(contest.ContestID, contest.Name ?? "blah", contest.PercentComplete, contest.Size, contest.Fee, entryList, contestPlayerList);
+              new ContestModel(contest.ContestID, contest.Name ?? "blah", contest.PercentComplete, contest.Size, contest.Fee, entryList, playerModelList);
 
             _logger.LogInformation("Loop through contest players ended");
             _logger.LogInformation(DateTime.Now.ToString());
@@ -175,7 +195,9 @@ namespace DFSSlateAnalyzerCore.Repositories
 
 
                     if (entry.Lineup != null && entry.Lineup != "")
-                    { entry.EntryMembers = GetEntryMembers(entry.Lineup, entry.EntryID, entry.ContestID); }
+                    { entry.EntryMembers = GetEntryMembers(entry.Lineup, entry.EntryID, entry.ContestID);
+                   
+                    }
 
 
 
@@ -385,100 +407,90 @@ namespace DFSSlateAnalyzerCore.Repositories
         }
 
 
-        public void UploadSlate(DateTime date, Int64 ID)
+        public void UploadSlate(DateTime date, Int64 ID, Stream stream)
         {
-            var contest = new Contest();
+            //var contest = new Contest();
 
-            List<Entry> entryList = new List<Entry>();
-            List<Player> contestPlayerList = new List<Player>();
+            //List<Entry> entryList = new List<Entry>();
+            //List<Player> contestPlayerList = new List<Player>();
 
             var csvConfig = new CsvConfiguration(CultureInfo.InvariantCulture)
             {
-
             };
 
-            using (var reader = new StreamReader("contest-standings-" + ID + ".csv"))
+            using (var reader = new StreamReader(stream))
+
+
 
             using (var csv = new CsvReader(reader, csvConfig))
             {
 
 
 
-                csv.Read();
-                csv.ReadHeader();
-
                 while (csv.Read())
                 {
+                    if (csv.GetField(13) == "Position")
+                    {
+                        csv.ReadHeader();
+                        continue;
+                    }
 
-                    var entry = new Entry();
-                    var player = new Player();
+
+                    //Position Name +ID   Name ID  Roster Position Salary Game Info TeamAbbrev  AvgPointsPerGame
 
 
                     // Get first entry from csv
 
-                    entry.Rank = int.Parse(csv.GetField<string>("Rank") ?? "0");
-                    entry.EntryID = csv.GetField<Int64>("EntryId");
-                    entry.Name = csv.GetField<string>("EntryName");
-                    entry.TimeRemaining = decimal.Parse(csv.GetField<string>("TimeRemaining") ?? "0");
-                    entry.Points = decimal.Parse(csv.GetField<string>("Points") ?? "0");
-                    entry.Lineup = csv.GetField<string>("Lineup");
-                    entry.ContestID = ID;
+                 if (csv.HeaderRecord != null)
+                  {
+
+                        var fullName = csv.GetField<string>("Name");
 
 
-                    if (entry.Lineup != null && entry.Lineup != "")
-                    { entry.EntryMembers = GetEntryMembers(entry.Lineup, entry.EntryID, entry.ContestID); }
+                        var player = new Player();
 
+                        player = _db?.Players
 
-
-
-                    entryList.Add(entry);
-
-
-
-                    if (csv.GetField<string>("Player") != "")
-                    {
-                        player.PlayerName = csv.GetField<string>("Player");
-                        player.RosterPosition = csv.GetField<string>("Roster Position");
-                        player.Drafted = csv.GetField<string>("%Drafted");
-                        player.FPTS = csv.GetField<string>("FPTS");
-                        player.ContestID = ID;
-                        //  player.Salary = csv.GetField<string>("Salary");
-
-                        var dfsPlayer = new DFSPlayer();
-
-                        dfsPlayer = _db?.DFSPlayers
-
-                              .Where(s => s.BMFirstName + " " + s.BMLastName == player.PlayerName)
+                              .Where(s => s.PlayerName == fullName && s.ContestID == ID)
                               .SingleOrDefault();
 
-                        if (dfsPlayer != null)
+                        if (player != null)
                         {
-                            player.PlayerID = dfsPlayer.PlayerID;
-                            dfsPlayer.DKPlayerName = player.PlayerName;
+
+
+
+                            player.Salary = csv.GetField<string>("Salary");
+                            player.Position = csv.GetField<string>("Position");
+
                             _db?.SaveChanges();
+
+
+
+
                         }
                         else
                         {
-                            _logger.LogInformation(player.PlayerName + " not found");
+                            _logger.LogInformation(fullName + " not found");
                         }
 
-
-                        contestPlayerList.Add(player);
                     }
 
+                    //contestPlayerList.Add(player);
                 }
-
             }
+               
 
-            contest.ContestID = ID;
-            contest.Entries = entryList;
-            contest.ContestPlayers = contestPlayerList;
+        }
 
-            SaveContestToDatabase(contest);
+            //contest.ContestID = ID;
+            //contest.Entries = entryList;
+            //contest.ContestPlayers = contestPlayerList;
+
+            //SaveContestToDatabase(contest);
 
            // return contest;
 
-        }
+   // }
 
 
 

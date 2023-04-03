@@ -4,7 +4,31 @@
 
 <p *ngIf="!contests?.length"><em>Loading...</em></p>
 
-<table class='table table-striped' aria-labelledby="tableLabel" >
+
+<h2>My Heroes</h2>
+<ul class="heroes">
+  <li *ngFor="let hero of heroes">
+    <button [class.selected]="hero === selectedHero" type="button" (click)="onSelect(hero)">
+      <span class="badge">{{hero.id}}</span>
+      <span class="name">{{hero.name}}</span>
+    </button>
+  </li>
+</ul>
+
+<div *ngIf="selectedHero">
+  <h2>{{selectedHero.name | uppercase}} Details</h2>
+  <div>id: {{selectedHero.id}}</div>
+  <div>
+    <label for="hero-name">Hero name: </label>
+    <input id="hero-name" [(ngModel)]="selectedHero.name" placeholder="name">
+  </div>
+</div>
+
+
+
+
+
+<table class='table table-striped' aria-labelledby="tableLabel">
   <thead>
     <tr>
       <th>Name</th>
@@ -16,13 +40,18 @@
     </tr>
   </thead>
   <tbody>
+
+
+
+
+
     <tr *ngFor="let entry of contests[0].entries">
       <td>{{ entry.name }}</td>
       <td>{{ entry.timeRemaining }}</td>
       <td>{{ entry.rank }}</td>
       <td>{{ entry.points }}</td>
       <td></td>
-      <td  *ngFor="let entryMember of entry.entryMembers"  >
+      <td *ngFor="let entryMember of entry.entryMembers">
         <div>
 
           {{entryMember.entryMemberPlayerName}}
@@ -33,7 +62,10 @@
           <!--</div>-->
           <!--</span>-->
           &nbsp;
-
+          {{entryMember.player.bmprojection}}
+          &nbsp;
+          {{entryMember.player.salary}}
+          &nbsp;
         </div>
       </td>
     </tr>

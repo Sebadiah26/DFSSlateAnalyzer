@@ -8,7 +8,7 @@
         public int LineupSlot { get; set; }
         public string? Position { get; set; }
         public string? EntryMemberPlayerName { get; set; }
-        public virtual PlayerModel? Player { get; set; } = new PlayerModel();
+        public virtual PlayerModel Player { get; set; } = new PlayerModel();
 
     }
 }

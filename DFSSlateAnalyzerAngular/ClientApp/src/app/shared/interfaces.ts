@@ -32,6 +32,7 @@ export interface IPlayer {
   salary: string;
   points: number;
   projectedPoints: number;
+  bmprojection: string;
   position: string;
   rosterPosition: string;
   drafted: string;

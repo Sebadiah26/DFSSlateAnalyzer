@@ -14,7 +14,7 @@ namespace DFSSlateAnalyzerData.Data
         public Entry? Entry { get; set; }
 
        
-        public virtual Player? Player { get; set; } = new Player();
+      //  public virtual Player? Player { get; set; } = new Player();
         public System.Int64 ContestID { get; set; }
     }
 }

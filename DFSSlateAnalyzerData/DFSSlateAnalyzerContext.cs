@@ -92,11 +92,11 @@ namespace DFSSlateAnalyzerData
 
             });
 
-            modelBuilder.Entity<EntryMember>()
-          .HasOne(s => s.Player)
-             .WithOne(s => s.entryMember)
-            .HasPrincipalKey<EntryMember>(s => new { s.ContestID, s.EntryMemberPlayerName }).OnDelete(DeleteBehavior.NoAction)
-            .HasForeignKey<Player>(s => new { s.ContestID, s.PlayerName }).OnDelete(DeleteBehavior.NoAction);
+          //  modelBuilder.Entity<EntryMember>()
+          //.HasOne(s => s.Player)
+          //   .WithOne(s => s.entryMember)
+          //  .HasPrincipalKey<EntryMember>(s => new { s.ContestID, s.EntryMemberPlayerName }).OnDelete(DeleteBehavior.NoAction)
+          //  .HasForeignKey<Player>(s => new { s.ContestID, s.PlayerName }).OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<DFSPlayer>()
                 .HasOne(s => s.Player)

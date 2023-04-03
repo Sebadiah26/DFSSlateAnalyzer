@@ -10,6 +10,6 @@ namespace DFSSlateAnalyzerCore.Repositories.Interfaces
         void SaveContestToDatabase(Contest contest);
         void UploadProjections(DateTime date, Int64 ID, Stream stream);
         void UploadPlayers(DateTime date, Int64 ID, Stream stream);
-        void UploadSlate(DateTime date, Int64 ID);
+        void UploadSlate(DateTime date, Int64 ID, Stream stream);
     }
 }
