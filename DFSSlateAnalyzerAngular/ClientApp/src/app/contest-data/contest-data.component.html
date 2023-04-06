@@ -5,22 +5,22 @@
 <p *ngIf="!contests?.length"><em>Loading...</em></p>
 
 
-<h2>My Heroes</h2>
+<h2>My Entries</h2>
 <ul class="heroes">
-  <li *ngFor="let hero of heroes">
-    <button [class.selected]="hero === selectedHero" type="button" (click)="onSelect(hero)">
-      <span class="badge">{{hero.id}}</span>
-      <span class="name">{{hero.name}}</span>
+  <li *ngFor="let entry of contests[0].entries">
+    <button [class.selected]="entry === selectedEntry" type="button" (click)="onSelect(entry)">
+      <span class="badge">{{entry.entryid}}</span>
+      <span class="name">{{entry.name}}</span>
     </button>
   </li>
 </ul>
 
-<div *ngIf="selectedHero">
-  <h2>{{selectedHero.name | uppercase}} Details</h2>
-  <div>id: {{selectedHero.id}}</div>
+<div *ngIf="selectedEntry">
+  <h2>{{selectedEntry.name | uppercase}} Details</h2>
+  <div>id: {{selectedEntry.entryid}}</div>
   <div>
-    <label for="hero-name">Hero name: </label>
-    <input id="hero-name" [(ngModel)]="selectedHero.name" placeholder="name">
+    <label for="entry-name">Entry name: </label>
+    <input id="entry-name" [(ngModel)]="selectedEntry.name" placeholder="name">
   </div>
 </div>
 

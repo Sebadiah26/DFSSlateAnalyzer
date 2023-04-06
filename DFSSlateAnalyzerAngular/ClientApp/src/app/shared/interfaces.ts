@@ -15,7 +15,7 @@ export interface IContest {
 
 export interface IEntry {
   id: number;
-  entryID: number;
+  entryid: number;
   name: string;
   timeRemaining: number;
   points: number;

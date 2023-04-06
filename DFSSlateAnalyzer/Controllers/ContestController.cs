@@ -45,9 +45,9 @@ namespace DFSSlateAnalyzerAngular.Controllers
             _logger.LogInformation(DateTime.Now.ToString());
 
 
-           SlateID = 141599279;
+          // SlateID = 141599279;
+            SlateID = 141198362;
 
-          
 
 
             IFileInfo file;
@@ -66,24 +66,24 @@ namespace DFSSlateAnalyzerAngular.Controllers
 
 
             //  var contents = _fileServerProvider.GetProvider("/files").GetDirectoryContents("");
-            file = _fileServerProvider.GetProvider("/files").GetFileInfo("/02-23-23/contest-standings-" + SlateID + ".csv");
+            file = _fileServerProvider.GetProvider("/files").GetFileInfo("/02-05-23/contest-standings-" + SlateID + ".csv");
             stream = file.CreateReadStream();
 
             var contest = await _slateRepository.GetContest(_date, SlateID, stream);  //  _db.Contests  or "contest-standings-" + ID + ".csv"
             contests.Add(contest);
 
 
-            //file = _fileServerProvider.GetProvider("/files").GetFileInfo("/02-23-23/Export_2023_02_23.csv");
-            // stream = file.CreateReadStream();
-            
-           
-            //_slateRepository.UploadProjections(_date, SlateID, stream);    //  Export_2023_02_23.csv  
-
-
-            file = _fileServerProvider.GetProvider("/files").GetFileInfo("/02-23-23/DKEntries.csv");
+            file = _fileServerProvider.GetProvider("/files").GetFileInfo("/02-05-23/Export_2023_02_05.csv");
             stream = file.CreateReadStream();
 
-            _slateRepository.UploadSlate(_date, SlateID, stream);    //  Entries.csv
+
+            _slateRepository.UploadProjections(_date, SlateID, stream);    //  Export_2023_02_23.csv  
+
+
+            //file = _fileServerProvider.GetProvider("/files").GetFileInfo("/02-05-23/DKEntries.csv");
+            //stream = file.CreateReadStream();
+
+            //_slateRepository.UploadSlate(_date, SlateID, stream);    //  Entries.csv
 
 
 
