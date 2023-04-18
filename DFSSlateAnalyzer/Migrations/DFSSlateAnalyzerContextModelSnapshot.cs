@@ -208,9 +208,7 @@ namespace DFSSlateAnalyzerAPI.Migrations
 
                     b.HasIndex("ContestID");
 
-                    b.HasIndex("PlayerID")
-                        .IsUnique()
-                        .HasFilter("[PlayerID] IS NOT NULL");
+                    b.HasIndex("PlayerID");
 
                     b.HasIndex("entryMemberContestID", "entryMemberEntryID", "EntryMemberPlayerName");
 
@@ -255,10 +253,9 @@ namespace DFSSlateAnalyzerAPI.Migrations
                         .IsRequired();
 
                     b.HasOne("DFSSlateAnalyzerData.Data.DFSPlayer", "DFSPlayer")
-                        .WithOne("Player")
-                        .HasForeignKey("DFSSlateAnalyzerData.Data.Player", "PlayerID")
-                        .HasPrincipalKey("DFSSlateAnalyzerData.Data.DFSPlayer", "PlayerID")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .WithMany("Players")
+                        .HasForeignKey("PlayerID")
+                        .HasPrincipalKey("PlayerID");
 
                     b.HasOne("DFSSlateAnalyzerData.Data.EntryMember", "entryMember")
                         .WithMany()
@@ -280,7 +277,7 @@ namespace DFSSlateAnalyzerAPI.Migrations
 
             modelBuilder.Entity("DFSSlateAnalyzerData.Data.DFSPlayer", b =>
                 {
-                    b.Navigation("Player");
+                    b.Navigation("Players");
                 });
 
             modelBuilder.Entity("DFSSlateAnalyzerData.Data.Entry", b =>

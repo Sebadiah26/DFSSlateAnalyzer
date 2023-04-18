@@ -230,6 +230,7 @@ namespace DFSSlateAnalyzerCore.Repositories
                             dfsPlayer = _db?.DFSPlayers
 
                                   .Where(s => s.BMFirstName + " " + s.BMLastName == player.PlayerName)
+                                  .Where(s => s.PlayerID == null)
                                   .SingleOrDefault();
 
                             if (dfsPlayer != null)
@@ -318,32 +319,75 @@ namespace DFSSlateAnalyzerCore.Repositories
 
                  }
 
+                string extra = " ";
+                if ((startPositions[1] - startPositions[0]) > 3)
+                { extra += words[startPositions[0] + 3]; }
 
                 entryMembers.Add
                 (new EntryMember 
                     { EntryID = entryId, ContestID = contestID, LineupSlot = GetLineupSlot(words[startPositions[0]]),
-                    EntryMemberPlayerName = words[startPositions[0] + 1] + " " + words[startPositions[0] + 2], Position = words[startPositions[0]] });
-                entryMembers.Add
+                    EntryMemberPlayerName = words[startPositions[0] + 1] + " " + words[startPositions[0] + 2] + extra
+                    , Position = words[startPositions[0]] });
+
+            extra = " ";
+            if ((startPositions[2] - startPositions[1]) > 3)
+            { extra += words[startPositions[1] + 3]; }
+
+            entryMembers.Add
                 (new EntryMember { EntryID = entryId, ContestID = contestID, LineupSlot = GetLineupSlot(words[startPositions[1]]), 
-                    EntryMemberPlayerName = words[startPositions[1] + 1] + " " + words[startPositions[1] + 2], Position = words[startPositions[1]] });
-                entryMembers.Add
+                    EntryMemberPlayerName = words[startPositions[1] + 1] + " " + words[startPositions[1] + 2] + extra, Position = words[startPositions[1]] });
+
+            extra = " ";
+            if ((startPositions[3] - startPositions[2]) > 3)
+            { extra += words[startPositions[2] + 3]; }
+
+
+            entryMembers.Add
                 (new EntryMember { EntryID = entryId, ContestID = contestID, LineupSlot = GetLineupSlot(words[startPositions[2]]),
-                    EntryMemberPlayerName = words[startPositions[2] + 1] + " " + words[startPositions[2] + 2], Position = words[startPositions[2]] });
-                entryMembers.Add
+                    EntryMemberPlayerName = words[startPositions[2] + 1] + " " + words[startPositions[2] + 2] + extra, Position = words[startPositions[2]] });
+
+            extra = " ";
+            if ((startPositions[4] - startPositions[3]) > 3)
+            { extra += words[startPositions[3] + 3]; }
+
+
+            entryMembers.Add
                 (new EntryMember { EntryID = entryId, ContestID = contestID, LineupSlot = GetLineupSlot(words[startPositions[3]]),
-                    EntryMemberPlayerName = words[startPositions[3] + 1] + " " + words[startPositions[3] + 2], Position = words[startPositions[3]] });
-                entryMembers.Add
+                    EntryMemberPlayerName = words[startPositions[3] + 1] + " " + words[startPositions[3] + 2] + extra, Position = words[startPositions[3]] });
+
+            extra = " ";
+            if ((startPositions[5] - startPositions[4]) > 3)
+            { extra += words[startPositions[4] + 3]; }
+
+            entryMembers.Add
                 (new EntryMember { EntryID = entryId, ContestID = contestID, LineupSlot = GetLineupSlot(words[startPositions[4]]), 
-                    EntryMemberPlayerName = words[startPositions[4] + 1] + " " + words[startPositions[4] + 2], Position = words[startPositions[4]] });
-                entryMembers.Add
+                    EntryMemberPlayerName = words[startPositions[4] + 1] + " " + words[startPositions[4] + 2] + extra, Position = words[startPositions[4]] });
+            extra = " ";
+
+            if ((startPositions[6] - startPositions[5]) > 3)
+            { extra += words[startPositions[5] + 3]; }
+
+            entryMembers.Add
                 (new EntryMember { EntryID = entryId, ContestID = contestID, LineupSlot = GetLineupSlot(words[startPositions[5]]),
-                    EntryMemberPlayerName = words[startPositions[5] + 1] + " " + words[startPositions[5] + 2], Position = words[startPositions[5]] });
-                entryMembers.Add
+                    EntryMemberPlayerName = words[startPositions[5] + 1] + " " + words[startPositions[5] + 2] + extra, Position = words[startPositions[5]] });
+
+            extra = " ";
+            if ((startPositions[7] - startPositions[6]) > 3)
+            { extra += words[startPositions[6] + 3]; }
+
+
+            entryMembers.Add
                 (new EntryMember { EntryID = entryId, ContestID = contestID, LineupSlot = GetLineupSlot(words[startPositions[6]]),
-                    EntryMemberPlayerName = words[startPositions[6] + 1] + " " + words[startPositions[6] + 2], Position = words[startPositions[6]] });
-                entryMembers.Add
+                    EntryMemberPlayerName = words[startPositions[6] + 1] + " " + words[startPositions[6] + 2] + extra, Position = words[startPositions[6]] });
+
+            extra = " ";
+            if (words.Length >= (startPositions[7] + 3))
+            { extra += words[startPositions[7] + 3]; }
+
+
+            entryMembers.Add
                 (new EntryMember { EntryID = entryId, ContestID = contestID, LineupSlot = GetLineupSlot(words[startPositions[7]]),
-                    EntryMemberPlayerName = words[startPositions[7] + 1] + " " + words[startPositions[7] + 2], Position = words[startPositions[7]] });
+                    EntryMemberPlayerName = words[startPositions[7] + 1] + " " + words[startPositions[7] + 2] + extra, Position = words[startPositions[7]] });
 
 
                 return entryMembers;

@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -92,17 +93,20 @@ namespace DFSSlateAnalyzerData
 
             });
 
-          //  modelBuilder.Entity<EntryMember>()
-          //.HasOne(s => s.Player)
-          //   .WithOne(s => s.entryMember)
-          //  .HasPrincipalKey<EntryMember>(s => new { s.ContestID, s.EntryMemberPlayerName }).OnDelete(DeleteBehavior.NoAction)
-          //  .HasForeignKey<Player>(s => new { s.ContestID, s.PlayerName }).OnDelete(DeleteBehavior.NoAction);
+            //  modelBuilder.Entity<EntryMember>()
+            //.HasOne(s => s.Player)
+            //   .WithOne(s => s.entryMember)
+            //  .HasPrincipalKey<EntryMember>(s => new { s.ContestID, s.EntryMemberPlayerName }).OnDelete(DeleteBehavior.NoAction)
+            //  .HasForeignKey<Player>(s => new { s.ContestID, s.PlayerName }).OnDelete(DeleteBehavior.NoAction);
 
-            modelBuilder.Entity<DFSPlayer>()
-                .HasOne(s => s.Player)
-                .WithOne(s => s.DFSPlayer)
-                .HasForeignKey<Player>(s => s.PlayerID).OnDelete(DeleteBehavior.NoAction)
-                .HasPrincipalKey<DFSPlayer>(s => s.PlayerID).OnDelete(DeleteBehavior.NoAction);
+            modelBuilder.Entity<Player>()
+
+                .HasOne(s => s.DFSPlayer)
+                .WithMany(s => s.Players)
+                .HasForeignKey(e => e.PlayerID)
+                .HasPrincipalKey(e => e.PlayerID);
+               
+               
                
 
         }

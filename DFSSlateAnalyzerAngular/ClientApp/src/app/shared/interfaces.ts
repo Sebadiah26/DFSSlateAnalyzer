@@ -32,11 +32,11 @@ export interface IPlayer {
   salary: string;
   points: number;
   projectedPoints: number;
-  bmprojection: string;
+  bmprojection: number;
   position: string;
   rosterPosition: string;
   drafted: string;
-  fpts: string;
+  fpts: number;
 
 }
 

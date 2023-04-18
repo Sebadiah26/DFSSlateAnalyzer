@@ -51,22 +51,48 @@
       <td>{{ entry.rank }}</td>
       <td>{{ entry.points }}</td>
       <td></td>
-      <td *ngFor="let entryMember of entry.entryMembers">
+      <td>
         <div>
 
-          {{entryMember.entryMemberPlayerName}}
-          &nbsp;
-          <!--<span *ngFor="let player of entryMember.player">-->
-          <!--<div *ngIf="!entryMember.player?.fpts.length">-->
-          {{entryMember.player.fpts}}
-          <!--</div>-->
-          <!--</span>-->
-          &nbsp;
-          {{entryMember.player.bmprojection}}
-          &nbsp;
-          {{entryMember.player.salary}}
-          &nbsp;
+          <table class='table table-striped' aria-labelledby="tableLabel">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Salary</th>
+                <th>Projection</th>
+                <th>Points</th>
+               
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let entryMember of entry.entryMembers">
+                <td> {{entryMember.entryMemberPlayerName}}</td>
+                <td> {{entryMember.player.salary}}</td>
+                <td>{{entryMember.player.bmprojection}}</td>
+                <td>
+                  <span [style]="(entryMember.player.fpts ?? 0) > entryMember.player.bmprojection ? {color: 'green'}: {color: 'red'}" class="badge badge-success rounded-pill d-inline">
+                    {{ entryMember.player.fpts  }}
+                  </span>
+                </td>
+
+                <td>
+                  <span [style]="(entryMember.player.fpts ?? 0) > entryMember.player.bmprojection ? {color: 'green'}: {color: 'red'}" class="badge badge-success rounded-pill d-inline">
+                    {{ (entryMember.player.fpts - entryMember.player.bmprojection) | number: '1.0-0' }}
+                  </span>
+                </td>
+
+              </tr>
+            </tbody>
+          </table>
+
+
         </div>
+
+             
+
+
+
+       
       </td>
     </tr>
   </tbody>

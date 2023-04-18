@@ -13,7 +13,8 @@ namespace DFSSlateAnalyzerData.Data
         public string? DKPlayerName { get; set; }
         public string? Team { get; set; }
         public string? RosterPosition { get; set; }
-        public virtual Player? Player { get; set; }
+      
+        public virtual List<Player>? Players { get; set; }
 
     } 
 }
