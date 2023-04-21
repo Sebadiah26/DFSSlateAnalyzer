@@ -6,8 +6,10 @@ namespace DFSSlateAnalyzerData.Data
     public class Owner 
     {
         [Key]
+        public int OwnerId { get; set; }
+
         public string? Name { get; set; }
 
-        public virtual List<Entry>? Entries { get; set; }
+        public virtual List<OwnerContest>? ContestOwners { get; set; }
     }
 }
