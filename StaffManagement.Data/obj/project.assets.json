@@ -9002,23 +9002,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\craig.kielinski\\.nuget\\packages\\": {},
+    "C:\\Users\\sebad\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Projects\\GitHub\\DFSSlateAnalyzer\\DFSSlateAnalyzer\\StaffManagement.Data\\StaffManagement.Data.csproj",
+      "projectUniqueName": "C:\\Users\\sebad\\source\\repos\\Sebadiah26\\DFSSlateAnalyzer\\StaffManagement.Data\\StaffManagement.Data.csproj",
       "projectName": "StaffManagement.Data",
-      "projectPath": "C:\\Projects\\GitHub\\DFSSlateAnalyzer\\DFSSlateAnalyzer\\StaffManagement.Data\\StaffManagement.Data.csproj",
-      "packagesPath": "C:\\Users\\craig.kielinski\\.nuget\\packages\\",
-      "outputPath": "C:\\Projects\\GitHub\\DFSSlateAnalyzer\\DFSSlateAnalyzer\\StaffManagement.Data\\obj\\",
+      "projectPath": "C:\\Users\\sebad\\source\\repos\\Sebadiah26\\DFSSlateAnalyzer\\StaffManagement.Data\\StaffManagement.Data.csproj",
+      "packagesPath": "C:\\Users\\sebad\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\sebad\\source\\repos\\Sebadiah26\\DFSSlateAnalyzer\\StaffManagement.Data\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\craig.kielinski\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\sebad\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -9097,7 +9097,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.201\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.202\\RuntimeIdentifierGraph.json"
       }
     }
   }

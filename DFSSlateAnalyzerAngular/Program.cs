@@ -14,6 +14,20 @@ using DFSSlateAnalyzerCore.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(
+        builder =>
+        {
+
+            //you can configure your custom policy
+            builder.AllowAnyOrigin()
+                                .AllowAnyHeader()
+                                .AllowAnyMethod();
+        });
+});
+
+
 ////Add our IFileServerProvider implementation as a singleton
 //builder.Services.AddSingleton<DFSSlateAnalyzerAngular.Services.FileServerProviderService.IFileServerProvider>(new DFSSlateAnalyzerAngular.Services.FileServerProviderService.FileServerProvider(
 //    new List<FileServerOptions>
@@ -68,9 +82,18 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+
+
+//.............
+
+
+
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
+
+app.UseCors();
 
 
 //builder.Services.AddMvc(options => options.EnableEndpointRouting = false);

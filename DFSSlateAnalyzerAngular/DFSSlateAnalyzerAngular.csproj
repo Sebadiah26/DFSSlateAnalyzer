@@ -8,6 +8,8 @@
     <SpaProxyServerUrl>https://localhost:44404</SpaProxyServerUrl>
     <SpaProxyLaunchCommand>npm start</SpaProxyLaunchCommand>
     <ImplicitUsings>enable</ImplicitUsings>
+	 <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
+	  <ValidateExecutableReferencesMatchSelfContained>false</ValidateExecutableReferencesMatchSelfContained>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,7 +26,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="ClientApp\dist\DFSSlateAnalyzerAngular\web.config" />
+    <None Remove="ClientApp\dist\web.config" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\DFSSlateAnalyzer\DFSSlateAnalyzerAPI.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="bin\Release\net7.0\publish\logs\" />
   </ItemGroup>
 
     <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">

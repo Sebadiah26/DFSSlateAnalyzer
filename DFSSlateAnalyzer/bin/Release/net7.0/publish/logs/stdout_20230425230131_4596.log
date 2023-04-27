@@ -1,0 +1,304 @@
+info: Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager[63]
+      User profile is available. Using 'C:\WINDOWS\system32\config\systemprofile\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Production
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzer\bin\Release\net7.0\publish
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://localhost:7273/contest - -
+warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]
+      Failed to determine the https port for redirect.
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'DFSSlateAnalyzerAngular.Controllers.ContestController.GetContest (DFSSlateAnalyzerAPI)'
+info: Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker[102]
+      Route matched with {action = "GetContest", controller = "Contest"}. Executing controller action with signature System.Threading.Tasks.Task`1[System.Collections.Generic.List`1[DFSSlateAnalyzerCore.Models.ContestModel]] GetContest(Int64, System.Nullable`1[System.DateTime]) on controller DFSSlateAnalyzerAngular.Controllers.ContestController (DFSSlateAnalyzerAPI).
+info: ContestController[0]
+      Started
+info: ContestController[0]
+      4/25/2023 7:22:06 PM
+info: SlateRepository[0]
+      Get Contest Query Started
+info: SlateRepository[0]
+      4/25/2023 7:22:06 PM
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://localhost:7273/contest?slateid=0 - -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'DFSSlateAnalyzerAngular.Controllers.ContestController.GetContest (DFSSlateAnalyzerAPI)'
+info: Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker[102]
+      Route matched with {action = "GetContest", controller = "Contest"}. Executing controller action with signature System.Threading.Tasks.Task`1[System.Collections.Generic.List`1[DFSSlateAnalyzerCore.Models.ContestModel]] GetContest(Int64, System.Nullable`1[System.DateTime]) on controller DFSSlateAnalyzerAngular.Controllers.ContestController (DFSSlateAnalyzerAPI).
+info: ContestController[0]
+      Started
+info: ContestController[0]
+      4/25/2023 7:22:35 PM
+info: SlateRepository[0]
+      Get Contest Query Started
+info: SlateRepository[0]
+      4/25/2023 7:22:35 PM
+info: SlateRepository[0]
+      Get Contest Query Ended
+info: SlateRepository[0]
+      4/25/2023 7:22:38 PM
+info: SlateRepository[0]
+      Loop through entries Started
+info: SlateRepository[0]
+      4/25/2023 7:22:39 PM
+info: SlateRepository[0]
+      Loop through entries Ended
+info: SlateRepository[0]
+      4/25/2023 7:22:39 PM
+info: SlateRepository[0]
+      Loop through contest players ended
+info: SlateRepository[0]
+      4/25/2023 7:22:39 PM
+info: SlateRepository[0]
+      C.J. McCollum not found
+info: SlateRepository[0]
+      O.G. Anunoby not found
+info: SlateRepository[0]
+      Gary Trent not found
+info: SlateRepository[0]
+      Trey Murphy not found
+info: SlateRepository[0]
+      Herb Jones not found
+info: SlateRepository[0]
+      Troy Brown Jr not found
+info: SlateRepository[0]
+      Chet Holmgren not found
+info: SlateRepository[0]
+      Kira Lewis not found
+info: SlateRepository[0]
+      Vince Williams not found
+info: SlateRepository[0]
+      Dewayne Dedmon not found
+info: SlateRepository[0]
+      Kendall Brown not found
+info: SlateRepository[0]
+      Kenny Lofton Jr. not found
+info: SlateRepository[0]
+      E.J. Liddell not found
+info: SlateRepository[0]
+      Kevin Knox not found
+info: SlateRepository[0]
+      McKinley Wright not found
+info: SlateRepository[0]
+      Micah Potter not found
+info: SlateRepository[0]
+      Otto Porter not found
+info: SlateRepository[0]
+      Lindy Waters not found
+info: SlateRepository[0]
+      Danuel House not found
+info: SlateRepository[0]
+      Jared Rhoden not found
+info: SlateRepository[0]
+      A.J. Lawson not found
+info: SlateRepository[0]
+      Isaiah Roby not found
+info: SlateRepository[0]
+      Collin Gillespie not found
+info: SlateRepository[0]
+      Patrick Baldwin not found
+info: SlateRepository[0]
+      Khem Birch not found
+info: SlateRepository[0]
+      Juan Hernangomez not found
+info: SlateRepository[0]
+      Zeke Nnaji not found
+info: SlateRepository[0]
+      Aleksej Pokusevski not found
+info: SlateRepository[0]
+      Lonnie Walker not found
+info: SlateRepository[0]
+      J.D. Davison not found
+info: SlateRepository[0]
+      Ibou Badji not found
+info: SlateRepository[0]
+      Ryan Rollins not found
+info: SlateRepository[0]
+      Willy Hernangomez not found
+info: SlateRepository[0]
+      Andre Iguodala not found
+info: SlateRepository[0]
+      Aleksej Pokusevski not found
+info: SlateRepository[0]
+      Guillermo Hernangomez not found
+info: SlateRepository[0]
+      Zeke Nnaji not found
+info: SlateRepository[0]
+      Collin Gillespie not found
+info: SlateRepository[0]
+      Jared Rhoden not found
+info: SlateRepository[0]
+      Juancho Hernangomez not found
+info: SlateRepository[0]
+      Otto Porter Jr. not found
+info: SlateRepository[0]
+      E.J. Liddell not found
+info: SlateRepository[0]
+      Isaiah Roby not found
+info: SlateRepository[0]
+      Khem Birch not found
+info: SlateRepository[0]
+      Kendall Brown not found
+info: SlateRepository[0]
+      Micah Potter not found
+info: SlateRepository[0]
+      Chet Holmgren not found
+info: SlateRepository[0]
+      Dewayne Dedmon not found
+info: SlateRepository[0]
+      Vince Williams Jr. not found
+info: SlateRepository[0]
+      Andre Iguodala not found
+info: SlateRepository[0]
+      Ryan Rollins not found
+info: SlateRepository[0]
+      Ibou Badji not found
+info: ContestController[0]
+      Ended
+info: ContestController[0]
+      4/25/2023 7:22:47 PM
+info: Microsoft.AspNetCore.Mvc.Infrastructure.ObjectResultExecutor[1]
+      Executing ObjectResult, writing value of type 'System.Collections.Generic.List`1[[DFSSlateAnalyzerCore.Models.ContestModel, DFSSlateAnalyzerCore, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+info: Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker[105]
+      Executed action DFSSlateAnalyzerAngular.Controllers.ContestController.GetContest (DFSSlateAnalyzerAPI) in 41591.4907ms
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'DFSSlateAnalyzerAngular.Controllers.ContestController.GetContest (DFSSlateAnalyzerAPI)'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://localhost:7273/contest - - - 0 - application/json;+charset=utf-8 41884.0773ms
+info: SlateRepository[0]
+      Get Contest Query Ended
+info: SlateRepository[0]
+      4/25/2023 7:23:03 PM
+info: SlateRepository[0]
+      Loop through entries Started
+info: SlateRepository[0]
+      4/25/2023 7:23:03 PM
+info: SlateRepository[0]
+      Loop through entries Ended
+info: SlateRepository[0]
+      4/25/2023 7:23:03 PM
+info: SlateRepository[0]
+      Loop through contest players ended
+info: SlateRepository[0]
+      4/25/2023 7:23:03 PM
+info: SlateRepository[0]
+      C.J. McCollum not found
+info: SlateRepository[0]
+      O.G. Anunoby not found
+info: SlateRepository[0]
+      Gary Trent not found
+info: SlateRepository[0]
+      Trey Murphy not found
+info: SlateRepository[0]
+      Herb Jones not found
+info: SlateRepository[0]
+      Troy Brown Jr not found
+info: SlateRepository[0]
+      Chet Holmgren not found
+info: SlateRepository[0]
+      Kira Lewis not found
+info: SlateRepository[0]
+      Vince Williams not found
+info: SlateRepository[0]
+      Dewayne Dedmon not found
+info: SlateRepository[0]
+      Kendall Brown not found
+info: SlateRepository[0]
+      Kenny Lofton Jr. not found
+info: SlateRepository[0]
+      E.J. Liddell not found
+info: SlateRepository[0]
+      Kevin Knox not found
+info: SlateRepository[0]
+      McKinley Wright not found
+info: SlateRepository[0]
+      Micah Potter not found
+info: SlateRepository[0]
+      Otto Porter not found
+info: SlateRepository[0]
+      Lindy Waters not found
+info: SlateRepository[0]
+      Danuel House not found
+info: SlateRepository[0]
+      Jared Rhoden not found
+info: SlateRepository[0]
+      A.J. Lawson not found
+info: SlateRepository[0]
+      Isaiah Roby not found
+info: SlateRepository[0]
+      Collin Gillespie not found
+info: SlateRepository[0]
+      Patrick Baldwin not found
+info: SlateRepository[0]
+      Khem Birch not found
+info: SlateRepository[0]
+      Juan Hernangomez not found
+info: SlateRepository[0]
+      Zeke Nnaji not found
+info: SlateRepository[0]
+      Aleksej Pokusevski not found
+info: SlateRepository[0]
+      Lonnie Walker not found
+info: SlateRepository[0]
+      J.D. Davison not found
+info: SlateRepository[0]
+      Ibou Badji not found
+info: SlateRepository[0]
+      Ryan Rollins not found
+info: SlateRepository[0]
+      Willy Hernangomez not found
+info: SlateRepository[0]
+      Andre Iguodala not found
+info: SlateRepository[0]
+      Aleksej Pokusevski not found
+info: SlateRepository[0]
+      Guillermo Hernangomez not found
+info: SlateRepository[0]
+      Zeke Nnaji not found
+info: SlateRepository[0]
+      Collin Gillespie not found
+info: SlateRepository[0]
+      Jared Rhoden not found
+info: SlateRepository[0]
+      Juancho Hernangomez not found
+info: SlateRepository[0]
+      Otto Porter Jr. not found
+info: SlateRepository[0]
+      E.J. Liddell not found
+info: SlateRepository[0]
+      Isaiah Roby not found
+info: SlateRepository[0]
+      Khem Birch not found
+info: SlateRepository[0]
+      Kendall Brown not found
+info: SlateRepository[0]
+      Micah Potter not found
+info: SlateRepository[0]
+      Chet Holmgren not found
+info: SlateRepository[0]
+      Dewayne Dedmon not found
+info: SlateRepository[0]
+      Vince Williams Jr. not found
+info: SlateRepository[0]
+      Andre Iguodala not found
+info: SlateRepository[0]
+      Ryan Rollins not found
+info: SlateRepository[0]
+      Ibou Badji not found
+info: ContestController[0]
+      Ended
+info: ContestController[0]
+      4/25/2023 7:23:06 PM
+info: Microsoft.AspNetCore.Mvc.Infrastructure.ObjectResultExecutor[1]
+      Executing ObjectResult, writing value of type 'System.Collections.Generic.List`1[[DFSSlateAnalyzerCore.Models.ContestModel, DFSSlateAnalyzerCore, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+info: Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker[105]
+      Executed action DFSSlateAnalyzerAngular.Controllers.ContestController.GetContest (DFSSlateAnalyzerAPI) in 31347.0458ms
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'DFSSlateAnalyzerAngular.Controllers.ContestController.GetContest (DFSSlateAnalyzerAPI)'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://localhost:7273/contest?slateid=0 - - - 200 - application/json;+charset=utf-8 31356.1264ms
+info: Microsoft.Hosting.Lifetime[0]
+      Application is shutting down...

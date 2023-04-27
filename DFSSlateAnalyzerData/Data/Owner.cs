@@ -10,6 +10,6 @@ namespace DFSSlateAnalyzerData.Data
 
         public string? Name { get; set; }
 
-        public virtual List<OwnerContest>? ContestOwners { get; set; }
+        //public virtual List<OwnerContest>? ContestOwners { get; set; }
     }
 }

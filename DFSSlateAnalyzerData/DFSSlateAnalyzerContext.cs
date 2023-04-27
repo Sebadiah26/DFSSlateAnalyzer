@@ -54,8 +54,8 @@ namespace DFSSlateAnalyzerData
            entity.ToTable("Player", "dfs"));
             modelBuilder.Entity<DFSPlayer>(entity =>
            entity.ToTable("DFSPlayer", "dfs"));
-            modelBuilder.Entity<OwnerContest>(entity =>
-          entity.ToTable("OwnerContest", "dfs"));
+          //  modelBuilder.Entity<OwnerContest>(entity =>
+          //entity.ToTable("OwnerContest", "dfs"));
 
 
 
@@ -68,14 +68,14 @@ namespace DFSSlateAnalyzerData
 
             });
 
-            modelBuilder.Entity<OwnerContest>(entity =>
-            {
+            //modelBuilder.Entity<OwnerContest>(entity =>
+            //{
                
-                entity.HasKey(e => new { e.OwnerId, e.ContestID});
+            //    entity.HasKey(e => new { e.OwnerId, e.ContestID});
 
 
 
-            });
+            //});
 
 
             modelBuilder.Entity<Entry>()

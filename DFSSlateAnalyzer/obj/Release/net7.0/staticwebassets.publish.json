@@ -1,0 +1,19 @@
+{
+  "Version": 1,
+  "Hash": "LSTBbICD47+2x4qXHGnx5QWRbc7RD34/1Kv3hpgaJSk=",
+  "Source": "DFSSlateAnalyzerAPI",
+  "BasePath": "_content/DFSSlateAnalyzerAPI",
+  "Mode": "Default",
+  "ManifestType": "Publish",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [
+    {
+      "Name": "DFSSlateAnalyzerAPI\\wwwroot",
+      "Source": "DFSSlateAnalyzerAPI",
+      "ContentRoot": "C:\\Users\\sebad\\source\\repos\\Sebadiah26\\DFSSlateAnalyzer\\DFSSlateAnalyzer\\wwwroot\\",
+      "BasePath": "_content/DFSSlateAnalyzerAPI",
+      "Pattern": "**"
+    }
+  ],
+  "Assets": []
+}
