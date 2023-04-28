@@ -677,3 +677,4 @@ C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzer\obj\Deb
 C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzer\obj\Debug\net7.0\DFSSlateAnalyzerAPI.genruntimeconfig.cache
 C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzer\obj\Debug\net7.0\ref\DFSSlateAnalyzerAPI.dll
 C:\Users\sebad\source\repos\Sebadiah26\DFSSlateAnalyzer\DFSSlateAnalyzer\bin\Debug\net7.0\web.config
+C:\Projects\GitHub\DFSSlateAnalyzer\DFSSlateAnalyzer\DFSSlateAnalyzer\bin\Debug\net7.0\web.config

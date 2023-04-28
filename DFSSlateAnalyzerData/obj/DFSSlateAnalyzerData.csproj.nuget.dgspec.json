@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\sebad\\source\\repos\\Sebadiah26\\DFSSlateAnalyzer\\DFSSlateAnalyzerData\\DFSSlateAnalyzerData.csproj": {}
+    "C:\\Projects\\GitHub\\DFSSlateAnalyzer\\DFSSlateAnalyzer\\DFSSlateAnalyzerData\\DFSSlateAnalyzerData.csproj": {}
   },
   "projects": {
-    "C:\\Users\\sebad\\source\\repos\\Sebadiah26\\DFSSlateAnalyzer\\DFSSlateAnalyzerData\\DFSSlateAnalyzerData.csproj": {
+    "C:\\Projects\\GitHub\\DFSSlateAnalyzer\\DFSSlateAnalyzer\\DFSSlateAnalyzerData\\DFSSlateAnalyzerData.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\sebad\\source\\repos\\Sebadiah26\\DFSSlateAnalyzer\\DFSSlateAnalyzerData\\DFSSlateAnalyzerData.csproj",
+        "projectUniqueName": "C:\\Projects\\GitHub\\DFSSlateAnalyzer\\DFSSlateAnalyzer\\DFSSlateAnalyzerData\\DFSSlateAnalyzerData.csproj",
         "projectName": "DFSSlateAnalyzerData",
-        "projectPath": "C:\\Users\\sebad\\source\\repos\\Sebadiah26\\DFSSlateAnalyzer\\DFSSlateAnalyzerData\\DFSSlateAnalyzerData.csproj",
-        "packagesPath": "C:\\Users\\sebad\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\sebad\\source\\repos\\Sebadiah26\\DFSSlateAnalyzer\\DFSSlateAnalyzerData\\obj\\",
+        "projectPath": "C:\\Projects\\GitHub\\DFSSlateAnalyzer\\DFSSlateAnalyzer\\DFSSlateAnalyzerData\\DFSSlateAnalyzerData.csproj",
+        "packagesPath": "C:\\Users\\craig.kielinski\\.nuget\\packages\\",
+        "outputPath": "C:\\Projects\\GitHub\\DFSSlateAnalyzer\\DFSSlateAnalyzer\\DFSSlateAnalyzerData\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\sebad\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\craig.kielinski\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -102,7 +102,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.203\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.201\\RuntimeIdentifierGraph.json"
         }
       }
     }

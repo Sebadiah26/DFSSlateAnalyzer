@@ -1,6 +1,7 @@
 import { Component, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { IContest, IEntry, IPlayer, IEntryMember } from '../shared/interfaces';
+import { DataService } from '../data.service';
 
 
 @Component({
@@ -10,16 +11,28 @@ import { IContest, IEntry, IPlayer, IEntryMember } from '../shared/interfaces';
 })
 export class ContestDataComponent {
   public contests: IContest[] = [];
+  public contests2: IContest[] = [];
+  baseURL: string = 'Unknown';
 
   selectedEntry?: IEntry;
   onSelect(entry: IEntry): void {
     this.selectedEntry = entry;
   }
 
-  constructor(http: HttpClient, @Inject('BASE_URL') baseUrl: string) {
-    http.get<IContest[]>('http://localhost:7273/contest'  ).subscribe(result => {
+  getContests(): void {
+    this.contests2 = this.dataService.getContests();
+  }
+
+  ngOnInit(): void {
+    this.getContests();
+  }
+
+
+  constructor(private dataService: DataService, http: HttpClient, @Inject('BASE_URL') baseUrl: string) {
+    http.get<IContest[]>('http://localhost:7271/contest'  ).subscribe(result => {
       this.contests = result
     }, error => console.error(error));
+    this.baseURL = baseUrl;
   }
 }
 
