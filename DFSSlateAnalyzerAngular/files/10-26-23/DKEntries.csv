@@ -1,0 +1,78 @@
+Entry ID,Contest Name,Contest ID,Entry Fee,PG,SG,SF,PF,C,G,F,UTIL,,Instructions,,,,,,,,
+3986047058,NBA $400K Fadeaway [$100K to 1st],153063939,$15 ,De'Anthony Melton (30546327),Tyrese Maxey (30546288),Taurean Prince (30546355),Kevin Durant (30546276),Jusuf Nurkic (30546305),Jordan Goodwin (30546410),Eric Gordon (30546350),Joel Embiid (30546263),,1. Column A lists all of your contest entries for this draftgroup,,,,,,,,
+3986056427,NBA $400K Fadeaway [$100K to 1st],153063939,$15 ,De'Anthony Melton (30546327),Tyrese Maxey (30546288),Taurean Prince (30546355),Kevin Durant (30546276),Jusuf Nurkic (30546305),Jordan Goodwin (30546410),Eric Gordon (30546350),Joel Embiid (30546263),,2. Your current lineup is listed next to each entry (blank for reservations),,,,,,,,
+3985533178,NBA FREE 150-Player,153068089,$0 ,De'Anthony Melton (30546327),Tyrese Maxey (30546288),Taurean Prince (30546355),Kevin Durant (30546276),Jusuf Nurkic (30546305),Jordan Goodwin (30546410),Eric Gordon (30546350),Joel Embiid (30546263),,3. You can change the lineup for an entry by entering the IDs of the players in the row next to that entry,,,,,,,,
+,,,,,,,,,,,,,4. Use data from the Name+ID column or the ID column; you cannot use just the player's name,,,,,,,,
+,,,,,,,,,,,,,5. For faster processing only include entries you are changing in the file you upload,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,Position,Name + ID,Name,ID,Roster Position,Salary,Game Info,TeamAbbrev,AvgPointsPerGame
+,,,,,,,,,,,,,C,Joel Embiid (30546263),Joel Embiid,30546263,C/UTIL,10300,PHI@MIL 10/26/2023 07:30PM ET,PHI,55.77
+,,,,,,,,,,,,,PF/C,Giannis Antetokounmpo (30546265),Giannis Antetokounmpo,30546265,PF/C/F/UTIL,10200,PHI@MIL 10/26/2023 07:30PM ET,MIL,56.95
+,,,,,,,,,,,,,PG/SG,Devin Booker (30546269),Devin Booker,30546269,PG/SG/G/UTIL,9100,PHX@LAL 10/26/2023 10:00PM ET,PHX,46.14
+,,,,,,,,,,,,,PG,Damian Lillard (30546273),Damian Lillard,30546273,PG/G/UTIL,9000,PHI@MIL 10/26/2023 07:30PM ET,MIL,52.45
+,,,,,,,,,,,,,PF,Kevin Durant (30546276),Kevin Durant,30546276,PF/F/UTIL,8900,PHX@LAL 10/26/2023 10:00PM ET,PHX,49.41
+,,,,,,,,,,,,,C,Anthony Davis (30546279),Anthony Davis,30546279,C/UTIL,8800,PHX@LAL 10/26/2023 10:00PM ET,LAL,52.27
+,,,,,,,,,,,,,SF/PF,LeBron James (30546281),LeBron James,30546281,SF/PF/F/UTIL,8700,PHX@LAL 10/26/2023 10:00PM ET,LAL,52.41
+,,,,,,,,,,,,,PG,James Harden (30546285),James Harden,30546285,PG/G/UTIL,8300,PHI@MIL 10/26/2023 07:30PM ET,PHI,48.4
+,,,,,,,,,,,,,PG/SG,Tyrese Maxey (30546288),Tyrese Maxey,30546288,PG/SG/G/UTIL,7500,PHI@MIL 10/26/2023 07:30PM ET,PHI,32.29
+,,,,,,,,,,,,,SF/PF,Tobias Harris (30546292),Tobias Harris,30546292,SF/PF/F/UTIL,6600,PHI@MIL 10/26/2023 07:30PM ET,PHI,29.04
+,,,,,,,,,,,,,SG/SF,Khris Middleton (30546296),Khris Middleton,30546296,SG/SF/F/G/UTIL,6500,PHI@MIL 10/26/2023 07:30PM ET,MIL,31
+,,,,,,,,,,,,,PG/SG,Bradley Beal (30546301),Bradley Beal,30546301,PG/SG/G/UTIL,6400,PHX@LAL 10/26/2023 10:00PM ET,PHX,38.76
+,,,,,,,,,,,,,C,Jusuf Nurkic (30546305),Jusuf Nurkic,30546305,C/UTIL,6100,PHX@LAL 10/26/2023 10:00PM ET,PHX,32.1
+,,,,,,,,,,,,,C,Brook Lopez (30546307),Brook Lopez,30546307,C/UTIL,6000,PHI@MIL 10/26/2023 07:30PM ET,MIL,32.6
+,,,,,,,,,,,,,SG/SF,Kelly Oubre Jr. (30546309),Kelly Oubre Jr.,30546309,SG/SF/F/G/UTIL,5700,PHI@MIL 10/26/2023 07:30PM ET,PHI,32.56
+,,,,,,,,,,,,,SG/SF,Austin Reaves (30546314),Austin Reaves,30546314,SG/SF/F/G/UTIL,5600,PHX@LAL 10/26/2023 10:00PM ET,LAL,24.94
+,,,,,,,,,,,,,PG/SG,D'Angelo Russell (30546319),D'Angelo Russell,30546319,PG/SG/G/UTIL,5500,PHX@LAL 10/26/2023 10:00PM ET,LAL,32.26
+,,,,,,,,,,,,,PF/C,Bobby Portis (30546323),Bobby Portis,30546323,PF/C/F/UTIL,5400,PHI@MIL 10/26/2023 07:30PM ET,MIL,30.12
+,,,,,,,,,,,,,PG/SG,De'Anthony Melton (30546327),De'Anthony Melton,30546327,PG/SG/G/UTIL,5300,PHI@MIL 10/26/2023 07:30PM ET,PHI,23.13
+,,,,,,,,,,,,,SG,Malik Beasley (30546331),Malik Beasley,30546331,SG/G/UTIL,5000,PHI@MIL 10/26/2023 07:30PM ET,MIL,19.82
+,,,,,,,,,,,,,PG,Cameron Payne (30546334),Cameron Payne,30546334,PG/G/UTIL,4900,PHI@MIL 10/26/2023 07:30PM ET,MIL,20.76
+,,,,,,,,,,,,,C,Christian Wood (30546337),Christian Wood,30546337,C/UTIL,4800,PHX@LAL 10/26/2023 10:00PM ET,LAL,31.69
+,,,,,,,,,,,,,SF,Josh Okogie (30546339),Josh Okogie,30546339,SF/F/UTIL,4700,PHX@LAL 10/26/2023 10:00PM ET,PHX,15.7
+,,,,,,,,,,,,,SG/SF,Pat Connaughton (30546342),Pat Connaughton,30546342,SG/SF/F/G/UTIL,4600,PHI@MIL 10/26/2023 07:30PM ET,MIL,18
+,,,,,,,,,,,,,PG,Patrick Beverley (30546347),Patrick Beverley,30546347,PG/G/UTIL,4500,PHI@MIL 10/26/2023 07:30PM ET,PHI,18.21
+,,,,,,,,,,,,,SG/SF,Eric Gordon (30546350),Eric Gordon,30546350,SG/SF/F/G/UTIL,4400,PHX@LAL 10/26/2023 10:00PM ET,PHX,20.81
+,,,,,,,,,,,,,SF/PF,Taurean Prince (30546355),Taurean Prince,30546355,SF/PF/F/UTIL,4300,PHX@LAL 10/26/2023 10:00PM ET,LAL,15.98
+,,,,,,,,,,,,,SG/SF,Grayson Allen (30546359),Grayson Allen,30546359,SG/SF/F/G/UTIL,4200,PHX@LAL 10/26/2023 10:00PM ET,PHX,20.46
+,,,,,,,,,,,,,SF/PF,Jae Crowder (30546364),Jae Crowder,30546364,SF/PF/F/UTIL,4100,PHI@MIL 10/26/2023 07:30PM ET,MIL,14.33
+,,,,,,,,,,,,,PF,Rui Hachimura (30546368),Rui Hachimura,30546368,PF/F/UTIL,4000,PHX@LAL 10/26/2023 10:00PM ET,LAL,19.58
+,,,,,,,,,,,,,C,Drew Eubanks (30546371),Drew Eubanks,30546371,C/UTIL,3900,PHX@LAL 10/26/2023 10:00PM ET,PHX,18.64
+,,,,,,,,,,,,,PF/C,Jarred Vanderbilt (30546373),Jarred Vanderbilt,30546373,PF/C/F/UTIL,3800,PHX@LAL 10/26/2023 10:00PM ET,LAL,21.39
+,,,,,,,,,,,,,PG/SG,Gabe Vincent (30546377),Gabe Vincent,30546377,PG/SG/G/UTIL,3700,PHX@LAL 10/26/2023 10:00PM ET,LAL,18.78
+,,,,,,,,,,,,,PF/C,P.J. Tucker (30546381),P.J. Tucker,30546381,PF/C/F/UTIL,3600,PHI@MIL 10/26/2023 07:30PM ET,PHI,11.8
+,,,,,,,,,,,,,PF/C,Paul Reed (30546385),Paul Reed,30546385,PF/C/F/UTIL,3600,PHI@MIL 10/26/2023 07:30PM ET,PHI,12.39
+,,,,,,,,,,,,,SF/PF,Danuel House Jr. (30546389),Danuel House Jr.,30546389,SF/PF/F/UTIL,3500,PHI@MIL 10/26/2023 07:30PM ET,PHI,8.56
+,,,,,,,,,,,,,SG/SF,Marjon Beauchamp (30546393),Marjon Beauchamp,30546393,SG/SF/F/G/UTIL,3500,PHI@MIL 10/26/2023 07:30PM ET,MIL,9.74
+,,,,,,,,,,,,,SF,Cam Reddish (30546398),Cam Reddish,30546398,SF/F/UTIL,3400,PHX@LAL 10/26/2023 10:00PM ET,LAL,17.19
+,,,,,,,,,,,,,SF,Danny Green (30546401),Danny Green,30546401,SF/F/UTIL,3400,PHI@MIL 10/26/2023 07:30PM ET,PHI,8.48
+,,,,,,,,,,,,,PF,Yuta Watanabe (30546404),Yuta Watanabe,30546404,PF/F/UTIL,3300,PHX@LAL 10/26/2023 10:00PM ET,PHX,11.48
+,,,,,,,,,,,,,SF,Furkan Korkmaz (30546407),Furkan Korkmaz,30546407,SF/F/UTIL,3300,PHI@MIL 10/26/2023 07:30PM ET,PHI,6.32
+,,,,,,,,,,,,,PG,Jordan Goodwin (30546410),Jordan Goodwin,30546410,PG/G/UTIL,3200,PHX@LAL 10/26/2023 10:00PM ET,PHX,17.32
+,,,,,,,,,,,,,SF/PF,Nassir Little (30546413),Nassir Little,30546413,SF/PF/F/UTIL,3200,PHX@LAL 10/26/2023 10:00PM ET,PHX,12.99
+,,,,,,,,,,,,,C,Jaxson Hayes (30546422),Jaxson Hayes,30546422,C/UTIL,3100,PHX@LAL 10/26/2023 10:00PM ET,LAL,11.1
+,,,,,,,,,,,,,PG/SF,Andre Jackson Jr. (30546417),Andre Jackson Jr.,30546417,PG/SF/F/G/UTIL,3100,PHI@MIL 10/26/2023 07:30PM ET,MIL,0
+,,,,,,,,,,,,,SF,Alex Fudge (30546444),Alex Fudge,30546444,SF/F/UTIL,3000,PHX@LAL 10/26/2023 10:00PM ET,LAL,0
+,,,,,,,,,,,,,SF,Maxwell Lewis (30546447),Maxwell Lewis,30546447,SF/F/UTIL,3000,PHX@LAL 10/26/2023 10:00PM ET,LAL,0
+,,,,,,,,,,,,,C,Colin Castleton (30546450),Colin Castleton,30546450,C/UTIL,3000,PHX@LAL 10/26/2023 10:00PM ET,LAL,0
+,,,,,,,,,,,,,SG,D'Moi Hodge (30546452),D'Moi Hodge,30546452,SG/G/UTIL,3000,PHX@LAL 10/26/2023 10:00PM ET,LAL,0
+,,,,,,,,,,,,,SG/SF,Max Christie (30546455),Max Christie,30546455,SG/SF/F/G/UTIL,3000,PHX@LAL 10/26/2023 10:00PM ET,LAL,6.41
+,,,,,,,,,,,,,PG/SG,Jalen Hood-Schifino (30546460),Jalen Hood-Schifino,30546460,PG/SG/G/UTIL,3000,PHX@LAL 10/26/2023 10:00PM ET,LAL,0
+,,,,,,,,,,,,,PF,Keita Bates-Diop (30546483),Keita Bates-Diop,30546483,PF/F/UTIL,3000,PHX@LAL 10/26/2023 10:00PM ET,PHX,18.56
+,,,,,,,,,,,,,PG,Saben Lee (30546486),Saben Lee,30546486,PG/G/UTIL,3000,PHX@LAL 10/26/2023 10:00PM ET,PHX,13.71
+,,,,,,,,,,,,,C,Chimezie Metu (30546489),Chimezie Metu,30546489,C/UTIL,3000,PHX@LAL 10/26/2023 10:00PM ET,PHX,10.23
+,,,,,,,,,,,,,C,Udoka Azubuike (30546491),Udoka Azubuike,30546491,C/UTIL,3000,PHX@LAL 10/26/2023 10:00PM ET,PHX,8.98
+,,,,,,,,,,,,,C,Bol Bol (30546493),Bol Bol,30546493,C/UTIL,3000,PHX@LAL 10/26/2023 10:00PM ET,PHX,20.6
+,,,,,,,,,,,,,PG,Damion Lee (30546495),Damion Lee,30546495,PG/G/UTIL,3000,PHX@LAL 10/26/2023 10:00PM ET,PHX,14.23
+,,,,,,,,,,,,,C,Robin Lopez (30546424),Robin Lopez,30546424,C/UTIL,3000,PHI@MIL 10/26/2023 07:30PM ET,MIL,5.68
+,,,,,,,,,,,,,PG,TyTy Washington Jr. (30546426),TyTy Washington Jr.,30546426,PG/G/UTIL,3000,PHI@MIL 10/26/2023 07:30PM ET,MIL,9.94
+,,,,,,,,,,,,,C,Marques Bolden (30546429),Marques Bolden,30546429,C/UTIL,3000,PHI@MIL 10/26/2023 07:30PM ET,MIL,0
+,,,,,,,,,,,,,PF/C,Thanasis Antetokounmpo (30546431),Thanasis Antetokounmpo,30546431,PF/C/F/UTIL,3000,PHI@MIL 10/26/2023 07:30PM ET,MIL,3.45
+,,,,,,,,,,,,,PG,Lindell Wigginton (30546435),Lindell Wigginton,30546435,PG/G/UTIL,3000,PHI@MIL 10/26/2023 07:30PM ET,MIL,11.75
+,,,,,,,,,,,,,PG,AJ Green (30546438),AJ Green,30546438,PG/G/UTIL,3000,PHI@MIL 10/26/2023 07:30PM ET,MIL,7.79
+,,,,,,,,,,,,,PF,Chris Livingston (30546441),Chris Livingston,30546441,PF/F/UTIL,3000,PHI@MIL 10/26/2023 07:30PM ET,MIL,0
+,,,,,,,,,,,,,PG,Javonte Smart (30546464),Javonte Smart,30546464,PG/G/UTIL,3000,PHI@MIL 10/26/2023 07:30PM ET,PHI,0
+,,,,,,,,,,,,,SG,Jaden Springer (30546467),Jaden Springer,30546467,SG/G/UTIL,3000,PHI@MIL 10/26/2023 07:30PM ET,PHI,5.08
+,,,,,,,,,,,,,C,Mo Bamba (30546470),Mo Bamba,30546470,C/UTIL,3000,PHI@MIL 10/26/2023 07:30PM ET,PHI,15.47
+,,,,,,,,,,,,,PF/C,Azuolas Tubelis (30546472),Azuolas Tubelis,30546472,PF/C/F/UTIL,3000,PHI@MIL 10/26/2023 07:30PM ET,PHI,0
+,,,,,,,,,,,,,PG,Terquavion Smith (30546476),Terquavion Smith,30546476,PG/G/UTIL,3000,PHI@MIL 10/26/2023 07:30PM ET,PHI,0
+,,,,,,,,,,,,,PF/C,Filip Petrusev (30546479),Filip Petrusev,30546479,PF/C/F/UTIL,3000,PHI@MIL 10/26/2023 07:30PM ET,PHI,0
