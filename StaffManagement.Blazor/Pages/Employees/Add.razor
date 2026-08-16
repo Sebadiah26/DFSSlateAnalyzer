@@ -1,0 +1,169 @@
+@page "/employees/add"
+@page "/employees/add/{EmployeeId:int}"
+
+@* Ports AccountController.Add (GET+POST) + Views/Account/Add.cshtml. Simplified per the Phase 8
+   scoping decision: no AccountEmployeeMatch/AccountSearchResult duplicate-detection component wiring
+   (that was MVC ViewComponent machinery for an inline "search before you add" step) - if EmployeeId
+   is supplied via route (from the mismatched-employees "New" queue), it's set directly on the new
+   Account rather than round-tripped through session-encoded PHRST lookup data. *@
+<PageTitle>New Employee</PageTitle>
+<MudText Typo="Typo.h4" Class="mb-4">New Employee</MudText>
+
+<MudPaper Class="pa-4" MaxWidth="800px">
+    <MudGrid>
+        <MudItem xs="3"><MudTextField @bind-Value="_account.FirstName" Label="First Name" Required="true" /></MudItem>
+        <MudItem xs="2"><MudTextField @bind-Value="_account.MiddleName" Label="Middle Name" /></MudItem>
+        <MudItem xs="5"><MudTextField @bind-Value="_account.LastName" Label="Last Name" Required="true" /></MudItem>
+        <MudItem xs="2"><MudTextField @bind-Value="_account.SuffixName" Label="Suffix" /></MudItem>
+
+        <MudItem xs="4"><MudTextField @bind-Value="_account.AlternateFirstName" Label="Alternate First Name" /></MudItem>
+        <MudItem xs="4"><MudTextField @bind-Value="_account.AlternateLastName" Label="Alternate Last Name" /></MudItem>
+        <MudItem xs="4"><MudTextField @bind-Value="_account.Nickname" Label="Nickname" /></MudItem>
+
+        <MudItem xs="4"><MudTextField @bind-Value="_account.UsernameOverride" Label="Username Override" /></MudItem>
+        <MudItem xs="4">
+            <MudSelect T="int?" @bind-Value="_account.AccountTypeId" Label="Account Type">
+                @foreach (var t in _accountTypes) { <MudSelectItem T="int?" Value="t.Key">@t.Value</MudSelectItem> }
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="4"><MudTextField @bind-Value="_account.Source" Label="Source" /></MudItem>
+
+        <MudItem xs="12"><MudDivider Class="my-2" /><MudText Typo="Typo.h6">Job Record</MudText></MudItem>
+
+        <MudItem xs="4">
+            <MudSelect T="int?" @bind-Value="_jobRecord.UnitId" Label="Department">
+                @foreach (var u in _units) { <MudSelectItem T="int?" Value="u.Key">@u.Value</MudSelectItem> }
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="4">
+            <MudSelect T="int" Value="_titleGroupId" ValueChanged="OnTitleGroupChangedAsync" Label="Title Group">
+                @foreach (var tg in _titleGroups) { <MudSelectItem T="int" Value="tg.TitleGroupId">@tg.Description</MudSelectItem> }
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="4">
+            <MudSelect T="int?" @bind-Value="_jobRecord.TitleId" Label="Title">
+                @foreach (var t in _titles) { <MudSelectItem T="int?" Value="t.Key">@t.Value</MudSelectItem> }
+            </MudSelect>
+        </MudItem>
+
+        <MudItem xs="4"><MudDatePicker @bind-Date="_startDate" Label="Start Date" /></MudItem>
+        <MudItem xs="4"><MudDatePicker @bind-Date="_endDate" Label="End Date" /></MudItem>
+        <MudItem xs="4">
+            <MudSelect T="int?" @bind-Value="_jobRecord.BuildingId" Label="Building">
+                @foreach (var b in _buildings) { <MudSelectItem T="int?" Value="b.Key">@b.Value</MudSelectItem> }
+            </MudSelect>
+        </MudItem>
+
+        <MudItem xs="4"><MudCheckBox @bind-Value="_jobRecord.IsPrimary" Label="Is Primary Location" /></MudItem>
+        <MudItem xs="4">
+            <MudSelect T="int?" @bind-Value="_jobRecord.SubstituteForId" Label="Substituting For">
+                <MudSelectItem T="int?" Value="((int?)null)">--None--</MudSelectItem>
+                @foreach (var emp in _employees) { <MudSelectItem T="int?" Value="emp.Key">@emp.Value</MudSelectItem> }
+            </MudSelect>
+        </MudItem>
+    </MudGrid>
+
+    @if (!string.IsNullOrEmpty(_resultMessage))
+    {
+        <MudAlert Severity="@(_isError ? Severity.Error : Severity.Success)" Class="mt-4">@_resultMessage</MudAlert>
+    }
+
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-4" OnClick="SaveAsync" Disabled="_saving">Add Employee</MudButton>
+</MudPaper>
+
+@code {
+    [Parameter] public int? EmployeeId { get; set; }
+
+    [Inject] private IAccountRepository AccountRepository { get; set; } = default!;
+    [Inject] private IJobRecordRepository JobRecordRepository { get; set; } = default!;
+    [Inject] private IUnitRepository UnitRepository { get; set; } = default!;
+    [Inject] private ISystemReviewRepository SystemReviewRepository { get; set; } = default!;
+    [Inject] private CurrentUserService CurrentUserService { get; set; } = default!;
+    [Inject] private NavigationManager NavigationManager { get; set; } = default!;
+
+    private Account _account = new();
+    private JobRecord _jobRecord = new();
+    private DateTime? _startDate = DateTime.Now;
+    private DateTime? _endDate;
+    private int _titleGroupId;
+
+    private Dictionary<int, string> _units = new();
+    private Dictionary<int, string> _titles = new();
+    private Dictionary<int, string> _employees = new();
+    private Dictionary<int, string> _buildings = new();
+    private Dictionary<int, string> _accountTypes = new();
+    private List<TitleGroupModel> _titleGroups = new();
+
+    private bool _saving;
+    private bool _isError;
+    private string? _resultMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (EmployeeId.HasValue)
+        {
+            _account.EmployeeId = EmployeeId;
+        }
+
+        await CurrentUserService.EnsureLoadedAsync();
+
+        var unitSelectList = await UnitRepository.GetUnitsAsSelectlistAsync();
+        _units = unitSelectList.Cast<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>().ToDictionary(i => int.Parse(i.Value!), i => i.Text);
+
+        _accountTypes = await AccountRepository.GetAccountTypesAsync();
+        _titleGroups = await SystemReviewRepository.GetTitleGroupsAsync();
+        _titles = await AccountRepository.GetTitlesAsync();
+        _buildings = await AccountRepository.GetBuildingsAsync();
+        _employees = await AccountRepository.GetEmployeesAsync();
+    }
+
+    private async Task OnTitleGroupChangedAsync(int titleGroupId)
+    {
+        _titleGroupId = titleGroupId;
+        _titles = titleGroupId > 0
+            ? await AccountRepository.GetTitlesByTitleGroupAsync(titleGroupId)
+            : await AccountRepository.GetTitlesAsync();
+    }
+
+    private async Task SaveAsync()
+    {
+        _saving = true;
+        try
+        {
+            _account.JobTitle = _jobRecord.TitleId.HasValue ? await AccountRepository.GetTitleTextByIdAsync(_jobRecord.TitleId.Value) : "";
+            _account.PrimaryUnitId = _jobRecord.UnitId;
+            _account.IsActive = true;
+            _account.CreateDate = DateTime.Now;
+            _account.CreateUser = CurrentUserService.CurrentUser;
+            _account.LastUpdate = DateTime.Now;
+            _account.LastUpdateUser = CurrentUserService.CurrentUser;
+
+            var systemId = await AccountRepository.AddAccountAsync(_account, "");
+
+            _jobRecord.IsPHRST = false;
+            _jobRecord.SystemId = systemId;
+            _jobRecord.TitleGroupId = _titleGroupId;
+            _jobRecord.StartDate = _startDate;
+            _jobRecord.EndDate = _endDate;
+            _jobRecord.CreateDate = DateTime.Now;
+            _jobRecord.CreateUser = CurrentUserService.CurrentUser;
+            _jobRecord.IsActive = true;
+
+            await JobRecordRepository.CreateAsync(_jobRecord);
+
+            _resultMessage = $"{_account.FirstName} {_account.LastName} ({systemId}) successfully added.";
+            _isError = false;
+
+            NavigationManager.NavigateTo($"employees/edit/{systemId}");
+        }
+        catch (Exception ex)
+        {
+            _resultMessage = ex.Message;
+            _isError = true;
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+}

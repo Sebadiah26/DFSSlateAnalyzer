@@ -1,0 +1,47 @@
+@inherits LayoutComponentBase
+@implements IDisposable
+
+@* Replaces Views/Shared/_Layout.cshtml. The five global ViewComponents it wired up (Menu,
+   Impersonate, EmployeeFilter, Breadcrumb, Footer) are now NavMenu/ImpersonateWidget/EmployeeFilter/
+   Breadcrumb/Footer, each a straight port - see their own files for source mapping notes. *@
+<MudLayout>
+    <MudAppBar Elevation="1">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="ToggleDrawer" />
+        <MudText Typo="Typo.h6" Class="ml-2">BSD Staff Management</MudText>
+        <MudSpacer />
+        <ImpersonateWidget />
+    </MudAppBar>
+
+    <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
+        <NavMenu />
+    </MudDrawer>
+
+    <MudMainContent Class="pt-16 px-4">
+        <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="my-4">
+            <EmployeeFilter />
+            <Breadcrumb />
+            @Body
+            <MudDivider Class="my-4" />
+            <Footer />
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
+
+@code {
+    [Inject] private CurrentUserService CurrentUserService { get; set; } = default!;
+
+    private bool _drawerOpen = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        CurrentUserService.OnChange += StateHasChanged;
+        await CurrentUserService.EnsureLoadedAsync();
+    }
+
+    private void ToggleDrawer() => _drawerOpen = !_drawerOpen;
+
+    public void Dispose()
+    {
+        CurrentUserService.OnChange -= StateHasChanged;
+    }
+}

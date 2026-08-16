@@ -1,0 +1,67 @@
+@page "/job-records/send-notices"
+
+@* Ports JobRecordController.SendNotices (GET+POST) + Views/JobRecord/SendNotices.cshtml. The
+   "Employees" button was already a no-op in the source ("if (submitAction == "Employees") { }") -
+   preserved as a no-op here too. *@
+<PermissionGate Level="Can View System Review Page">
+    <PageTitle>Send Email Notices</PageTitle>
+    <MudText Typo="Typo.h4" Class="mb-4">Send Email Notices</MudText>
+    <MudText Typo="Typo.h6" Class="mb-2">Additional Resources</MudText>
+
+    <MudSimpleTable>
+        <tbody>
+            <tr>
+                <td>Job Records needing review</td>
+                <td><MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SendJobRecordNoticesAsync" Disabled="_sending">JobRecords</MudButton></td>
+            </tr>
+            <tr>
+                <td>Employees needing review</td>
+                <td><MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="true">Employees</MudButton></td>
+            </tr>
+        </tbody>
+    </MudSimpleTable>
+
+    @if (!string.IsNullOrEmpty(_resultMessage))
+    {
+        <MudAlert Severity="Severity.Success" Class="mt-4">@_resultMessage</MudAlert>
+    }
+</PermissionGate>
+
+@code {
+    [Inject] private IJobRecordRepository JobRecordRepository { get; set; } = default!;
+    [Inject] private IEmail Email { get; set; } = default!;
+    [Inject] private NavigationManager NavigationManager { get; set; } = default!;
+
+    private bool _sending;
+    private string? _resultMessage;
+
+    private async Task SendJobRecordNoticesAsync()
+    {
+        _sending = true;
+        try
+        {
+            var jobRecords = await JobRecordRepository.GetJobRecordsNeedingReviewAsync();
+
+            foreach (var jobRecord in jobRecords)
+            {
+                var reviewUrl = $"{NavigationManager.BaseUri}job-records/{jobRecord.JobRecordId}/edit/{jobRecord.SystemId}";
+
+                var emailMessage = new EmailMessage
+                {
+                    Sender = "noreply@bsd.k12.de.us",
+                    Receiver = "craig.kielinski@bsd.k12.de.us",
+                    Subject = "Alert",
+                    Content = Email.GetEmailBodyFromListItem(new { jobRecord.Name, Review = reviewUrl }, "An Employee Change Needs to be Reviewed")
+                };
+
+                Email.Send(emailMessage);
+            }
+
+            _resultMessage = $"Sent {jobRecords.Count} notice(s).";
+        }
+        finally
+        {
+            _sending = false;
+        }
+    }
+}

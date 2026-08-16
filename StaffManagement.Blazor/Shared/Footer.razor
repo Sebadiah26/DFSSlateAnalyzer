@@ -1,0 +1,31 @@
+@implements IDisposable
+@* Ports Components/FooterViewComponent.cs + Views/Shared/Components/Footer/Default.cshtml.
+   Subscribes to CurrentUserService.OnChange directly - see NavMenu.razor's header comment for why
+   relying on MainLayout's own re-render to cascade down isn't reliable. *@
+<MudText Typo="Typo.caption" Class="d-flex ga-2" Style="opacity: 0.7;">
+    <span>&copy; @DateTime.Now.Year - StaffManagement</span>
+    <MudLink Href="" Typo="Typo.caption">Home</MudLink>
+    <span>-</span>
+    <MudLink Href="employees" Typo="Typo.caption">Employees</MudLink>
+    <span>-</span>
+    <MudLink Href="job-records/menu" Typo="Typo.caption">Reports</MudLink>
+    @if (CurrentUserService.IsInLevel("Can View System Review Page"))
+    {
+        <span>-</span>
+        <MudLink Href="admin" Typo="Typo.caption">Admin</MudLink>
+    }
+</MudText>
+
+@code {
+    [Inject] private CurrentUserService CurrentUserService { get; set; } = default!;
+
+    protected override void OnInitialized()
+    {
+        CurrentUserService.OnChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        CurrentUserService.OnChange -= StateHasChanged;
+    }
+}

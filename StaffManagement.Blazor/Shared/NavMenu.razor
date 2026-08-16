@@ -1,0 +1,48 @@
+@implements IDisposable
+@* Ports Components/MenuViewComponent.cs + Views/Shared/Components/Menu/Default.cshtml. Active-link
+   highlighting is handled natively by MudNavLink's NavLinkMatch instead of the source's manual
+   controller-name/action-name string comparisons. The "Admin" link's permission gate
+   (IsInLevel("Can View System Review Page")) is preserved exactly.
+
+   Subscribes to CurrentUserService.OnChange itself rather than relying on MainLayout's own
+   StateHasChanged to cascade down through MudDrawer's ChildContent - it doesn't reliably: MudDrawer
+   caches/reuses the RenderFragment it's given, so re-rendering MainLayout after an impersonation
+   change doesn't actually re-invoke NavMenu's markup. Confirmed via the same gap in Footer.razor and
+   Pages/Index.razor, which read IsInLevel the same way - fixed there too. *@
+<MudNavMenu>
+    <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">
+        Home
+    </MudNavLink>
+    <MudNavLink Href="employees" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Person">
+        Employees
+    </MudNavLink>
+    <MudNavLink Href="job-records/menu" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Assignment">
+        Reports
+    </MudNavLink>
+    @if (CurrentUserService.IsInLevel("Can View System Review Page"))
+    {
+        <MudNavLink Href="admin" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.AdminPanelSettings">
+            Admin
+        </MudNavLink>
+    }
+    <MudDivider Class="my-2" />
+    @* Plain link, not client-side Blazor navigation - Account/Logout is a Razor Page outside the
+       Blazor circuit (see Program.cs's auth wiring), so this needs a real full-page GET. *@
+    <MudNavLink Href="Account/Logout" Icon="@Icons.Material.Filled.Logout">
+        Log Out
+    </MudNavLink>
+</MudNavMenu>
+
+@code {
+    [Inject] private CurrentUserService CurrentUserService { get; set; } = default!;
+
+    protected override void OnInitialized()
+    {
+        CurrentUserService.OnChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        CurrentUserService.OnChange -= StateHasChanged;
+    }
+}

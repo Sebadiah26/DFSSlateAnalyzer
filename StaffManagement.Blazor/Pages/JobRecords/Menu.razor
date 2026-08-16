@@ -1,0 +1,15 @@
+@page "/job-records/menu"
+
+@* Ports JobRecordController.Menu + Views/JobRecord/Menu.cshtml. *@
+<PermissionGate Level="Can View System Review Page">
+    <PageTitle>Report Menu</PageTitle>
+    <MudText Typo="Typo.h4" Class="mb-4">Report Menu</MudText>
+
+    <MudList T="string" Style="max-width: 500px;">
+        <MudListItem T="string" Href="employees/contractors">Contractors/Other</MudListItem>
+        <MudListItem T="string" Href="job-records/unlinked-employees">HR Employees Without Active Directory account records</MudListItem>
+        <MudListItem T="string" Href="employees/assign">Assign EmployeeID to Active Directory Account</MudListItem>
+        <MudListItem T="string" Href="admin/audit-log">Review Staff Management Website Activity</MudListItem>
+        <MudListItem T="string" Href="admin/job-titles">Job Title Admin</MudListItem>
+    </MudList>
+</PermissionGate>

@@ -1,0 +1,186 @@
+@page "/job-records/{JobRecordId:int}/edit/{SystemId:int}"
+
+@* Ports JobRecordController.Edit (GET+POST) + Views/JobRecord/Edit.cshtml.
+
+   DEVIATION (a real bug fix, not a faithful-port omission): the source's edit form always binds its
+   hidden JobRecordId/SystemId fields to Model.First() regardless of which job record's row you
+   clicked "View" on (asp-for="First().JobRecordId" / "First().SystemId", while every other field
+   correctly uses Model.ElementAt(Index)). Since the POST handler then does
+   `if (id != jobRecord.JobRecordId) return NotFound();` against the URL's id, this only actually
+   works when editing an account's FIRST job record - editing any other one 404s. Replicating that
+   would just make the page non-functional for most accounts with no compensating value, so this port
+   binds the edit form directly to the JobRecord matching the route's JobRecordId instead of an
+   index-position hack (which Blazor doesn't need MVC's list-binding workaround for anyway). The
+   side-by-side "Current Employee Job Record" (raw PHRST/EmployeeJobs snapshot) vs "New Employee Job
+   Changes" (editable JobRecord fields) layout is simplified to a read-only comparison card rather
+   than mirroring the source's parallel-editable-fields layout, since only the JobRecord side is ever
+   actually submitted by the source's own form. *@
+<PermissionGate Level="Can View System Review Page">
+    <PageTitle>Edit Job Record</PageTitle>
+
+    @if (_notFound)
+    {
+        <MudAlert Severity="Severity.Error">Job record not found.</MudAlert>
+    }
+    else if (_jobRecord != null)
+    {
+        <MudText Typo="Typo.h4" Class="mb-4">Job Record for @_jobRecord.Account?.FirstName @_jobRecord.Account?.LastName</MudText>
+
+        @if (!string.IsNullOrEmpty(_resultMessage))
+        {
+            <MudAlert Severity="Severity.Success" Class="mb-4">@_resultMessage</MudAlert>
+        }
+
+        <MudTable Items="_allForAccount" Dense="true" Hover="true" Class="mb-6">
+            <HeaderContent>
+                <MudTh>Needs Review</MudTh>
+                <MudTh>Department</MudTh>
+                <MudTh>Is Primary</MudTh>
+                <MudTh>Is Active</MudTh>
+                <MudTh>Start Date</MudTh>
+                <MudTh>End Date</MudTh>
+                <MudTh>Employee Type</MudTh>
+                <MudTh>Record Number</MudTh>
+                <MudTh></MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Needs Review" Style="@(context.NeedsReview ? "background:var(--mud-palette-error-lighten);" : "")">@context.NeedsReview</MudTd>
+                <MudTd DataLabel="Department">@context.Unit?.AdgroupName</MudTd>
+                <MudTd DataLabel="Is Primary">@context.IsPrimary</MudTd>
+                <MudTd DataLabel="Is Active">@context.IsActive</MudTd>
+                <MudTd DataLabel="Start Date">@context.StartDate?.ToShortDateString()</MudTd>
+                <MudTd DataLabel="End Date">@context.EndDate?.ToShortDateString()</MudTd>
+                <MudTd DataLabel="Employee Type">@(context.IsPHRST ? "Employee" : "Contractor/Other")</MudTd>
+                <MudTd DataLabel="Record Number">@context.HrRecordNumber</MudTd>
+                <MudTd>
+                    @if (context.JobRecordId != JobRecordId)
+                    {
+                        <MudLink Href="@($"job-records/{context.JobRecordId}/edit/{SystemId}")">View</MudLink>
+                    }
+                    else
+                    {
+                        <MudText Typo="Typo.caption">(editing)</MudText>
+                    }
+                </MudTd>
+            </RowTemplate>
+        </MudTable>
+
+        <MudGrid>
+            <MudItem xs="12" md="6">
+                <MudText Typo="Typo.h6" Class="mb-2">Job Record</MudText>
+                <MudStack Spacing="3">
+                    <MudTextField Value="_jobRecord.SystemId" Label="System Id" ReadOnly="true" />
+                    <MudCheckBox @bind-Value="_jobRecord.IsActive" Label="Is Active" />
+                    <MudSelect T="int?" @bind-Value="_jobRecord.UnitId" Label="Department">
+                        @foreach (var unit in _units)
+                        {
+                            <MudSelectItem T="int?" Value="unit.Key">@unit.Value</MudSelectItem>
+                        }
+                    </MudSelect>
+                    <MudCheckBox @bind-Value="_jobRecord.IsPrimary" Label="Is Primary Location" />
+                    <MudDatePicker @bind-Date="_startDate" Label="Start Date" />
+                    <MudDatePicker @bind-Date="_endDate" Label="End Date" />
+                    <MudNumericField @bind-Value="_jobRecord.HrRecordNumber" Label="Record Number" />
+                    <MudTextField @bind-Value="_jobRecord.HrWorkLocation" Label="Building" />
+                    <MudTextField @bind-Value="_jobRecord.HrPersonnelCode" Label="Personnel Code" />
+                    <MudNumericField @bind-Value="_jobRecord.HrJobCode" Label="Job Code" />
+                </MudStack>
+            </MudItem>
+
+            <MudItem xs="12" md="6">
+                <MudText Typo="Typo.h6" Class="mb-2">Current Employee Job Record (PHRST, read-only)</MudText>
+                @if (_matchedEmployeeJob != null)
+                {
+                    <MudSimpleTable Dense="true">
+                        <tbody>
+                            <tr><td>Job Id</td><td>@_matchedEmployeeJob.JobId</td></tr>
+                            <tr><td>Building</td><td>@_matchedEmployeeJob.FsfBuildingId</td></tr>
+                            <tr><td>Personnel Code</td><td>@_matchedEmployeeJob.PersonnelCode</td></tr>
+                            <tr><td>Job Code</td><td>@_matchedEmployeeJob.Jobcode</td></tr>
+                            <tr><td>Is Primary</td><td>@_matchedEmployeeJob.IsPrimary</td></tr>
+                        </tbody>
+                    </MudSimpleTable>
+                }
+                else
+                {
+                    <MudText Typo="Typo.body2" Style="opacity:0.7;">No matching PHRST job record.</MudText>
+                }
+            </MudItem>
+        </MudGrid>
+
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-4" OnClick="SaveAsync" Disabled="_saving">Save</MudButton>
+    }
+
+    <MudLink Href="job-records/menu" Class="d-block mt-4">Back to Menu</MudLink>
+</PermissionGate>
+
+@code {
+    [Parameter] public int JobRecordId { get; set; }
+    [Parameter] public int SystemId { get; set; }
+
+    [Inject] private IJobRecordRepository JobRecordRepository { get; set; } = default!;
+    [Inject] private IUnitRepository UnitRepository { get; set; } = default!;
+    [Inject] private NavigationManager NavigationManager { get; set; } = default!;
+
+    private List<JobRecord> _allForAccount = new();
+    private JobRecord? _jobRecord;
+    private EmployeeJob? _matchedEmployeeJob;
+    private DateTime? _startDate;
+    private DateTime? _endDate;
+    private Dictionary<int, string> _units = new();
+    private bool _notFound;
+    private bool _saving;
+    private string? _resultMessage;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        var selectList = await UnitRepository.GetUnitsAsSelectlistAsync();
+        _units = selectList
+            .Cast<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>()
+            .ToDictionary(i => int.Parse(i.Value!), i => i.Text);
+
+        _allForAccount = await JobRecordRepository.GetJobRecordsBySystemIdAsync(SystemId);
+        _jobRecord = _allForAccount.FirstOrDefault(x => x.JobRecordId == JobRecordId);
+
+        if (_jobRecord == null)
+        {
+            _notFound = true;
+            return;
+        }
+
+        _startDate = _jobRecord.StartDate;
+        _endDate = _jobRecord.EndDate;
+        _matchedEmployeeJob = _jobRecord.Account?.Employee?.EmployeeJobs?
+            .FirstOrDefault(j => j.JobId == _jobRecord.HrRecordNumber);
+    }
+
+    private async Task SaveAsync()
+    {
+        if (_jobRecord == null) return;
+
+        _saving = true;
+        try
+        {
+            _jobRecord.StartDate = _startDate;
+            _jobRecord.EndDate = _endDate;
+
+            await JobRecordRepository.UpdateAsync(_jobRecord);
+            _resultMessage = "Job record updated successfully.";
+        }
+        catch (Exception ex)
+        {
+            if (!await JobRecordRepository.ExistsAsync(JobRecordId))
+            {
+                _notFound = true;
+            }
+            else
+            {
+                _resultMessage = ex.Message;
+            }
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+}

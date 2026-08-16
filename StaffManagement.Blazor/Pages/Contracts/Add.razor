@@ -1,0 +1,86 @@
+@page "/contracts/add"
+
+@* Ports ContractController.Create (GET+POST) + Views/Contract/Create.cshtml. *@
+<PageTitle>Create Contract</PageTitle>
+
+<MudText Typo="Typo.h4" Class="mb-4">Create Contract</MudText>
+
+<MudPaper Class="pa-4" MaxWidth="700px">
+    <MudForm @ref="_form" Model="_contractor">
+        <MudGrid>
+            <MudItem xs="3"><MudTextField @bind-Value="_contractor.FirstName" Label="First Name" /></MudItem>
+            <MudItem xs="2"><MudTextField @bind-Value="_contractor.MiddleName" Label="Middle Name" /></MudItem>
+            <MudItem xs="5"><MudTextField @bind-Value="_contractor.LastName" Label="Last Name" Required="true" /></MudItem>
+            <MudItem xs="2"><MudTextField @bind-Value="_contractor.SuffixName" Label="Suffix" /></MudItem>
+
+            <MudItem xs="4"><MudDatePicker @bind-Date="_startDate" Label="Start Date" /></MudItem>
+            <MudItem xs="4"><MudDatePicker @bind-Date="_endDate" Label="End Date" /></MudItem>
+            <MudItem xs="4"><MudTextField @bind-Value="_contract.JobTitle" Label="Job Title" /></MudItem>
+
+            <MudItem xs="4">
+                <MudSelect T="int" @bind-Value="_contract.PrimaryUnitId" Label="Building">
+                    @foreach (var unit in _units)
+                    {
+                        <MudSelectItem T="int" Value="unit.Key">@unit.Value</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+        </MudGrid>
+
+        @if (!string.IsNullOrEmpty(_errorMessage))
+        {
+            <MudAlert Severity="Severity.Error" Class="mt-4">@_errorMessage</MudAlert>
+        }
+
+        <div class="mt-4">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveAsync" Disabled="_saving">Create</MudButton>
+        </div>
+    </MudForm>
+</MudPaper>
+
+<MudLink Href="contracts" Class="d-block mt-4">Back to List</MudLink>
+
+@code {
+    [Inject] private IContractRepository ContractRepository { get; set; } = default!;
+    [Inject] private IUnitRepository UnitRepository { get; set; } = default!;
+    [Inject] private NavigationManager NavigationManager { get; set; } = default!;
+
+    private MudForm _form = default!;
+    private Contract _contract = new() { StartDate = DateTime.Now };
+    private Contractor_staff _contractor = new();
+    private DateTime? _startDate = DateTime.Now;
+    private DateTime? _endDate;
+    private Dictionary<int, string> _units = new();
+    private bool _saving;
+    private string? _errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var selectList = await UnitRepository.GetUnitsAsSelectlistAsync();
+        _units = selectList
+            .Cast<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>()
+            .ToDictionary(i => int.Parse(i.Value!), i => i.Text);
+    }
+
+    private async Task SaveAsync()
+    {
+        _saving = true;
+        _errorMessage = null;
+        try
+        {
+            _contract.StartDate = _startDate ?? DateTime.Now;
+            _contract.EndDate = _endDate;
+
+            await ContractRepository.CreateAsync(_contract, _contractor);
+            NavigationManager.NavigateTo("contracts");
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = ex.Message;
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+}

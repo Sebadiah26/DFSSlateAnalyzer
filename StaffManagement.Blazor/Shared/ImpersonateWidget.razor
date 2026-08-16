@@ -1,0 +1,80 @@
+@* Ports Components/ImpersonateViewComponent.cs + Views/Shared/Components/Impersonate/Default.cshtml.
+   Same 1-hour cached AppUsers list, same "type to search, pick from list" UX (MudAutocomplete here
+   instead of an HTML <datalist>), same visibility gate.
+
+   NOTE (preserved from source, not introduced by this port): the visibility gate below checks
+   IsInLevel("Can Impersonate") against whichever identity is CURRENTLY effective - once impersonating,
+   that's the impersonated user's permission levels, not the real admin's. If the impersonated user
+   lacks "Can Impersonate", this widget disappears and there is no way to un-impersonate from the UI
+   until the underlying session/circuit resets. This is exactly how the legacy AppUser/UserLevels
+   model behaves too (UserLevels is wholesale-replaced while impersonating) - flagged here as a
+   pre-existing UX gotcha worth revisiting, not silently fixed as part of a faithful port. *@
+@if (CurrentUserService.IsInLevel("Can Impersonate") || CurrentUserService.SystemId == 0)
+{
+    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2" Wrap="Wrap.Wrap">
+        <MudText Typo="Typo.caption">
+            logged in user: <b>@CurrentUserService.ActiveDirectoryName</b>
+            &nbsp;-&nbsp; impersonated user: <b>@(CurrentUserService.IsImpersonating ? CurrentUserService.CurrentUser : "none")</b>
+        </MudText>
+
+        <MudAutocomplete T="string" Label="Impersonate user" Dense="true" Clearable="true"
+                          Value="_selectedSamAccountName" ValueChanged="OnSelectedAsync"
+                          SearchFunc="SearchUsers" ToStringFunc="DisplayFor"
+                          ResetValueOnEmptyText="true" CoerceText="false" Style="min-width: 260px;" />
+    </MudStack>
+}
+
+@code {
+    [Inject] private IUserRepository UserRepository { get; set; } = default!;
+    [Inject] private IMemoryCache Cache { get; set; } = default!;
+    [Inject] private CurrentUserService CurrentUserService { get; set; } = default!;
+
+    private Dictionary<string, string> _users = new();
+    private string? _selectedSamAccountName;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!Cache.TryGetValue("AppUsers", out Dictionary<string, string>? users) || users == null)
+        {
+            var selectList = await UserRepository.GetAppUsersAsync();
+            users = selectList
+                .Cast<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>()
+                .ToDictionary(i => i.Value!, i => i.Text);
+
+            Cache.Set("AppUsers", users, new MemoryCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1) });
+        }
+
+        _users = users;
+    }
+
+    private Task<IEnumerable<string>> SearchUsers(string value, CancellationToken token)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return Task.FromResult(_users.Keys.AsEnumerable());
+        }
+
+        var matches = _users
+            .Where(kv => kv.Value.Contains(value, StringComparison.OrdinalIgnoreCase))
+            .Select(kv => kv.Key);
+
+        return Task.FromResult(matches);
+    }
+
+    private string DisplayFor(string samAccountName) =>
+        _users.TryGetValue(samAccountName, out var display) ? display : samAccountName;
+
+    private async Task OnSelectedAsync(string? samAccountName)
+    {
+        _selectedSamAccountName = samAccountName;
+
+        if (string.IsNullOrEmpty(samAccountName))
+        {
+            await CurrentUserService.ClearImpersonationAsync();
+        }
+        else
+        {
+            await CurrentUserService.SetImpersonationAsync(samAccountName);
+        }
+    }
+}

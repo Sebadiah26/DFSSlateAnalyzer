@@ -1,0 +1,16 @@
+@page "/employees/close"
+@inject IJSRuntime JS
+
+@* Ports AccountController.Close + Views/Account/Close.cshtml (which just runs window.close()). *@
+<PageTitle>Closing...</PageTitle>
+<MudText>Closing...</MudText>
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("window.close");
+        }
+    }
+}

@@ -1,0 +1,720 @@
+@page "/employees/edit/{SystemId:int}"
+
+@* Ports AccountController.Edit (GET+POST) + Views/Account/Edit.cshtml - the field-diffing audit
+   trail logic (AccountChanged/JobRecordChanged/NeedsNewJobRecord/*FieldChanges). Per the Phase 8
+   scoping decision (see IAccountRepository's doc comment), this binds directly to the Account and
+   JobRecord entities instead of AccountModel, and the "before" snapshot lives in this component's
+   own fields for the component's lifetime instead of AppUser's session-backed EditAccount* properties
+   - the same simplification described on CurrentUserService (a Blazor circuit already holds this
+   state naturally; there's nothing to round-trip through session for). Field labels in audit comments
+   are resolved from the already-loaded dropdown Dictionaries instead of the source's cached-SelectList
+   lookups - equivalent output, no MVC-specific caching needed.
+
+   Restored after the initial port (see the "Restore Employees/Edit.razor functionality" plan and the
+   staffmanagement-blazor-conversion memory): the PHRST reconciliation review card, the employee-match
+   search dialog (replacing a plain EmployeeId textbox/dropdown that - it turned out - was bound to the
+   wrong lookup table entirely), the per-employee audit history table, and an explicit "Add New Job
+   Record" affordance so one account can carry multiple concurrent job records.
+
+   Not ported (see this repo's ImpersonateWidget/GroupAdmin-style deferral notes for the pattern):
+   permission-gating the Nickname/AlternateName/UsernameOverride fields, making the HrWorkLocation/
+   HrPersonnelCode/HrJobCode fields read-only outside the PHRST-confirm flow, the AD Group Assignment
+   info card (blocked on the unbuilt Group-matching engine), and the account/job status banner. Unlike
+   JobRecords/Admin, AccountController itself has no [CheckPermission] attribute in the source, so this
+   page is intentionally NOT wrapped in PermissionGate. *@
+
+<PageTitle>Edit Employee</PageTitle>
+
+@if (_notFound)
+{
+    <MudAlert Severity="Severity.Error">Account not found.</MudAlert>
+}
+else if (_account != null)
+{
+    <MudText Typo="Typo.h4" Class="mb-4">Edit @_account.FirstName @_account.LastName (@_account.SystemId)</MudText>
+
+    @if (!string.IsNullOrEmpty(_resultMessage))
+    {
+        <MudAlert Severity="@(_isError ? Severity.Error : Severity.Success)" Class="mb-4">@((MarkupString)_resultMessage)</MudAlert>
+    }
+
+    <MudGrid>
+        <MudItem xs="12" md="6">
+            <MudText Typo="Typo.h6" Class="mb-2">Account</MudText>
+            <MudStack Spacing="3">
+                <MudTextField @bind-Value="_account.FirstName" Label="First Name" />
+                <MudTextField @bind-Value="_account.MiddleName" Label="Middle Name" />
+                <MudTextField @bind-Value="_account.LastName" Label="Last Name" />
+                <MudTextField @bind-Value="_account.SuffixName" Label="Suffix" />
+                <MudTextField @bind-Value="_account.AlternateFirstName" Label="Alternate First Name" />
+                <MudTextField @bind-Value="_account.AlternateLastName" Label="Alternate Last Name" />
+                <MudTextField @bind-Value="_account.Nickname" Label="Nickname" />
+                <MudTextField @bind-Value="_account.UsernameOverride" Label="Username Override" />
+                <MudSelect T="int?" @bind-Value="_account.AccountTypeId" Label="Account Type">
+                    @foreach (var t in _accountTypes) { <MudSelectItem T="int?" Value="t.Key">@t.Value</MudSelectItem> }
+                </MudSelect>
+
+                @* Employee-match: replaces a dropdown that was, it turns out, bound to the wrong
+                   lookup (GetEmployeesAsync returns Account SystemIds, not hr.Employee EmployeeIds -
+                   a pre-existing bug fixed as part of restoring this feature properly). *@
+                @if (_account.EmployeeId.HasValue)
+                {
+                    var linkedName = (_account.Employee != null && _account.Employee.EmployeeId == _account.EmployeeId)
+                        ? $"{_account.Employee.FirstName} {_account.Employee.LastName}"
+                        : (_pendingMatchName ?? "(pending save)");
+                    <MudTextField Label="Linked HR Employee" Value="@($"{linkedName} (#{_account.EmployeeId})")" ReadOnly="true" />
+
+                    @if (NameDiffersFromPhrst)
+                    {
+                        <MudAlert Severity="Severity.Warning" Dense="true">
+                            The name was changed in PHRST for this employee: <b>@_account.Employee!.FirstName @_account.Employee.MiddleName @_account.Employee.LastName @_account.Employee.SuffixName</b>
+                        </MudAlert>
+                        <MudButton Variant="Variant.Outlined" Color="Color.Warning" OnClick="ConfirmNameChangeAsync">Confirm Name Change</MudButton>
+                    }
+
+                    <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="OpenMatchDialog">Change Match</MudButton>
+                }
+                else
+                {
+                    <MudText Typo="Typo.body2">Not linked to an HR employee record.</MudText>
+                    <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="OpenMatchDialog">Match to Existing HR Employee Record</MudButton>
+                }
+            </MudStack>
+        </MudItem>
+
+        <MudItem xs="12" md="6">
+            <MudText Typo="Typo.h6" Class="mb-2">Job Record</MudText>
+
+            <MudSelect T="int" Value="_jobRecord!.JobRecordId" ValueChanged="OnJobRecordChangedAsync" Label="Viewing Job Record" Class="mb-2">
+                @foreach (var jr in _account.JobRecords)
+                {
+                    <MudSelectItem T="int" Value="jr.JobRecordId">
+                        @(jr.StartDate?.ToShortDateString()) - @(jr.EndDate?.ToShortDateString() ?? "present") @(jr.IsActive ? "" : "(inactive)")
+                    </MudSelectItem>
+                }
+                <MudSelectItem T="int" Value="0">+ Add New Job Record</MudSelectItem>
+            </MudSelect>
+
+            @if (_jobRecord != null)
+            {
+                @if (ShowPhrstCard)
+                {
+                    var newJob = _mismatchedPhrstJobs.FirstOrDefault(j => j.JobId == _selectedPhrstJobId) ?? _mismatchedPhrstJobs.First();
+                    <MudAlert Severity="Severity.Warning" Class="mb-2">There are changes to PHRST that need to be reviewed.</MudAlert>
+                    <MudSimpleTable Dense="true" Class="mb-2">
+                        <thead>
+                            <tr><th></th><th>Current</th><th>New (from PHRST)</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Work Location</td>
+                                <td>@_fsfBuildings.GetValueOrDefault(_jobRecord.HrWorkLocation ?? "", "")</td>
+                                <td style="@HighlightIfDiffers(_jobRecord.HrWorkLocation, newJob.FsfBuildingId)">@newJob.BuildingDescription</td>
+                            </tr>
+                            <tr>
+                                <td>Personnel Code</td>
+                                <td>@_personnelCodes.GetValueOrDefault(_jobRecord.HrPersonnelCode ?? "", "")</td>
+                                <td style="@HighlightIfDiffers(_jobRecord.HrPersonnelCode, newJob.PersonnelCode)">@newJob.PersonnelCodeDescription</td>
+                            </tr>
+                            <tr>
+                                <td>Job Code</td>
+                                <td>@(_jobRecord.HrJobCode.HasValue ? _jobCodes.GetValueOrDefault(_jobRecord.HrJobCode.Value, "") : "")</td>
+                                <td style="@HighlightIfDiffers(_jobRecord.HrJobCode, newJob.Jobcode)">@newJob.JobcodeDescription</td>
+                            </tr>
+                            <tr>
+                                <td>Department</td>
+                                <td>@(_jobRecord.UnitId.HasValue ? _units.GetValueOrDefault(_jobRecord.UnitId.Value, "") : "")</td>
+                                <td style="@HighlightIfDiffers(_jobRecord.UnitId, newJob.UnitId)">@newJob.UnitName</td>
+                            </tr>
+                            <tr>
+                                <td>Effective Date</td>
+                                <td>@(_jobRecord.StartDate?.ToShortDateString())</td>
+                                <td style="@HighlightIfDiffers(_jobRecord.StartDate, newJob.EffectiveDate)">@(newJob.EffectiveDate?.ToShortDateString())</td>
+                            </tr>
+                        </tbody>
+                    </MudSimpleTable>
+                    <MudSelect T="int" Value="_selectedPhrstJobId ?? newJob.JobId" ValueChanged="OnPhrstJobSelected" Label="Select the PHRST job summary to confirm" Class="mb-2">
+                        @foreach (var job in _mismatchedPhrstJobs)
+                        {
+                            <MudSelectItem T="int" Value="job.JobId">@job.BuildingDescription - @job.PersonnelCodeDescription - @job.JobcodeDescription - @job.UnitName</MudSelectItem>
+                        }
+                    </MudSelect>
+                }
+
+                <MudStack Spacing="3">
+                    <MudSelect T="int?" @bind-Value="_jobRecord.UnitId" Label="Department">
+                        @foreach (var u in _units) { <MudSelectItem T="int?" Value="u.Key">@u.Value</MudSelectItem> }
+                    </MudSelect>
+                    <MudSelect T="int" Value="_titleGroupId" ValueChanged="OnTitleGroupChangedAsync" Label="Title Group">
+                        @foreach (var tg in _titleGroups) { <MudSelectItem T="int" Value="tg.TitleGroupId">@tg.Description</MudSelectItem> }
+                    </MudSelect>
+                    <MudSelect T="int?" @bind-Value="_jobRecord.TitleId" Label="Title">
+                        @foreach (var t in _titles) { <MudSelectItem T="int?" Value="t.Key">@t.Value</MudSelectItem> }
+                    </MudSelect>
+                    <MudSelect T="int?" @bind-Value="_jobRecord.BuildingId" Label="Building">
+                        @foreach (var b in _buildings) { <MudSelectItem T="int?" Value="b.Key">@b.Value</MudSelectItem> }
+                    </MudSelect>
+                    <MudDatePicker @bind-Date="_startDate" Label="Start Date" />
+                    <MudDatePicker @bind-Date="_endDate" Label="End Date" />
+                    <MudCheckBox @bind-Value="_jobRecord.IsActive" Label="Is Active" />
+                    <MudCheckBox @bind-Value="_jobRecord.IsPrimary" Label="Is Primary Location" />
+                    <MudSelect T="int?" @bind-Value="_jobRecord.SubstituteForId" Label="Substituting For">
+                        <MudSelectItem T="int?" Value="((int?)null)">--None--</MudSelectItem>
+                        @foreach (var emp in _employees) { <MudSelectItem T="int?" Value="emp.Key">@emp.Value</MudSelectItem> }
+                    </MudSelect>
+                    <MudTextField @bind-Value="_jobRecord.HrWorkLocation" Label="HR Building" />
+                    <MudTextField @bind-Value="_jobRecord.HrPersonnelCode" Label="HR Personnel Code" />
+                    <MudNumericField @bind-Value="_jobRecord.HrJobCode" Label="HR Job Code" />
+                </MudStack>
+            }
+        </MudItem>
+    </MudGrid>
+
+    <MudStack Row="true" Spacing="2" Class="mt-4">
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => SaveAsync(returnToSearch: true))" Disabled="_saving">Save</MudButton>
+        <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="@(() => SaveAsync(returnToSearch: false))" Disabled="_saving">Save And Continue</MudButton>
+    </MudStack>
+
+    <MudText Typo="Typo.h6" Class="mt-6 mb-2">Account Record History</MudText>
+    <MudTable Items="_auditLog" Dense="true" Hover="true">
+        <HeaderContent>
+            <MudTh>Date</MudTh>
+            <MudTh>Table</MudTh>
+            <MudTh>Reference Id</MudTh>
+            <MudTh>Employee</MudTh>
+            <MudTh>Action</MudTh>
+            <MudTh>User</MudTh>
+            <MudTh>Impersonated User</MudTh>
+            <MudTh>Comment</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Date">@context.LogDate</MudTd>
+            <MudTd DataLabel="Table">@context.ReferenceTable</MudTd>
+            <MudTd DataLabel="Reference Id">@context.ReferenceID</MudTd>
+            <MudTd DataLabel="Employee">@context.Employee</MudTd>
+            <MudTd DataLabel="Action">@context.ActionType</MudTd>
+            <MudTd DataLabel="User">@context.ApplicationUser</MudTd>
+            <MudTd DataLabel="Impersonated User">@context.ImpersonatedUser</MudTd>
+            <MudTd DataLabel="Comment">@((MarkupString)(context.CommentHTML ?? ""))</MudTd>
+        </RowTemplate>
+        <NoRecordsContent>
+            <MudText>No history recorded for this account yet.</MudText>
+        </NoRecordsContent>
+    </MudTable>
+}
+
+<MudLink Href="employees" Class="d-block mt-4">Back to Search</MudLink>
+
+<MudDialog @bind-Visible="_showMatchDialog" Options="new DialogOptions { MaxWidth = MaxWidth.Medium, FullWidth = true }">
+    <TitleContent>Match to Existing HR Employee Record</TitleContent>
+    <DialogContent>
+        <MudGrid>
+            <MudItem xs="6"><MudTextField @bind-Value="_matchFirstName" Label="First Name" /></MudItem>
+            <MudItem xs="6"><MudTextField @bind-Value="_matchLastName" Label="Last Name" /></MudItem>
+        </MudGrid>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SearchMatchesAsync" Class="mt-2 mb-3">Search</MudButton>
+
+        @if (_matching)
+        {
+            <MudProgressCircular Indeterminate="true" />
+        }
+        else if (_matchResults.Count > 0)
+        {
+            <MudSimpleTable Dense="true" Hover="true">
+                <thead>
+                    <tr><th></th><th>Employee Id</th><th>First Name</th><th>Last Name</th><th>Job Title</th><th>Department</th><th>Account</th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var m in _matchResults)
+                    {
+                        <tr>
+                            <td><MudButton Size="Size.Small" Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => SelectMatch(m))">Select</MudButton></td>
+                            <td>@m.EmployeeId</td>
+                            <td>@m.FirstName</td>
+                            <td>@m.LastName</td>
+                            <td>@m.JobTitle</td>
+                            <td>@m.Department</td>
+                            <td>@(m.SystemId != 0 ? m.SystemId.ToString() : "No Account")</td>
+                        </tr>
+                    }
+                </tbody>
+            </MudSimpleTable>
+        }
+        else if (_matchSearched)
+        {
+            <MudText>No matches found.</MudText>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="@(() => _showMatchDialog = false)">Close</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [Parameter] public int SystemId { get; set; }
+
+    [Inject] private IAccountRepository AccountRepository { get; set; } = default!;
+    [Inject] private IJobRecordRepository JobRecordRepository { get; set; } = default!;
+    [Inject] private IUnitRepository UnitRepository { get; set; } = default!;
+    [Inject] private ISystemReviewRepository SystemReviewRepository { get; set; } = default!;
+    [Inject] private CurrentUserService CurrentUserService { get; set; } = default!;
+    [Inject] private NavigationManager NavigationManager { get; set; } = default!;
+
+    private Account? _account;
+    private JobRecord? _jobRecord;
+    private DateTime? _startDate;
+    private DateTime? _endDate;
+    private int _titleGroupId;
+    private bool _notFound;
+    private bool _saving;
+    private bool _isError;
+    private string? _resultMessage;
+
+    private Dictionary<int, string> _units = new();
+    private Dictionary<int, string> _titles = new();
+    private Dictionary<int, string> _buildings = new();
+    private Dictionary<int, string> _employees = new();
+    private Dictionary<int, string> _accountTypes = new();
+    private Dictionary<string, string> _fsfBuildings = new();
+    private Dictionary<int, string> _jobCodes = new();
+    private Dictionary<string, string> _personnelCodes = new();
+    private List<TitleGroupModel> _titleGroups = new();
+
+    // PHRST reconciliation state - see ComputePhrstMismatches.
+    private List<EmployeeJobSummary> _employeeJobs = new();
+    private List<EmployeeJobSummary> _mismatchedPhrstJobs = new();
+    private int _mismatchedJobRecordId;
+    private int? _selectedPhrstJobId;
+
+    // Employee-match dialog state.
+    private bool _showMatchDialog;
+    private string _matchFirstName = "";
+    private string _matchLastName = "";
+    private bool _matching;
+    private bool _matchSearched;
+    private List<EmployeeSearchMatch> _matchResults = new();
+    private string? _pendingMatchName;
+
+    private List<AuditLogViewModel> _auditLog = new();
+
+    // "Before" snapshot - see file header comment. Populated in LoadJobRecordSnapshot/on initial load.
+    private record AccountSnapshot(string? FirstName, string? MiddleName, string? LastName, string? SuffixName,
+        string? AlternateFirstName, string? AlternateLastName, string? Nickname, string? UsernameOverride,
+        int? EmployeeId, int? AccountTypeId);
+
+    private record JobRecordSnapshot(DateTime? StartDate, DateTime? EndDate, int? UnitId, int? BuildingId,
+        int? SubstituteForId, int TitleGroupId, int? TitleId, string? HrWorkLocation, string? HrPersonnelCode,
+        int? HrJobCode, bool IsActive, bool IsPrimary);
+
+    private AccountSnapshot? _accountBefore;
+    private JobRecordSnapshot? _jobRecordBefore;
+
+    private bool NameDiffersFromPhrst =>
+        _account?.Employee != null &&
+        (_account.FirstName != _account.Employee.FirstName ||
+         _account.MiddleName != _account.Employee.MiddleName ||
+         _account.LastName != _account.Employee.LastName ||
+         _account.SuffixName != _account.Employee.SuffixName);
+
+    private bool ShowPhrstCard =>
+        _jobRecord != null && _mismatchedPhrstJobs.Count > 0 &&
+        (_jobRecord.JobRecordId == _mismatchedJobRecordId ||
+         (_jobRecord.JobRecordId <= 0 && _mismatchedJobRecordId == 0));
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await CurrentUserService.EnsureLoadedAsync();
+
+        _account = await AccountRepository.GetAccountByIdAsync(SystemId);
+        if (_account == null)
+        {
+            _notFound = true;
+            return;
+        }
+
+        _accountTypes = await AccountRepository.GetAccountTypesAsync();
+        _employees = await AccountRepository.GetEmployeesAsync();
+        _titleGroups = await SystemReviewRepository.GetTitleGroupsAsync();
+        _units = (await UnitRepository.GetUnitsAsSelectlistAsync())
+            .Cast<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>().ToDictionary(i => int.Parse(i.Value!), i => i.Text);
+        _buildings = await AccountRepository.GetBuildingsAsync();
+        _fsfBuildings = await AccountRepository.GetFsfBuildingsAsync();
+        _jobCodes = await AccountRepository.GetJobCodesAsync();
+        _personnelCodes = await AccountRepository.GetPersonnelCodesAsync();
+
+        _accountBefore = SnapshotAccount(_account);
+
+        if (_account.EmployeeId.HasValue)
+        {
+            _employeeJobs = await AccountRepository.GetEmployeeJobsAsync(_account.EmployeeId.Value);
+            ComputePhrstMismatches();
+        }
+        else
+        {
+            _employeeJobs = new();
+            _mismatchedPhrstJobs = new();
+            _mismatchedJobRecordId = 0;
+            _selectedPhrstJobId = null;
+        }
+
+        var primary = _account.JobRecords.FirstOrDefault(j => j.IsPrimary && j.IsActive)
+                      ?? _account.JobRecords.FirstOrDefault();
+        await SelectJobRecordAsync(primary);
+
+        _auditLog = await AccountRepository.GetAuditLogForAccountAsync(
+            _account.SystemId, _jobRecord?.JobRecordId, _account.EmployeeId, _account.AdobjectGuid,
+            $"{_account.FirstName} {_account.LastName}".Trim());
+    }
+
+    /// <summary>Ports AccountModel.JobIsCurrentWithPHRST: a live PHRST job "matches" a local JobRecord
+    /// when its snapshot fields equal the PHRST job's, and the record is active and within its date
+    /// window. Anything left unmatched needs review; MismatchedJobRecordId identifies the (single)
+    /// active/in-window local record that should absorb one of those unmatched PHRST jobs, if any.</summary>
+    private void ComputePhrstMismatches()
+    {
+        _mismatchedPhrstJobs = new List<EmployeeJobSummary>();
+        _mismatchedJobRecordId = 0;
+        var matchedJobRecordIds = new HashSet<int>();
+
+        foreach (var ej in _employeeJobs)
+        {
+            var matched = false;
+            foreach (var jr in _account!.JobRecords)
+            {
+                if (jr.HrWorkLocation == ej.FsfBuildingId &&
+                    jr.HrPersonnelCode == ej.PersonnelCode &&
+                    jr.HrJobCode == ej.Jobcode &&
+                    jr.IsActive &&
+                    DateTime.Now > (jr.StartDate ?? Core.Common.Settings.BeginDate) &&
+                    DateTime.Now < (jr.EndDate ?? Core.Common.Settings.EndDate))
+                {
+                    matched = true;
+                    matchedJobRecordIds.Add(jr.JobRecordId);
+                }
+            }
+            if (!matched) _mismatchedPhrstJobs.Add(ej);
+        }
+
+        foreach (var jr in _account!.JobRecords)
+        {
+            if (!matchedJobRecordIds.Contains(jr.JobRecordId) &&
+                (jr.IsActive || _account.JobRecords.Count == 1) &&
+                DateTime.Now > (jr.StartDate ?? Core.Common.Settings.BeginDate) &&
+                DateTime.Now < (jr.EndDate ?? Core.Common.Settings.EndDate))
+            {
+                _mismatchedJobRecordId = jr.JobRecordId;
+            }
+        }
+
+        _selectedPhrstJobId = _mismatchedPhrstJobs.FirstOrDefault()?.JobId;
+    }
+
+    private string HighlightIfDiffers<T>(T? current, T? incoming) =>
+        !Equals(current, incoming) ? "background-color:#fff3cd;" : "";
+
+    /// <summary>Ports the legacy POST handler's step of copying the admin's chosen PHRST job summary
+    /// onto the JobRecord (HrWorkLocation/HrPersonnelCode/HrJobCode/UnitId/StartDate) - staged onto
+    /// _jobRecord only, same as every other field on this page; the existing JobRecordChanged/
+    /// NeedsNewJobRecord/SaveAsync pipeline picks up the diff and persists it.</summary>
+    private void OnPhrstJobSelected(int jobId)
+    {
+        _selectedPhrstJobId = jobId;
+        var job = _mismatchedPhrstJobs.FirstOrDefault(j => j.JobId == jobId);
+        if (job == null || _jobRecord == null) return;
+
+        _jobRecord.HrWorkLocation = job.FsfBuildingId;
+        _jobRecord.HrPersonnelCode = job.PersonnelCode;
+        _jobRecord.HrJobCode = job.Jobcode;
+        _jobRecord.UnitId = job.UnitId;
+        _startDate = job.EffectiveDate;
+    }
+
+    /// <summary>Ports AccountController's "Confirm Name Change": accepts PHRST's name fields as the
+    /// new local name, saved immediately with no diff comment (matching the source's ChangeNameOnly
+    /// semantics) rather than going through the general Save flow.</summary>
+    private async Task ConfirmNameChangeAsync()
+    {
+        if (_account?.Employee == null) return;
+
+        _account.FirstName = _account.Employee.FirstName;
+        _account.MiddleName = _account.Employee.MiddleName;
+        _account.LastName = _account.Employee.LastName;
+        _account.SuffixName = _account.Employee.SuffixName;
+        _account.LastUpdateUser = CurrentUserService.CurrentUser;
+        _account.LastUpdate = DateTime.Now;
+
+        await AccountRepository.UpdateAccountAsync(_account, "");
+        _resultMessage = "Name change confirmed successfully.";
+        _isError = false;
+
+        await OnParametersSetAsync();
+    }
+
+    private void OpenMatchDialog()
+    {
+        _matchFirstName = _account?.FirstName ?? "";
+        _matchLastName = _account?.LastName ?? "";
+        _matchResults = new();
+        _matchSearched = false;
+        _showMatchDialog = true;
+    }
+
+    private async Task SearchMatchesAsync()
+    {
+        _matching = true;
+        _matchResults = await AccountRepository.SearchEmployeesByNameAsync(_matchFirstName, _matchLastName);
+        _matchSearched = true;
+        _matching = false;
+    }
+
+    /// <summary>Stages the match onto _account.EmployeeId only - same "stage, don't save" convention
+    /// as every other field on this page. The existing Save flow persists it via AccountChanged's diff.</summary>
+    private void SelectMatch(EmployeeSearchMatch match)
+    {
+        _account!.EmployeeId = match.EmployeeId;
+        _pendingMatchName = $"{match.FirstName} {match.LastName}";
+        _showMatchDialog = false;
+    }
+
+    private async Task OnJobRecordChangedAsync(int jobRecordId)
+    {
+        var jr = _account!.JobRecords.FirstOrDefault(j => j.JobRecordId == jobRecordId);
+        await SelectJobRecordAsync(jr);
+    }
+
+    private async Task SelectJobRecordAsync(JobRecord? jobRecord)
+    {
+        _jobRecord = jobRecord ?? new JobRecord { SystemId = SystemId, IsPHRST = false };
+        _startDate = _jobRecord.StartDate;
+        _endDate = _jobRecord.EndDate;
+        _titleGroupId = _jobRecord.TitleGroupId ?? 0;
+        _titles = _titleGroupId > 0
+            ? await AccountRepository.GetTitlesByTitleGroupAsync(_titleGroupId)
+            : await AccountRepository.GetTitlesAsync();
+
+        _jobRecordBefore = SnapshotJobRecord(_jobRecord);
+    }
+
+    private async Task OnTitleGroupChangedAsync(int titleGroupId)
+    {
+        _titleGroupId = titleGroupId;
+        _titles = titleGroupId > 0
+            ? await AccountRepository.GetTitlesByTitleGroupAsync(titleGroupId)
+            : await AccountRepository.GetTitlesAsync();
+    }
+
+    private static AccountSnapshot SnapshotAccount(Account a) => new(
+        a.FirstName, a.MiddleName, a.LastName, a.SuffixName, a.AlternateFirstName, a.AlternateLastName,
+        a.Nickname, a.UsernameOverride, a.EmployeeId, a.AccountTypeId);
+
+    private static JobRecordSnapshot SnapshotJobRecord(JobRecord j) => new(
+        j.StartDate, j.EndDate, j.UnitId, j.BuildingId, j.SubstituteForId, j.TitleGroupId ?? 0, j.TitleId,
+        j.HrWorkLocation, j.HrPersonnelCode, j.HrJobCode, j.IsActive, j.IsPrimary);
+
+    private bool AccountChanged() => _accountBefore != SnapshotAccount(_account!);
+
+    private bool JobRecordChanged()
+    {
+        var current = SnapshotJobRecord(_jobRecord!) with { StartDate = _startDate, EndDate = _endDate };
+        return _jobRecordBefore != current;
+    }
+
+    /// <summary>Ports AccountController.NeedsNewJobRecord: if any field defining "what the job is"
+    /// changed AND the existing record's start date is more than a day in the past, the old record
+    /// gets expired and a new one created instead of mutating the historical record in place.</summary>
+    private bool NeedsNewJobRecord()
+    {
+        var before = _jobRecordBefore!;
+        var definingFieldsChanged =
+            (before.HrWorkLocation != _jobRecord!.HrWorkLocation) ||
+            (before.HrPersonnelCode != _jobRecord.HrPersonnelCode) ||
+            (before.HrJobCode != _jobRecord.HrJobCode) ||
+            (before.TitleId != _jobRecord.TitleId) ||
+            (before.BuildingId != _jobRecord.BuildingId);
+
+        var startDateInPast = (before.StartDate ?? Core.Common.Settings.BeginDate) < DateTime.Now.AddDays(-1);
+
+        return definingFieldsChanged && startDateInPast;
+    }
+
+    private string BuildAccountFieldChanges()
+    {
+        var before = _accountBefore!;
+        var a = _account!;
+        var comment = $"for [SystemId]: [{a.SystemId}] ";
+
+        if (a.AccountTypeId != before.AccountTypeId)
+            comment += $"[AccountTypeId][{a.AccountTypeId}] ({before.AccountTypeId}) ";
+        if (a.EmployeeId != before.EmployeeId)
+            comment += $"[EmployeeId][{a.EmployeeId}] ({before.EmployeeId}) ";
+        if (a.FirstName != before.FirstName)
+            comment += $"[FirstName][{a.FirstName}] ({before.FirstName}) ";
+        if (a.MiddleName != before.MiddleName)
+            comment += $"[MiddleName][{a.MiddleName}] ({before.MiddleName}) ";
+        if (a.LastName != before.LastName)
+            comment += $"[LastName][{a.LastName}] ({before.LastName}) ";
+        if (a.SuffixName != before.SuffixName)
+            comment += $"[SuffixName][{a.SuffixName}] ({before.SuffixName}) ";
+        if (a.AlternateFirstName != before.AlternateFirstName)
+            comment += $"[AlternateFirstName][{a.AlternateFirstName}] ({before.AlternateFirstName}) ";
+        if (a.AlternateLastName != before.AlternateLastName)
+            comment += $"[AlternateLastName][{a.AlternateLastName}] ({before.AlternateLastName}) ";
+        if (a.Nickname != before.Nickname)
+            comment += $"[Nickname][{a.Nickname}] ({before.Nickname}) ";
+        if (a.UsernameOverride != before.UsernameOverride)
+            comment += $"[UsernameOverride][{a.UsernameOverride}] ({before.UsernameOverride}) ";
+
+        return comment;
+    }
+
+    private string BuildJobRecordFieldChanges()
+    {
+        var before = _jobRecordBefore!;
+        var j = _jobRecord!;
+        var comment = $"for [JobRecordId]: [{j.JobRecordId}] ";
+
+        if (_startDate != before.StartDate)
+            comment += $"[StartDate][{_startDate}] ({before.StartDate}) ";
+        if (j.UnitId != before.UnitId)
+            comment += $"[UnitId][{Label(_units, j.UnitId)}] ({Label(_units, before.UnitId)}) ";
+        if (j.BuildingId != before.BuildingId)
+            comment += $"[BuildingId][{Label(_buildings, j.BuildingId)}] ({Label(_buildings, before.BuildingId)}) ";
+        if (j.SubstituteForId != before.SubstituteForId)
+            comment += $"[SubstituteForId][{Label(_employees, j.SubstituteForId)}] ({Label(_employees, before.SubstituteForId)}) ";
+        if ((j.TitleGroupId ?? 0) != before.TitleGroupId)
+            comment += $"[TitleGroupId][{_titleGroupId}] ({before.TitleGroupId}) ";
+        if (j.TitleId != before.TitleId)
+            comment += $"[TitleId][{Label(_titles, j.TitleId)}] ({Label(_titles, before.TitleId)}) ";
+        if (j.HrWorkLocation != before.HrWorkLocation)
+            comment += $"[HrWorkLocation][{j.HrWorkLocation}] ({before.HrWorkLocation}) ";
+        if (j.HrPersonnelCode != before.HrPersonnelCode)
+            comment += $"[HrPersonnelCode][{j.HrPersonnelCode}] ({before.HrPersonnelCode}) ";
+        if (j.HrJobCode != before.HrJobCode)
+            comment += $"[HrJobCode][{j.HrJobCode}] ({before.HrJobCode}) ";
+        if (j.IsActive != before.IsActive)
+            comment += $"[IsActive][{j.IsActive}] ({before.IsActive}) ";
+        if (j.IsPrimary != before.IsPrimary)
+            comment += $"[IsPrimary][{j.IsPrimary}] ({before.IsPrimary}) ";
+        if (_endDate != before.EndDate)
+            comment += $"[EndDate][{_endDate}] ({before.EndDate}) ";
+
+        return comment;
+    }
+
+    private static string Label(Dictionary<int, string> dict, int? key) =>
+        key.HasValue && dict.TryGetValue(key.Value, out var text) ? text : "";
+
+    private async Task SaveAsync(bool returnToSearch)
+    {
+        if (_account == null || _jobRecord == null) return;
+
+        _saving = true;
+        _isError = false;
+        var resultMessage = "";
+        var newJobRecordCreated = false;
+        var accountJustChanged = false;
+
+        try
+        {
+            _jobRecord.StartDate = _startDate;
+            _jobRecord.EndDate = _endDate;
+            _jobRecord.TitleGroupId = _titleGroupId;
+
+            if (JobRecordChanged())
+            {
+                if (_jobRecord.JobRecordId > 0 && NeedsNewJobRecord())
+                {
+                    var tmpEndDate = _endDate;
+                    var tmpIsActive = _jobRecord.IsActive;
+                    var tmpIsPrimary = _jobRecord.IsPrimary;
+
+                    var comment = BuildJobRecordFieldChanges();
+                    _jobRecord.EndDate = _startDate; // expire the old record the day the new one starts
+                    _jobRecord.IsActive = false;
+                    _jobRecord.IsPrimary = false;
+                    await JobRecordRepository.UpdateAsync(_jobRecord);
+
+                    var newRecord = new JobRecord
+                    {
+                        SystemId = SystemId,
+                        IsPHRST = _jobRecord.IsPHRST,
+                        StartDate = _startDate,
+                        EndDate = tmpEndDate,
+                        IsActive = tmpIsActive,
+                        IsPrimary = tmpIsPrimary,
+                        UnitId = _jobRecord.UnitId,
+                        BuildingId = _jobRecord.BuildingId,
+                        SubstituteForId = _jobRecord.SubstituteForId,
+                        TitleGroupId = _titleGroupId,
+                        TitleId = _jobRecord.TitleId,
+                        HrWorkLocation = _jobRecord.HrWorkLocation,
+                        HrPersonnelCode = _jobRecord.HrPersonnelCode,
+                        HrJobCode = _jobRecord.HrJobCode,
+                        CreateDate = DateTime.Now,
+                        CreateUser = CurrentUserService.CurrentUser,
+                        LastUpdate = DateTime.Now,
+                        LastUpdateUser = CurrentUserService.CurrentUser,
+                        HrMatched = true,
+                        NeedsReview = false
+                    };
+                    await JobRecordRepository.CreateAsync(newRecord);
+                    newJobRecordCreated = true;
+                    resultMessage += "New job record created successfully.<br/>";
+                }
+                else if (_jobRecord.JobRecordId > 0)
+                {
+                    await JobRecordRepository.UpdateAsync(_jobRecord);
+                    resultMessage += "Job record updated successfully.<br/>";
+                }
+                else
+                {
+                    _jobRecord.SystemId = SystemId;
+                    _jobRecord.IsActive = true;
+                    _jobRecord.HrMatched = true;
+                    _jobRecord.NeedsReview = false;
+                    _jobRecord.CreateDate = DateTime.Now;
+                    _jobRecord.CreateUser = CurrentUserService.CurrentUser;
+                    await JobRecordRepository.CreateAsync(_jobRecord);
+                    newJobRecordCreated = true;
+                    resultMessage += "New job record created successfully.<br/>";
+                }
+            }
+
+            if (AccountChanged())
+            {
+                var comment = BuildAccountFieldChanges();
+                _account.LastUpdateUser = CurrentUserService.CurrentUser;
+                _account.LastUpdate = DateTime.Now;
+                _account.PrimaryUnitId = _jobRecord.UnitId;
+
+                await AccountRepository.UpdateAccountAsync(_account, comment);
+                resultMessage += "Account changes updated successfully.";
+                accountJustChanged = true;
+
+                if (returnToSearch)
+                {
+                    NavigationManager.NavigateTo("employees");
+                    return;
+                }
+            }
+
+            _resultMessage = resultMessage == "" ? "No changes detected." : resultMessage;
+
+            if (newJobRecordCreated || accountJustChanged)
+            {
+                // Reload so the job-record picker/PHRST mismatch state/audit history/linked-employee
+                // display all reflect what was just saved.
+                await OnParametersSetAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            _resultMessage = ex.Message;
+            _isError = true;
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+}

@@ -1,0 +1,40 @@
+@* Ports Components/EmployeeFilterViewComponent.cs + Views/Shared/Components/EmployeeFilter/Default.cshtml.
+   Same 1-hour IMemoryCache-backed unit list as the source; SelectedUnitFilterService replaces
+   AppUser.SelectedUnitId (session-backed) as the cross-page "which department am I filtering by" store. *@
+<MudSelect T="int" Value="SelectedUnitFilter.SelectedUnitId" ValueChanged="OnUnitChangedAsync"
+           Label="Department" Dense="true" Margin="Margin.Dense" Style="max-width: 320px;">
+    <MudSelectItem T="int" Value="0">--All Departments--</MudSelectItem>
+    @foreach (var unit in _units)
+    {
+        <MudSelectItem T="int" Value="unit.Key">@unit.Value</MudSelectItem>
+    }
+</MudSelect>
+
+@code {
+    [Inject] private IUnitRepository UnitRepository { get; set; } = default!;
+    [Inject] private IMemoryCache Cache { get; set; } = default!;
+    [Inject] private SelectedUnitFilterService SelectedUnitFilter { get; set; } = default!;
+
+    private Dictionary<int, string> _units = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!Cache.TryGetValue("Units", out Dictionary<int, string>? units) || units == null)
+        {
+            var selectList = await UnitRepository.GetUnitsAsSelectlistAsync();
+            units = selectList
+                .Cast<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>()
+                .ToDictionary(i => int.Parse(i.Value!), i => i.Text);
+
+            Cache.Set("Units", units, new MemoryCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1) });
+        }
+
+        _units = units;
+    }
+
+    private Task OnUnitChangedAsync(int unitId)
+    {
+        SelectedUnitFilter.SetUnit(unitId);
+        return Task.CompletedTask;
+    }
+}

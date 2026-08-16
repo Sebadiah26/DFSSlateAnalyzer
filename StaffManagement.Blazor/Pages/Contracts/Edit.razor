@@ -1,0 +1,118 @@
+@page "/contracts/{ContractorId:int}/{ContractorJobId:int}/edit"
+
+@* Ports ContractController.Edit (GET+POST) + Views/Contract/Edit.cshtml. *@
+<PageTitle>Edit Contract</PageTitle>
+
+<MudText Typo="Typo.h4" Class="mb-4">Edit Contract</MudText>
+
+@if (_notFound)
+{
+    <MudAlert Severity="Severity.Error">Contract not found.</MudAlert>
+}
+else if (_contract != null)
+{
+    <MudPaper Class="pa-4" MaxWidth="700px">
+        <MudGrid>
+            <MudItem xs="3"><MudTextField @bind-Value="_contract.Contractor!.FirstName" Label="First Name" /></MudItem>
+            <MudItem xs="2"><MudTextField @bind-Value="_contract.Contractor!.MiddleName" Label="Middle Name" /></MudItem>
+            <MudItem xs="5"><MudTextField @bind-Value="_contract.Contractor!.LastName" Label="Last Name" Required="true" /></MudItem>
+            <MudItem xs="2"><MudTextField @bind-Value="_contract.Contractor!.SuffixName" Label="Suffix" /></MudItem>
+
+            <MudItem xs="4"><MudTextField @bind-Value="_contract.JobTitle" Label="Job Title" /></MudItem>
+            <MudItem xs="4"><MudDatePicker @bind-Date="_startDate" Label="Start Date" /></MudItem>
+            <MudItem xs="4"><MudDatePicker @bind-Date="_endDate" Label="End Date" /></MudItem>
+
+            <MudItem xs="4">
+                <MudSelect T="int" @bind-Value="_contract.PrimaryUnitId" Label="Building">
+                    @foreach (var unit in _units)
+                    {
+                        <MudSelectItem T="int" Value="unit.Key">@unit.Value</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="4">
+                <MudTextField Value="@_contract.LastUpdate.ToShortDateString()" Label="Last Updated" ReadOnly="true" />
+            </MudItem>
+            <MudItem xs="4">
+                <MudTextField Value="@_contract.LastUpdateUser" Label="Last Updated User" ReadOnly="true" />
+            </MudItem>
+        </MudGrid>
+
+        @if (!string.IsNullOrEmpty(_errorMessage))
+        {
+            <MudAlert Severity="Severity.Error" Class="mt-4">@_errorMessage</MudAlert>
+        }
+
+        <div class="mt-4">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveAsync" Disabled="_saving">Save</MudButton>
+        </div>
+    </MudPaper>
+}
+
+<MudLink Href="contracts" Class="d-block mt-4">Back to List</MudLink>
+
+@code {
+    [Parameter] public int ContractorId { get; set; }
+    [Parameter] public int ContractorJobId { get; set; }
+
+    [Inject] private IContractRepository ContractRepository { get; set; } = default!;
+    [Inject] private IUnitRepository UnitRepository { get; set; } = default!;
+    [Inject] private NavigationManager NavigationManager { get; set; } = default!;
+
+    private Contract? _contract;
+    private DateTime? _startDate;
+    private DateTime? _endDate;
+    private Dictionary<int, string> _units = new();
+    private bool _notFound;
+    private bool _saving;
+    private string? _errorMessage;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        var selectList = await UnitRepository.GetUnitsAsSelectlistAsync();
+        _units = selectList
+            .Cast<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>()
+            .ToDictionary(i => int.Parse(i.Value!), i => i.Text);
+
+        _contract = await ContractRepository.GetByIdAsync(ContractorId, ContractorJobId);
+        if (_contract == null)
+        {
+            _notFound = true;
+            return;
+        }
+
+        _startDate = _contract.StartDate;
+        _endDate = _contract.EndDate;
+    }
+
+    private async Task SaveAsync()
+    {
+        if (_contract == null) return;
+
+        _saving = true;
+        _errorMessage = null;
+        try
+        {
+            _contract.StartDate = _startDate ?? _contract.StartDate;
+            _contract.EndDate = _endDate;
+
+            await ContractRepository.UpdateAsync(_contract);
+            NavigationManager.NavigateTo("contracts");
+        }
+        catch (Exception ex)
+        {
+            if (!await ContractRepository.ExistsAsync(ContractorId, ContractorJobId))
+            {
+                _notFound = true;
+            }
+            else
+            {
+                _errorMessage = ex.Message;
+            }
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+}

@@ -1,0 +1,102 @@
+@page "/job-records/add"
+
+@* Ports JobRecordController.Create (GET+POST) + Views/JobRecord/Create.cshtml. *@
+<PermissionGate Level="Can View System Review Page">
+    <PageTitle>Create Job Record</PageTitle>
+    <MudText Typo="Typo.h4" Class="mb-4">Create Job Record</MudText>
+
+    <MudPaper Class="pa-4" MaxWidth="600px">
+        <MudGrid>
+            <MudItem xs="6">
+                <MudSelect T="int?" @bind-Value="_jobRecord.SystemId" Label="System Id">
+                    @foreach (var id in _systemIds)
+                    {
+                        <MudSelectItem T="int?" Value="id">@id</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="6">
+                <MudSelect T="int?" @bind-Value="_jobRecord.UnitId" Label="Department">
+                    @foreach (var unit in _units)
+                    {
+                        <MudSelectItem T="int?" Value="unit.Key">@unit.Value</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="4"><MudCheckBox @bind-Value="_jobRecord.IsPrimary" Label="Is Primary Location" /></MudItem>
+            <MudItem xs="4"><MudCheckBox @bind-Value="_jobRecord.IsActive" Label="Is Active" /></MudItem>
+            <MudItem xs="4"><MudCheckBox @bind-Value="_jobRecord.IsPHRST" Label="Employee (vs Contractor/Other)" /></MudItem>
+
+            <MudItem xs="6"><MudDatePicker @bind-Date="_startDate" Label="Start Date" /></MudItem>
+            <MudItem xs="6"><MudDatePicker @bind-Date="_endDate" Label="End Date" /></MudItem>
+
+            <MudItem xs="4"><MudNumericField @bind-Value="_jobRecord.HrRecordNumber" Label="Record Number" /></MudItem>
+            <MudItem xs="4"><MudTextField @bind-Value="_jobRecord.HrWorkLocation" Label="Building" /></MudItem>
+            <MudItem xs="4"><MudTextField @bind-Value="_jobRecord.HrPersonnelCode" Label="Personnel Code" /></MudItem>
+
+            <MudItem xs="4"><MudNumericField @bind-Value="_jobRecord.HrJobCode" Label="Job Code" /></MudItem>
+            <MudItem xs="4"><MudCheckBox @bind-Value="_hrPrimary" Label="Is Primary (HR)" /></MudItem>
+            <MudItem xs="4"><MudCheckBox @bind-Value="_jobRecord.NeedsReview" Label="Needs Review" /></MudItem>
+        </MudGrid>
+
+        @if (!string.IsNullOrEmpty(_resultMessage))
+        {
+            <MudAlert Severity="@(_isError ? Severity.Error : Severity.Success)" Class="mt-4">@_resultMessage</MudAlert>
+        }
+
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-4" OnClick="SaveAsync" Disabled="_saving">Create</MudButton>
+    </MudPaper>
+
+    <MudLink Href="job-records/menu" Class="d-block mt-4">Back to Menu</MudLink>
+</PermissionGate>
+
+@code {
+    [Inject] private IJobRecordRepository JobRecordRepository { get; set; } = default!;
+    [Inject] private IUnitRepository UnitRepository { get; set; } = default!;
+    [Inject] private IAccountRepository AccountRepository { get; set; } = default!;
+
+    private JobRecord _jobRecord = new();
+    private DateTime? _startDate;
+    private DateTime? _endDate;
+    private bool _hrPrimary;
+    private List<int> _systemIds = new();
+    private Dictionary<int, string> _units = new();
+    private bool _saving;
+    private bool _isError;
+    private string? _resultMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _systemIds = await AccountRepository.GetAllSystemIdsAsync();
+
+        var selectList = await UnitRepository.GetUnitsAsSelectlistAsync();
+        _units = selectList
+            .Cast<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>()
+            .ToDictionary(i => int.Parse(i.Value!), i => i.Text);
+    }
+
+    private async Task SaveAsync()
+    {
+        _saving = true;
+        try
+        {
+            _jobRecord.StartDate = _startDate;
+            _jobRecord.EndDate = _endDate;
+            _jobRecord.HrPrimary = _hrPrimary;
+
+            await JobRecordRepository.CreateAsync(_jobRecord);
+            _resultMessage = "Job record successfully added.";
+            _isError = false;
+            _jobRecord = new();
+        }
+        catch (Exception ex)
+        {
+            _resultMessage = ex.Message;
+            _isError = true;
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+}

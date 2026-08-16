@@ -1,0 +1,72 @@
+@page "/contracts"
+
+@* Ports ContractController.Index + Views/Contract/Index.cshtml. Delete is a MudDialog confirm here
+   instead of its own page/route, per the plan (no diffing/complexity to justify a separate page). *@
+<PageTitle>Contractors</PageTitle>
+
+<MudText Typo="Typo.h4" Class="mb-4">Contractors</MudText>
+
+<MudButton Variant="Variant.Filled" Color="Color.Primary" Href="contracts/add" Class="mb-4">Create New</MudButton>
+
+<MudTable Items="_contracts" Dense="true" Hover="true" Loading="_loading">
+    <HeaderContent>
+        <MudTh>Contractor</MudTh>
+        <MudTh>Job Title</MudTh>
+        <MudTh>Building</MudTh>
+        <MudTh>Start Date</MudTh>
+        <MudTh>End Date</MudTh>
+        <MudTh>Last Updated</MudTh>
+        <MudTh>Last Updated User</MudTh>
+        <MudTh>Active</MudTh>
+        <MudTh></MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Contractor">@context.Contractor?.FirstName @context.Contractor?.MiddleName @context.Contractor?.LastName @context.Contractor?.SuffixName</MudTd>
+        <MudTd DataLabel="Job Title">@context.JobTitle</MudTd>
+        <MudTd DataLabel="Building">@context.PrimaryUnit?.Name</MudTd>
+        <MudTd DataLabel="Start Date">@context.StartDate.ToShortDateString()</MudTd>
+        <MudTd DataLabel="End Date">@context.EndDate?.ToShortDateString()</MudTd>
+        <MudTd DataLabel="Last Updated">@context.LastUpdate.ToShortDateString()</MudTd>
+        <MudTd DataLabel="Last Updated User">@context.LastUpdateUser</MudTd>
+        <MudTd DataLabel="Active">@context.IsActive</MudTd>
+        <MudTd>
+            <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Href="@($"contracts/{context.ContractorId}/{context.ContractorJobId}/edit")" />
+            <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Error" OnClick="@(() => ConfirmDelete(context))" />
+        </MudTd>
+    </RowTemplate>
+</MudTable>
+
+@code {
+    [Inject] private IContractRepository ContractRepository { get; set; } = default!;
+    [Inject] private IDialogService DialogService { get; set; } = default!;
+
+    private List<Contract> _contracts = new();
+    private bool _loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        _loading = true;
+        _contracts = await ContractRepository.GetAllAsync();
+        _loading = false;
+    }
+
+    private async Task ConfirmDelete(Contract contract)
+    {
+        var name = $"{contract.Contractor?.FirstName} {contract.Contractor?.LastName}";
+        bool? confirmed = await DialogService.ShowMessageBox(
+            "Delete Contract",
+            $"Are you sure you want to delete the contract for {name}?",
+            yesText: "Delete", cancelText: "Cancel");
+
+        if (confirmed == true)
+        {
+            await ContractRepository.DeleteAsync(contract.ContractorId);
+            await LoadAsync();
+        }
+    }
+}

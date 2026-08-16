@@ -1,0 +1,92 @@
+@page "/job-records/unlinked-employees"
+
+@* Ports JobRecordController.UnlinkedEmployees (GET+POST) + Views/JobRecord/UnlinkedEmployees.cshtml.
+   The source's GET defaults all four filters to visible and the POST toggles them from submitted
+   checkbox state; here it's just four bound MudCheckBoxes that reload on change - no GET/POST
+   distinction needed. The session-based Slug->EmployeeId save (SaveEncryptedValue, so "Add Account"
+   links don't carry a raw id in the URL) is dropped - Employees/Add takes the employeeId directly as
+   a route parameter instead (Phase 8), which is no less safe than the source's own encoding (whose
+   Decode was already a no-op - see URLEncrypter's doc comment). *@
+<PermissionGate Level="Can View System Review Page">
+    <PageTitle>Unlinked Employees</PageTitle>
+    <MudText Typo="Typo.h4" Class="mb-4">Employees needing Active Directory Accounts</MudText>
+
+    <MudStack Row="true" Spacing="4" Class="mb-4" Wrap="Wrap.Wrap">
+        <MudCheckBox T="bool" Value="_showJob" ValueChanged="@(v => OnFilterChangedAsync(v, x => _showJob = x))" Label="Show Job Changes" />
+        <MudCheckBox T="bool" Value="_showName" ValueChanged="@(v => OnFilterChangedAsync(v, x => _showName = x))" Label="Show Name Changes" />
+        <MudCheckBox T="bool" Value="_showNew" ValueChanged="@(v => OnFilterChangedAsync(v, x => _showNew = x))" Label="Show New Employees" />
+        <MudCheckBox T="bool" Value="_showEnd" ValueChanged="@(v => OnFilterChangedAsync(v, x => _showEnd = x))" Label="Show Terminations" />
+    </MudStack>
+
+    <MudTable Items="_filtered" Dense="true" Hover="true" Bordered="true" Loading="_loading">
+        <HeaderContent>
+            <MudTh>Employee Id</MudTh>
+            <MudTh>Name</MudTh>
+            <MudTh>Reason</MudTh>
+            <MudTh>Unit</MudTh>
+            <MudTh>Job Title</MudTh>
+            <MudTh>Building</MudTh>
+            <MudTh>Job Code</MudTh>
+            <MudTh>Personnel Code</MudTh>
+            <MudTh>Effective Date</MudTh>
+            <MudTh></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Employee Id">@context.EmployeeId</MudTd>
+            <MudTd DataLabel="Name">@context.EmployeeFirstName @context.EmployeeLastName</MudTd>
+            <MudTd DataLabel="Reason">@context.Reason</MudTd>
+            <MudTd DataLabel="Unit">@context.Unit</MudTd>
+            <MudTd DataLabel="Job Title">@context.JobTitle</MudTd>
+            <MudTd DataLabel="Building">@context.Building</MudTd>
+            <MudTd DataLabel="Job Code">@context.JobCode</MudTd>
+            <MudTd DataLabel="Personnel Code">@context.PersonnelCode</MudTd>
+            <MudTd DataLabel="Effective Date">@context.EffectiveDate.ToShortDateString()</MudTd>
+            <MudTd>
+                @if (context.Reason == "New")
+                {
+                    <MudLink Href="@($"employees/add/{context.EmployeeId}?fromController=JobRecord&fromAction=UnlinkedEmployees")">Add Account</MudLink>
+                }
+                else
+                {
+                    <MudLink Href="@($"employees/edit/{context.SystemId}?fromController=JobRecord&fromAction=UnlinkedEmployees")">Edit</MudLink>
+                }
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+
+    <MudLink Href="job-records/menu" Class="d-block mt-4">Back to Personnel Review Main Page</MudLink>
+</PermissionGate>
+
+@code {
+    [Inject] private IAccountRepository AccountRepository { get; set; } = default!;
+
+    private List<Select_PHRST_Mismatched_Employees> _all = new();
+    private List<Select_PHRST_Mismatched_Employees> _filtered = new();
+    private bool _showJob = true, _showName = true, _showNew = true, _showEnd = true;
+    private bool _loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _loading = true;
+        _all = await AccountRepository.GetPHRSTMismatchedRecordsByEmployeeAsync(0);
+        _loading = false;
+        ApplyFilter();
+    }
+
+    private Task OnFilterChangedAsync(bool value, Action<bool> setter)
+    {
+        setter(value);
+        ApplyFilter();
+        return Task.CompletedTask;
+    }
+
+    private void ApplyFilter()
+    {
+        var query = _all.AsEnumerable();
+        if (!_showJob) query = query.Where(x => x.Reason != "Job");
+        if (!_showName) query = query.Where(x => x.Reason != "Name");
+        if (!_showNew) query = query.Where(x => x.Reason != "New");
+        if (!_showEnd) query = query.Where(x => x.Reason != "End");
+        _filtered = query.ToList();
+    }
+}

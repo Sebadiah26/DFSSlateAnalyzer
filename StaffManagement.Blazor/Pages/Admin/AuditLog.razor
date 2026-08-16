@@ -1,0 +1,68 @@
+@page "/admin/audit-log"
+
+@* Ports SystemReviewController.AuditLog + Views/SystemReview/AuditLog.cshtml. PagedList.Core
+   paging replaced by MudTable's own MudTablePager (see ISystemReviewRepository.GetAuditLogAsync's
+   doc comment - the source already loaded everything into memory before paging, so nothing about
+   actual DB efficiency changes here). *@
+<PermissionGate Level="Can View System Review Page">
+    <PageTitle>Audit Log</PageTitle>
+    <MudText Typo="Typo.h4" Class="mb-4">Review Staff Management Website Activity</MudText>
+
+    <MudTextField T="string" Value="_searchString" ValueChanged="OnSearchAsync" Label="Find by name" Class="mb-4" Style="max-width: 400px;" Immediate="false" />
+
+    <MudTable Items="_logs" Dense="true" Hover="true" Loading="_loading" Bordered="true">
+        <HeaderContent>
+            <MudTh><MudTableSortLabel InitialDirection="SortDirection.Descending" SortBy="new Func<AuditLogViewModel, object>(x => x.LogId)">Log Id</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<AuditLogViewModel, object>(x => x.LogDate)">Date</MudTableSortLabel></MudTh>
+            <MudTh>Reference Table</MudTh>
+            <MudTh>Reference Id</MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<AuditLogViewModel, object>(x => x.Employee ?? string.Empty)">Employee</MudTableSortLabel></MudTh>
+            <MudTh>Action Type</MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<AuditLogViewModel, object>(x => x.ApplicationUser ?? string.Empty)">Application User</MudTableSortLabel></MudTh>
+            <MudTh>Impersonated User</MudTh>
+            <MudTh>Comment</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Log Id">@context.LogId</MudTd>
+            <MudTd DataLabel="Date">@context.LogDate</MudTd>
+            <MudTd DataLabel="Reference Table">@context.ReferenceTable</MudTd>
+            <MudTd DataLabel="Reference Id">@context.ReferenceID</MudTd>
+            <MudTd DataLabel="Employee">@context.Employee</MudTd>
+            <MudTd DataLabel="Action Type">@context.ActionType</MudTd>
+            <MudTd DataLabel="Application User">@context.ApplicationUser</MudTd>
+            <MudTd DataLabel="Impersonated User">@context.ImpersonatedUser</MudTd>
+            <MudTd DataLabel="Comment">@((MarkupString)(context.CommentHTML ?? string.Empty))</MudTd>
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager PageSizeOptions="new[] { 20, 50, 100 }" />
+        </PagerContent>
+    </MudTable>
+
+    <MudLink Href="admin" Class="d-block mt-4">Back to Personnel Review Main Page</MudLink>
+</PermissionGate>
+
+@code {
+    [Inject] private ISystemReviewRepository SystemReviewRepository { get; set; } = default!;
+
+    private List<AuditLogViewModel> _logs = new();
+    private string _searchString = string.Empty;
+    private bool _loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        _loading = true;
+        _logs = await SystemReviewRepository.GetAuditLogAsync(null, string.IsNullOrWhiteSpace(_searchString) ? null : _searchString);
+        _loading = false;
+    }
+
+    private async Task OnSearchAsync(string value)
+    {
+        _searchString = value;
+        await LoadAsync();
+    }
+}

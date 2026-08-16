@@ -1,0 +1,40 @@
+@* Wrapper component replacing the legacy CheckPermission MVC ActionFilterAttribute. Chosen over a
+   [Authorize]-style policy so the exact source UX is preserved: redirect to "/" with a one-shot
+   flash message read by Pages/Index.razor, rather than a bare 403.
+
+   Wrap the body of a gated page with it, e.g.:
+     <PermissionGate Level="Can View System Review Page">
+         ... page content ...
+     </PermissionGate>
+   preserving the exact hardcoded permission string and exact set of gated pages (the legacy
+   SystemReviewController/JobRecordController set) - no redesign of the permission model itself. *@
+@if (_allowed)
+{
+    @ChildContent
+}
+
+@code {
+    [Inject] private CurrentUserService CurrentUserService { get; set; } = default!;
+    [Inject] private FlashMessageService FlashMessageService { get; set; } = default!;
+    [Inject] private NavigationManager NavigationManager { get; set; } = default!;
+
+    [Parameter, EditorRequired] public string Level { get; set; } = string.Empty;
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    private bool _allowed;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CurrentUserService.EnsureLoadedAsync();
+
+        if (CurrentUserService.IsInLevel(Level))
+        {
+            _allowed = true;
+        }
+        else
+        {
+            FlashMessageService.SetMessage("You do not have permission to this page.");
+            NavigationManager.NavigateTo("/");
+        }
+    }
+}

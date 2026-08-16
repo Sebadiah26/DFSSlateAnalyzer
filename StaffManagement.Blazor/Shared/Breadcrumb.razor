@@ -1,0 +1,63 @@
+@* Ports Components/BreadcrumbViewComponent.cs + Views/Shared/Components/Breadcrumb/Default.cshtml.
+
+   The source builds its trail from [DisplayName] attributes on the current MVC
+   controller/action - a concept Blazor page routing doesn't have. Rather than inventing a parallel
+   per-page "set your own breadcrumb title" service that every future page would have to remember to
+   call, this derives a reasonable trail directly from the current URL segments. Good enough given
+   the source's own Breadcrumb template was already the thinnest of the five layout components. *@
+@implements IDisposable
+
+<MudBreadcrumbs Items="_items" />
+
+@code {
+    [Inject] private NavigationManager NavigationManager { get; set; } = default!;
+
+    private List<BreadcrumbItem> _items = new();
+
+    protected override void OnInitialized()
+    {
+        NavigationManager.LocationChanged += OnLocationChanged;
+        Build();
+    }
+
+    private void OnLocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
+    {
+        Build();
+        StateHasChanged();
+    }
+
+    private void Build()
+    {
+        var relativePath = NavigationManager.ToBaseRelativePath(NavigationManager.Uri).Split('?')[0];
+        var segments = relativePath.Split('/', StringSplitOptions.RemoveEmptyEntries);
+
+        var items = new List<BreadcrumbItem> { new("Home", href: string.Empty) };
+
+        var path = string.Empty;
+        foreach (var segment in segments)
+        {
+            path += "/" + segment;
+            items.Add(new BreadcrumbItem(ToLabel(segment), href: path.TrimStart('/')));
+        }
+
+        if (items.Count > 1)
+        {
+            var last = items[^1];
+            items[^1] = new BreadcrumbItem(last.Text, href: null, disabled: true);
+        }
+
+        _items = items;
+    }
+
+    private static string ToLabel(string segment)
+    {
+        // "job-records" -> "Job Records", "123" stays "123" (route id segments).
+        var words = segment.Split('-', StringSplitOptions.RemoveEmptyEntries);
+        return string.Join(" ", words.Select(w => w.Length > 0 ? char.ToUpper(w[0]) + w[1..] : w));
+    }
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= OnLocationChanged;
+    }
+}

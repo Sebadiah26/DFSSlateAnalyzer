@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- URLEncrypter (IDataProtectionProvider) and BaseRepository (IHttpContextAccessor) need
+         ASP.NET Core types not shipped as netstandard packages anymore. -->
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.*">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.*" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.*" />
+    <PackageReference Include="Microsoft.AspNetCore.DataProtection.Extensions" Version="8.*" />
+  </ItemGroup>
+  <!-- Note: the legacy Email.cs uses System.Net.Mail.SmtpClient (BCL), not MailKit, despite the
+       package being installed in the old MVC project - its MailKit usings are all commented out.
+       No MailKit reference is needed here. -->
+
+  <ItemGroup>
+    <ProjectReference Include="..\StaffManagement.Data\StaffManagement.Data.csproj" />
+  </ItemGroup>
+
+</Project>

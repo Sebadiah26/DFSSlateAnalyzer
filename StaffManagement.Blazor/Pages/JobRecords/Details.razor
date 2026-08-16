@@ -1,0 +1,53 @@
+@page "/job-records/{JobRecordId:int}"
+
+@* Ports JobRecordController.Details + Views/JobRecord/Details.cshtml. *@
+<PermissionGate Level="Can View System Review Page">
+    <PageTitle>Job Record Details</PageTitle>
+    <MudText Typo="Typo.h4" Class="mb-4">Job Record Details</MudText>
+
+    @if (_notFound)
+    {
+        <MudAlert Severity="Severity.Error">Job record not found.</MudAlert>
+    }
+    else if (_jobRecord != null)
+    {
+        <MudSimpleTable>
+            <tbody>
+                <tr><td>Is Primary Location</td><td>@_jobRecord.IsPrimary</td></tr>
+                <tr><td>Is Active</td><td>@_jobRecord.IsActive</td></tr>
+                <tr><td>Start Date</td><td>@_jobRecord.StartDate?.ToShortDateString()</td></tr>
+                <tr><td>End Date</td><td>@_jobRecord.EndDate?.ToShortDateString()</td></tr>
+                <tr><td>Employee Type</td><td>@(_jobRecord.IsPHRST ? "Employee" : "Contractor/Other")</td></tr>
+                <tr><td>Record Number</td><td>@_jobRecord.HrRecordNumber</td></tr>
+                <tr><td>Building</td><td>@_jobRecord.HrWorkLocation</td></tr>
+                <tr><td>Personnel Code</td><td>@_jobRecord.HrPersonnelCode</td></tr>
+                <tr><td>Job Code</td><td>@_jobRecord.HrJobCode</td></tr>
+                <tr><td>Is Primary (HR)</td><td>@_jobRecord.HrPrimary</td></tr>
+                <tr><td>Is Matched</td><td>@_jobRecord.HrMatched</td></tr>
+                <tr><td>Needs Review</td><td>@_jobRecord.NeedsReview</td></tr>
+                <tr><td>Department</td><td>@_jobRecord.Unit?.AdgroupName</td></tr>
+                <tr><td>Account</td><td>@_jobRecord.Account?.SystemId</td></tr>
+            </tbody>
+        </MudSimpleTable>
+
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-4"
+                   Href="@($"job-records/{_jobRecord.JobRecordId}/edit/{_jobRecord.SystemId}")">Edit</MudButton>
+    }
+
+    <MudLink Href="job-records/menu" Class="d-block mt-4">Back to Menu</MudLink>
+</PermissionGate>
+
+@code {
+    [Parameter] public int JobRecordId { get; set; }
+
+    [Inject] private IJobRecordRepository JobRecordRepository { get; set; } = default!;
+
+    private JobRecord? _jobRecord;
+    private bool _notFound;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _jobRecord = await JobRecordRepository.GetJobRecordByIdAsync(JobRecordId);
+        _notFound = _jobRecord == null;
+    }
+}

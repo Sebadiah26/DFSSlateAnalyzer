@@ -1,0 +1,140 @@
+@page "/employees"
+
+@* Ports AccountController.Index + Views/Account/Index.cshtml. Session-backed "remember last search"
+   (AppUser.SaveAccountSearch/AccountSearch*) is dropped - the search form state just lives in this
+   page's @code for as long as the user stays on it, matching the same session-round-trip
+   simplification used throughout this port (see CurrentUserService's class remarks). *@
+<PageTitle>Search Employees</PageTitle>
+<MudText Typo="Typo.h4" Class="mb-4">Search Employees</MudText>
+
+<MudPaper Class="pa-4 mb-4">
+    <MudGrid>
+        <MudItem xs="12" sm="4" md="2"><MudTextField @bind-Value="_firstName" Label="First Name" /></MudItem>
+        <MudItem xs="12" sm="4" md="2"><MudTextField @bind-Value="_lastName" Label="Last Name" /></MudItem>
+        <MudItem xs="12" sm="4" md="2"><MudTextField @bind-Value="_systemId" Label="System Id" /></MudItem>
+        <MudItem xs="12" sm="4" md="2">
+            <MudSelect T="int" @bind-Value="_unitId" Label="Department">
+                <MudSelectItem T="int" Value="0">--All--</MudSelectItem>
+                @foreach (var unit in _units) { <MudSelectItem T="int" Value="unit.Key">@unit.Value</MudSelectItem> }
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="12" sm="4" md="2">
+            <MudSelect T="int" @bind-Value="_titleId" Label="Title">
+                <MudSelectItem T="int" Value="0">--All--</MudSelectItem>
+                @foreach (var title in _titles) { <MudSelectItem T="int" Value="title.Key">@title.Value</MudSelectItem> }
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="12" sm="4" md="2">
+            <MudSelect T="int" @bind-Value="_buildingId" Label="Building">
+                <MudSelectItem T="int" Value="0">--All--</MudSelectItem>
+                @foreach (var b in _buildings) { <MudSelectItem T="int" Value="b.Key">@b.Value</MudSelectItem> }
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="12" sm="4" md="2">
+            <MudSelect T="int" @bind-Value="_jobCodeId" Label="Job Code">
+                <MudSelectItem T="int" Value="0">--All--</MudSelectItem>
+                @foreach (var jc in _jobCodes) { <MudSelectItem T="int" Value="jc.Key">@jc.Value</MudSelectItem> }
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="12" sm="4" md="2">
+            <MudSelect T="string" @bind-Value="_personnelCode" Label="Personnel Code">
+                <MudSelectItem T="string" Value="@("")">--All--</MudSelectItem>
+                @foreach (var pc in _personnelCodes) { <MudSelectItem T="string" Value="pc.Key">@pc.Value</MudSelectItem> }
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="12" md="2">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SearchAsync" FullWidth="true">Search</MudButton>
+        </MudItem>
+    </MudGrid>
+</MudPaper>
+
+<MudText Typo="Typo.body2" Class="mb-2">@_totalCount result(s)</MudText>
+
+<MudTable Items="_results" Dense="true" Hover="true" Loading="_loading" ServerData="ServerReload" @ref="_table">
+    <HeaderContent>
+        <MudTh><MudTableSortLabel SortLabel="FirstName" SortBy="new Func<EmployeeSearchResult, object>(x => x.FirstName)">First Name</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="LastName" SortBy="new Func<EmployeeSearchResult, object>(x => x.LastName)">Last Name</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="AccountType" SortBy="new Func<EmployeeSearchResult, object>(x => x.EmployeeType)">Account Type</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="TitleGroup" SortBy="new Func<EmployeeSearchResult, object>(x => x.TitleGroup)">Title Group</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="Title" SortBy="new Func<EmployeeSearchResult, object>(x => x.Title)">Title</MudTableSortLabel></MudTh>
+        <MudTh>Job Title</MudTh>
+        <MudTh>Department</MudTh>
+        <MudTh>Building</MudTh>
+        <MudTh></MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="First Name">@context.FirstName</MudTd>
+        <MudTd DataLabel="Last Name">@context.LastName</MudTd>
+        <MudTd DataLabel="Account Type">@context.EmployeeType</MudTd>
+        <MudTd DataLabel="Title Group">@context.TitleGroup</MudTd>
+        <MudTd DataLabel="Title">@context.Title</MudTd>
+        <MudTd DataLabel="Job Title">@context.JobTitle</MudTd>
+        <MudTd DataLabel="Department">@context.Department</MudTd>
+        <MudTd DataLabel="Building">@context.Building</MudTd>
+        <MudTd><MudLink Href="@($"employees/edit/{context.SystemId}")">Edit</MudLink></MudTd>
+    </RowTemplate>
+    <PagerContent>
+        <MudTablePager PageSizeOptions="new[] { 25, 50, 100 }" />
+    </PagerContent>
+</MudTable>
+
+@code {
+    [Inject] private IAccountRepository AccountRepository { get; set; } = default!;
+    [Inject] private IUnitRepository UnitRepository { get; set; } = default!;
+
+    private MudTable<EmployeeSearchResult> _table = default!;
+    private List<EmployeeSearchResult> _results = new();
+    private int _totalCount;
+    private bool _loading;
+
+    private string _firstName = "", _lastName = "", _systemId = "", _personnelCode = "";
+    private int _unitId, _titleId, _jobCodeId, _buildingId;
+
+    private Dictionary<int, string> _units = new();
+    private Dictionary<int, string> _titles = new();
+    private Dictionary<int, string> _buildings = new();
+    private Dictionary<int, string> _jobCodes = new();
+    private Dictionary<string, string> _personnelCodes = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var unitSelectList = await UnitRepository.GetUnitsAsSelectlistAsync();
+        _units = unitSelectList.Cast<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>().ToDictionary(i => int.Parse(i.Value!), i => i.Text);
+
+        _titles = await AccountRepository.GetTitlesAsync();
+        _buildings = await AccountRepository.GetBuildingsAsync();
+        _jobCodes = await AccountRepository.GetJobCodesAsync();
+        _personnelCodes = await AccountRepository.GetPersonnelCodesAsync();
+    }
+
+    private async Task SearchAsync()
+    {
+        if (_table != null)
+        {
+            await _table.ReloadServerData();
+        }
+    }
+
+    private async Task<TableData<EmployeeSearchResult>> ServerReload(TableState state, CancellationToken token)
+    {
+        _loading = true;
+        StateHasChanged();
+
+        var sortOrder = state.SortDirection == SortDirection.None ? null
+            : $" {state.SortLabel}_{(state.SortDirection == SortDirection.Ascending ? "Asc" : "Desc")}_Sort";
+
+        var (items, total) = await AccountRepository.GetAccountsAsync(
+            _firstName, _lastName, _systemId, _unitId, _titleId, _jobCodeId, _personnelCode, _buildingId,
+            sortOrder, state.Page + 1, state.PageSize);
+
+        _results = items;
+        _totalCount = total;
+        _loading = false;
+        // MudTable re-renders itself after ServerData resolves, but the "N result(s)" MudText above
+        // it is just a sibling using this page's own _totalCount field - it needs an explicit
+        // StateHasChanged() here or it stays stale until some unrelated re-render happens to fire.
+        StateHasChanged();
+
+        return new TableData<EmployeeSearchResult> { Items = items, TotalItems = total };
+    }
+}

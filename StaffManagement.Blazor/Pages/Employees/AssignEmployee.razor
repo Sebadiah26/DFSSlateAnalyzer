@@ -1,0 +1,112 @@
+@page "/employees/assign"
+
+@* Ports AccountController.AssignEmployee + Views/Account/AssignEmployee.cshtml. The source's
+   AccountSearchResult/AccountEmployeeMatch ViewComponents are replaced with two inline search-and-
+   pick panels doing the same two searches (accounts by name, HR employees by name) directly. *@
+<PageTitle>Assign Employee</PageTitle>
+<MudText Typo="Typo.h4" Class="mb-4">Assign EmployeeID to Active Directory Account</MudText>
+
+<MudGrid>
+    <MudItem xs="12" md="6">
+        <MudText Typo="Typo.h6" Class="mb-2">1. Find the Account</MudText>
+        <MudStack Row="true" Spacing="2" Class="mb-2">
+            <MudTextField @bind-Value="_accountFirstName" Label="First Name" />
+            <MudTextField @bind-Value="_accountLastName" Label="Last Name" />
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SearchAccountsAsync">Search</MudButton>
+        </MudStack>
+        <MudTable Items="_accountResults" Dense="true" Hover="true" T="EmployeeSearchResult">
+            <HeaderContent>
+                <MudTh>Name</MudTh>
+                <MudTh>System Id</MudTh>
+                <MudTh></MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>@context.FirstName @context.LastName</MudTd>
+                <MudTd>@context.SystemId</MudTd>
+                <MudTd><MudButton Size="Size.Small" OnClick="@(() => _selectedSystemId = context.SystemId)">Select</MudButton></MudTd>
+            </RowTemplate>
+        </MudTable>
+        @if (_selectedSystemId.HasValue)
+        {
+            <MudAlert Severity="Severity.Info" Class="mt-2">Selected account: @_selectedSystemId</MudAlert>
+        }
+    </MudItem>
+
+    <MudItem xs="12" md="6">
+        <MudText Typo="Typo.h6" Class="mb-2">2. Find the HR Employee</MudText>
+        <MudStack Row="true" Spacing="2" Class="mb-2">
+            <MudTextField @bind-Value="_employeeFirstName" Label="First Name" />
+            <MudTextField @bind-Value="_employeeLastName" Label="Last Name" />
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SearchEmployeesAsync">Search</MudButton>
+        </MudStack>
+        <MudTable Items="_employeeResults" Dense="true" Hover="true" T="EmployeeSearchMatch">
+            <HeaderContent>
+                <MudTh>Name</MudTh>
+                <MudTh>Job Title</MudTh>
+                <MudTh></MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>@context.FirstName @context.LastName</MudTd>
+                <MudTd>@context.JobTitle</MudTd>
+                <MudTd><MudButton Size="Size.Small" OnClick="@(() => _selectedEmployeeId = context.EmployeeId)">Select</MudButton></MudTd>
+            </RowTemplate>
+        </MudTable>
+        @if (_selectedEmployeeId.HasValue)
+        {
+            <MudAlert Severity="Severity.Info" Class="mt-2">Selected employee id: @_selectedEmployeeId</MudAlert>
+        }
+    </MudItem>
+</MudGrid>
+
+@if (!string.IsNullOrEmpty(_resultMessage))
+{
+    <MudAlert Severity="Severity.Success" Class="mt-4">@_resultMessage</MudAlert>
+}
+
+<MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-4" OnClick="SaveAsync"
+           Disabled="@(!_selectedSystemId.HasValue || !_selectedEmployeeId.HasValue || _saving)">
+    Save
+</MudButton>
+
+@code {
+    [Inject] private IAccountRepository AccountRepository { get; set; } = default!;
+    [Inject] private NavigationManager NavigationManager { get; set; } = default!;
+
+    private string _accountFirstName = "", _accountLastName = "";
+    private string _employeeFirstName = "", _employeeLastName = "";
+    private List<EmployeeSearchResult> _accountResults = new();
+    private List<EmployeeSearchMatch> _employeeResults = new();
+    private int? _selectedSystemId;
+    private int? _selectedEmployeeId;
+    private bool _saving;
+    private string? _resultMessage;
+
+    private async Task SearchAccountsAsync()
+    {
+        var (items, _) = await AccountRepository.GetAccountsAsync(
+            _accountFirstName, _accountLastName, "", 0, 0, 0, "", 0, null, 1, 50);
+        _accountResults = items;
+    }
+
+    private async Task SearchEmployeesAsync()
+    {
+        _employeeResults = await AccountRepository.SearchEmployeesByNameAsync(_employeeFirstName, _employeeLastName);
+    }
+
+    private async Task SaveAsync()
+    {
+        if (!_selectedSystemId.HasValue || !_selectedEmployeeId.HasValue) return;
+
+        _saving = true;
+        try
+        {
+            await AccountRepository.EditAccountEmployeeAsync(_selectedSystemId.Value, _selectedEmployeeId.Value);
+            _resultMessage = "Changes saved successfully.";
+            NavigationManager.NavigateTo("employees");
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+}

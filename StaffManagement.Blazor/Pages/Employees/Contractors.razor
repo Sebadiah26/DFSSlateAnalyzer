@@ -1,0 +1,42 @@
+@page "/employees/contractors"
+
+@* Ports AccountController.Contractors + Views/Account/Contractors.cshtml. *@
+<PageTitle>Contractors</PageTitle>
+<MudText Typo="Typo.h4" Class="mb-4">Contractors/Other</MudText>
+<MudText Typo="Typo.body2" Class="mb-2">@_results.Count result(s)</MudText>
+
+<MudTable Items="_results" Dense="true" Hover="true" Loading="_loading">
+    <HeaderContent>
+        <MudTh>First Name</MudTh>
+        <MudTh>Last Name</MudTh>
+        <MudTh>Job Title</MudTh>
+        <MudTh>Department</MudTh>
+        <MudTh>Building</MudTh>
+        <MudTh>Start Date</MudTh>
+        <MudTh>End Date</MudTh>
+        <MudTh></MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="First Name">@context.FirstName</MudTd>
+        <MudTd DataLabel="Last Name">@context.LastName</MudTd>
+        <MudTd DataLabel="Job Title">@context.JobTitle</MudTd>
+        <MudTd DataLabel="Department">@context.Department</MudTd>
+        <MudTd DataLabel="Building">@context.Building</MudTd>
+        <MudTd DataLabel="Start Date">@context.StartDate?.ToShortDateString()</MudTd>
+        <MudTd DataLabel="End Date">@context.EndDate?.ToShortDateString()</MudTd>
+        <MudTd><MudLink Href="@($"employees/edit/{context.SystemId}")">Edit</MudLink></MudTd>
+    </RowTemplate>
+</MudTable>
+
+@code {
+    [Inject] private IAccountRepository AccountRepository { get; set; } = default!;
+
+    private List<EmployeeSearchResult> _results = new();
+    private bool _loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _results = await AccountRepository.GetContractorsAsync();
+        _loading = false;
+    }
+}

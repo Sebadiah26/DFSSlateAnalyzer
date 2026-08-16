@@ -1,0 +1,48 @@
+@page "/contracts/{ContractorId:int}"
+
+@* Ports ContractController.Details + Views/Contract/Details.cshtml. Route takes only ContractorId,
+   matching the source (ContractorId is the entity's real single-column primary key - see
+   ContractRepository's doc comment). *@
+<PageTitle>Contract Details</PageTitle>
+
+<MudText Typo="Typo.h4" Class="mb-4">Contract Details</MudText>
+
+@if (_notFound)
+{
+    <MudAlert Severity="Severity.Error">Contract not found.</MudAlert>
+}
+else if (_contract != null)
+{
+    <MudSimpleTable>
+        <tbody>
+            <tr><td>Start Date</td><td>@_contract.StartDate.ToShortDateString()</td></tr>
+            <tr><td>End Date</td><td>@_contract.EndDate?.ToShortDateString()</td></tr>
+            <tr><td>Job Title</td><td>@_contract.JobTitle</td></tr>
+            <tr><td>Last Updated</td><td>@_contract.LastUpdate.ToShortDateString()</td></tr>
+            <tr><td>Last Updated User</td><td>@_contract.LastUpdateUser</td></tr>
+            <tr><td>Active</td><td>@_contract.IsActive</td></tr>
+            <tr><td>Contractor</td><td>@_contract.Contractor?.FirstName</td></tr>
+            <tr><td>Building</td><td>@_contract.PrimaryUnit?.AdgroupName</td></tr>
+        </tbody>
+    </MudSimpleTable>
+
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-4"
+               Href="@($"contracts/{_contract.ContractorId}/{_contract.ContractorJobId}/edit")">Edit</MudButton>
+}
+
+<MudLink Href="contracts" Class="d-block mt-4">Back to List</MudLink>
+
+@code {
+    [Parameter] public int ContractorId { get; set; }
+
+    [Inject] private IContractRepository ContractRepository { get; set; } = default!;
+
+    private Contract? _contract;
+    private bool _notFound;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _contract = await ContractRepository.GetByContractorIdAsync(ContractorId);
+        _notFound = _contract == null;
+    }
+}

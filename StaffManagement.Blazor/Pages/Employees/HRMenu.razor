@@ -1,0 +1,11 @@
+@page "/employees/hr-menu"
+
+@* Ports AccountController.HRMenu + Views/Account/HRMenu.cshtml. Not currently linked from NavMenu -
+   matching the source, where this nav link was commented out of MenuViewComponent too. *@
+<PageTitle>HR Tasks</PageTitle>
+<MudText Typo="Typo.h4" Align="Align.Center" Class="mb-4">HR Tasks</MudText>
+
+<MudList T="string" Style="max-width: 500px; margin: 0 auto;">
+    <MudListItem T="string" Href="employees/assign">Assign EmployeeID to Active Directory Account</MudListItem>
+    <MudListItem T="string" Href="job-records/unlinked-employees">HR Employees Without Active Directory account records</MudListItem>
+</MudList>

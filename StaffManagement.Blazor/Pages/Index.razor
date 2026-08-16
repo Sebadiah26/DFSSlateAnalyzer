@@ -1,0 +1,65 @@
+@page "/"
+@implements IDisposable
+
+@* Ports HomeController.Index + Views/Home/Index.cshtml. The impersonation re-sync block at the top
+   of the source's Index() action (re-deriving ImpersonateSystemId/UserLevels/PrimaryUnitId whenever
+   CurrentUser != ActiveDirectoryName) isn't needed here: CurrentUserService already re-resolves that
+   state the moment impersonation changes (see SetImpersonationAsync), so there's nothing left to
+   "catch up on" when this page loads - another instance of the session-round-trip simplification
+   described on CurrentUserService itself. *@
+<PageTitle>Staff Management</PageTitle>
+
+<MudGrid>
+    <MudItem xs="12" md="9">
+        <MudPaper Class="pa-8 text-center" Elevation="0">
+            <MudText Typo="Typo.h2">BSD Staff Management</MudText>
+            <MudText Typo="Typo.subtitle1" Class="mb-4" Style="opacity: 0.7;">A tool for managing staff-related data</MudText>
+
+            @if (!string.IsNullOrEmpty(_flashMessage))
+            {
+                <MudAlert Severity="Severity.Error" Class="my-4 mx-auto" Style="max-width: 500px;">@_flashMessage</MudAlert>
+            }
+
+            <MudList T="string" Class="mx-auto" Style="max-width: 400px;">
+                <MudListItem T="string" Icon="@Icons.Material.Filled.PersonAdd" Href="employees/add">New Employee</MudListItem>
+                <MudListItem T="string" Icon="@Icons.Material.Filled.Search" Href="employees">Search Employees</MudListItem>
+                <MudListItem T="string" Icon="@Icons.Material.Filled.Assignment" Href="job-records/menu">Reports</MudListItem>
+                @if (CurrentUserService.IsInLevel("Can View System Review Page"))
+                {
+                    <MudListItem T="string" Icon="@Icons.Material.Filled.AdminPanelSettings" Href="admin">Admin</MudListItem>
+                }
+            </MudList>
+        </MudPaper>
+    </MudItem>
+
+    <MudItem xs="12" md="3">
+        @if (CurrentUserService.IsInLevel("Can View System Review Page"))
+        {
+            <MismatchedEmployeesWidget SystemId="0" />
+        }
+    </MudItem>
+</MudGrid>
+
+@code {
+    [Inject] private CurrentUserService CurrentUserService { get; set; } = default!;
+    [Inject] private FlashMessageService FlashMessageService { get; set; } = default!;
+
+    private string? _flashMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _flashMessage = FlashMessageService.Message;
+        FlashMessageService.Clear();
+
+        // Subscribes directly rather than relying on MainLayout's own re-render to cascade down to
+        // this page's content - see NavMenu.razor's header comment for why that isn't reliable.
+        CurrentUserService.OnChange += StateHasChanged;
+
+        await CurrentUserService.EnsureLoadedAsync();
+    }
+
+    public void Dispose()
+    {
+        CurrentUserService.OnChange -= StateHasChanged;
+    }
+}

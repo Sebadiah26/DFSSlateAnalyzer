@@ -1,0 +1,90 @@
+@page "/admin"
+
+@* Ports the CRUD-list portion of SystemReviewController.Index ("Group Admin") + Views/SystemReview/
+   Index.cshtml/Index_old.cshtml - a plain list of AD Group records with Create/Edit/Details/Delete.
+
+   DEFERRED, NOT SILENTLY DROPPED: the source's Index action builds a much richer dashboard on top of
+   this list - for each AD group it resolves its linked StaffGroup, walks every StaffGroupAssociation
+   (criteria: Unit/Building/TitleGroup/Title), calculates live employee-match counts via
+   GetEmployeesForStaffGroupAssociation/GetEmployeesForGroupMembership, and computes a running
+   "employees not yet in any group" dropdown by diffing against every association's matches. That
+   logic also needs five IAccountRepository dropdown methods (GetUnitsAsync/GetBuildings/GetTitles/
+   GetTitleGroups/GetActiveEmployees) that don't exist yet - they're Phase 8 territory. Porting it
+   properly belongs in a dedicated follow-up once Phase 8's IAccountRepository lands, not squeezed in
+   here. This page covers the Group entity CRUD faithfully; the association-matching dashboard is the
+   known gap.
+
+   Quick links to Job Titles / Audit Log are a small added convenience - the source's nav only ever
+   linked to this Index action, leaving those two pages reachable by direct URL only. *@
+<PermissionGate Level="Can View System Review Page">
+    <PageTitle>Group Admin</PageTitle>
+    <MudText Typo="Typo.h4" Class="mb-4">Group Admin</MudText>
+
+    <MudAlert Severity="Severity.Info" Class="mb-4">
+        This page covers AD Group record CRUD. The full staff-group/employee-matching dashboard from
+        the legacy app is deferred pending the Employees feature area (Phase 8) - see this file's
+        header comment.
+    </MudAlert>
+
+    <MudStack Row="true" Spacing="2" Class="mb-4">
+        <MudButton Variant="Variant.Outlined" Href="admin/job-titles">Job Titles</MudButton>
+        <MudButton Variant="Variant.Outlined" Href="admin/audit-log">Audit Log</MudButton>
+    </MudStack>
+
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="admin/groups/add" Class="mb-4">Create New Group</MudButton>
+
+    <MudTable Items="_groups" Dense="true" Hover="true" Loading="_loading">
+        <HeaderContent>
+            <MudTh>Name</MudTh>
+            <MudTh>SAM Account Name</MudTh>
+            <MudTh>Common Name</MudTh>
+            <MudTh>Security Group</MudTh>
+            <MudTh></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Name">@context.Name</MudTd>
+            <MudTd DataLabel="SAM Account Name">@context.SamaccountName</MudTd>
+            <MudTd DataLabel="Common Name">@context.CommonName</MudTd>
+            <MudTd DataLabel="Security Group">@context.IsSecurityGroup</MudTd>
+            <MudTd>
+                <MudIconButton Icon="@Icons.Material.Filled.Visibility" Size="Size.Small" Href="@($"admin/groups/{context.ObjectGuid}")" />
+                <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Href="@($"admin/groups/{context.ObjectGuid}/edit")" />
+                <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Error" OnClick="@(() => ConfirmDeleteAsync(context))" />
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+</PermissionGate>
+
+@code {
+    [Inject] private IGroupRepository GroupRepository { get; set; } = default!;
+    [Inject] private IDialogService DialogService { get; set; } = default!;
+
+    private List<Group> _groups = new();
+    private bool _loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        _loading = true;
+        _groups = await GroupRepository.GetAllAsync();
+        _loading = false;
+    }
+
+    private async Task ConfirmDeleteAsync(Group group)
+    {
+        bool? confirmed = await DialogService.ShowMessageBox(
+            "Delete Group",
+            $"Are you sure you want to delete '{group.Name}'?",
+            yesText: "Delete", cancelText: "Cancel");
+
+        if (confirmed == true && group.ObjectGuid.HasValue)
+        {
+            await GroupRepository.DeleteAsync(group.ObjectGuid.Value);
+            await LoadAsync();
+        }
+    }
+}

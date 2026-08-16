@@ -1,0 +1,54 @@
+@page "/admin/groups/{ObjectGuid:guid}"
+
+@* Ports SystemReviewController.Details + Views/SystemReview/Details.cshtml. *@
+<PermissionGate Level="Can View System Review Page">
+    <PageTitle>Group Details</PageTitle>
+    <MudText Typo="Typo.h4" Class="mb-4">Group Details</MudText>
+
+    @if (_notFound)
+    {
+        <MudAlert Severity="Severity.Error">Group not found.</MudAlert>
+    }
+    else if (_group != null)
+    {
+        <MudSimpleTable>
+            <tbody>
+                <tr><td>Distinguished Name</td><td>@_group.DistinguishedName</td></tr>
+                <tr><td>SAM Account Name</td><td>@_group.SamaccountName</td></tr>
+                <tr><td>Mail</td><td>@_group.Mail</td></tr>
+                <tr><td>Mail Nickname</td><td>@_group.MailNickname</td></tr>
+                <tr><td>Name</td><td>@_group.Name</td></tr>
+                <tr><td>Common Name</td><td>@_group.CommonName</td></tr>
+                <tr><td>Notes</td><td>@_group.Notes</td></tr>
+                <tr><td>Managed By Guid</td><td>@_group.ManagedByGuid</td></tr>
+                <tr><td>Organizational Unit Guid</td><td>@_group.OrganizationalUnitGuid</td></tr>
+                <tr><td>Description</td><td>@_group.Description</td></tr>
+                <tr><td>Security Group</td><td>@_group.IsSecurityGroup</td></tr>
+                <tr><td>Extension Attribute 2</td><td>@_group.ExtensionAttribute2</td></tr>
+                <tr><td>Usn Changed</td><td>@_group.Usnchanged</td></tr>
+                <tr><td>When Changed</td><td>@_group.WhenChanged</td></tr>
+                <tr><td>When Created</td><td>@_group.WhenCreated</td></tr>
+                <tr><td>Deleted</td><td>@_group.IsDeleted</td></tr>
+            </tbody>
+        </MudSimpleTable>
+
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-4" Href="@($"admin/groups/{ObjectGuid}/edit")">Edit</MudButton>
+    }
+
+    <MudLink Href="admin" Class="d-block mt-4">Back to List</MudLink>
+</PermissionGate>
+
+@code {
+    [Parameter] public Guid ObjectGuid { get; set; }
+
+    [Inject] private IGroupRepository GroupRepository { get; set; } = default!;
+
+    private Group? _group;
+    private bool _notFound;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _group = await GroupRepository.GetByIdAsync(ObjectGuid);
+        _notFound = _group == null;
+    }
+}

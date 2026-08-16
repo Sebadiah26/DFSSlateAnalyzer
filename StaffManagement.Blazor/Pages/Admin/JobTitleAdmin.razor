@@ -1,0 +1,164 @@
+@page "/admin/job-titles"
+
+@* Ports SystemReviewController.JobTitleAdmin (GET+POST) + Views/SystemReview/JobTitleAdmin.cshtml.
+   The source round-trips selection state (SelectedTitleGroupId/SelectedTitleId/mode/resultMessage)
+   through query-string redirects because it's stateless between requests; here it's just page
+   fields, so the "bug with posting checkboxlist values requires redirect" workarounds noted in the
+   source's comments don't apply - state naturally survives the button click. Bootstrap accordion
+   replaced with MudExpansionPanels. *@
+<PermissionGate Level="Can View System Review Page">
+    <PageTitle>Job Title Admin</PageTitle>
+    <MudText Typo="Typo.h4" Class="mb-4">JobTitle Admin</MudText>
+
+    @if (!string.IsNullOrEmpty(_resultMessage))
+    {
+        <MudAlert Severity="Severity.Success" Class="mb-4">@_resultMessage</MudAlert>
+    }
+
+    <MudExpansionPanels>
+        <MudExpansionPanel Text="Manage Title Associations">
+            <MudSelect T="int" Value="_selectedTitleGroupId" ValueChanged="OnTitleGroupChangedAsync" Label="Title Group" Class="mb-4" Style="max-width: 400px;">
+                @foreach (var group in _titleGroups)
+                {
+                    <MudSelectItem T="int" Value="group.TitleGroupId">@group.Description</MudSelectItem>
+                }
+            </MudSelect>
+
+            @if (_selectedTitleGroupId != 0)
+            {
+                <MudGrid>
+                    <MudItem xs="6">
+                        @foreach (var title in _allTitles.Where(t => t.Active))
+                        {
+                            <MudCheckBox T="bool" Value="title.Selected" ValueChanged="@(v => title.Selected = v)"
+                                         Label="@(title.TitleCount > 0 ? $"{title.Text} ({title.TitleCount})" : title.Text)" />
+                            <br />
+                        }
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-2" OnClick="SaveTitlesAsync">Save Titles</MudButton>
+                    </MudItem>
+                    <MudItem xs="6">
+                        <MudList T="string">
+                            @foreach (var title in _allTitles.Where(t => t.Selected))
+                            {
+                                <MudListItem T="string">@title.Text <MudChip T="string" Size="Size.Small">@title.TitleCount</MudChip></MudListItem>
+                            }
+                        </MudList>
+                    </MudItem>
+                </MudGrid>
+            }
+        </MudExpansionPanel>
+
+        <MudExpansionPanel Text="Manage Titles">
+            <MudList T="string">
+                @foreach (var title in _allTitles)
+                {
+                    <MudListItem T="string">
+                        <div class="d-flex align-center ga-2">
+                            <span style="@(title.Active ? "" : "opacity:0.5;")">@title.Text</span>
+                            <MudChip T="string" Size="Size.Small">@title.TitleCount</MudChip>
+                            <MudLink OnClick="@(() => StartEditTitle(title))">Edit</MudLink>
+                            @if (title.Active)
+                            {
+                                <MudLink OnClick="@(() => ToggleTitleActiveAsync(title, false))">De-Activate</MudLink>
+                            }
+                            else
+                            {
+                                <MudLink OnClick="@(() => ToggleTitleActiveAsync(title, true))">Activate</MudLink>
+                            }
+                        </div>
+                    </MudListItem>
+                }
+            </MudList>
+
+            @if (_selectedTitleId != 0)
+            {
+                <div class="d-flex align-center ga-2 mt-4">
+                    <MudTextField @bind-Value="_editTitleText" Label="Edit Title" />
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveTitleAsync">Save Title</MudButton>
+                </div>
+            }
+
+            <div class="d-flex align-center ga-2 mt-4">
+                <MudTextField @bind-Value="_newTitleText" Label="Enter New Title" />
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveNewTitleAsync">Save New Title</MudButton>
+            </div>
+        </MudExpansionPanel>
+    </MudExpansionPanels>
+</PermissionGate>
+
+@code {
+    [Inject] private ISystemReviewRepository SystemReviewRepository { get; set; } = default!;
+
+    private List<TitleGroupModel> _titleGroups = new();
+    private List<TitleModel> _allTitles = new();
+    private int _selectedTitleGroupId;
+    private int _selectedTitleId;
+    private string _editTitleText = string.Empty;
+    private string _newTitleText = string.Empty;
+    private string? _resultMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _titleGroups = await SystemReviewRepository.GetTitleGroupsAsync();
+        _allTitles = await SystemReviewRepository.GetAllTitlesAsync(0);
+    }
+
+    private async Task OnTitleGroupChangedAsync(int titleGroupId)
+    {
+        _selectedTitleGroupId = titleGroupId;
+        _allTitles = await SystemReviewRepository.GetAllTitlesAsync(titleGroupId);
+    }
+
+    private async Task SaveTitlesAsync()
+    {
+        var existingTitles = await SystemReviewRepository.GetAllTitlesAsync(_selectedTitleGroupId);
+        _resultMessage = "No changes needed.";
+
+        foreach (var existingTitle in existingTitles)
+        {
+            var submitted = _allTitles.Find(x => x.TitleId == existingTitle.TitleId);
+            if (submitted == null) continue;
+
+            if (existingTitle.Selected && !submitted.Selected)
+            {
+                SystemReviewRepository.RemoveTitleGroupTitle(_selectedTitleGroupId, existingTitle.TitleId);
+                _resultMessage = "Changes saved successfully.";
+            }
+
+            if (!existingTitle.Selected && submitted.Selected)
+            {
+                SystemReviewRepository.AddTitleGroupTitle(_selectedTitleGroupId, existingTitle.TitleId);
+                _resultMessage = "Changes saved successfully.";
+            }
+        }
+
+        _allTitles = await SystemReviewRepository.GetAllTitlesAsync(_selectedTitleGroupId);
+    }
+
+    private void StartEditTitle(TitleModel title)
+    {
+        _selectedTitleId = title.TitleId;
+        _editTitleText = title.Text;
+    }
+
+    private async Task SaveTitleAsync()
+    {
+        _resultMessage = SystemReviewRepository.EditTitle(_selectedTitleId, _editTitleText);
+        _selectedTitleId = 0;
+        _allTitles = await SystemReviewRepository.GetAllTitlesAsync(_selectedTitleGroupId);
+    }
+
+    private async Task ToggleTitleActiveAsync(TitleModel title, bool active)
+    {
+        _resultMessage = SystemReviewRepository.EditTitleStatus(title.TitleId, active);
+        _allTitles = await SystemReviewRepository.GetAllTitlesAsync(_selectedTitleGroupId);
+    }
+
+    private async Task SaveNewTitleAsync()
+    {
+        SystemReviewRepository.AddTitle(_newTitleText);
+        _resultMessage = "Changes saved successfully.";
+        _newTitleText = string.Empty;
+        _allTitles = await SystemReviewRepository.GetAllTitlesAsync(_selectedTitleGroupId);
+    }
+}

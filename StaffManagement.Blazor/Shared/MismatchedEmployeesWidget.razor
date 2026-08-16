@@ -1,0 +1,91 @@
+@* Ports Components/MismatchedEmployeesViewComponent.cs +
+   Views/Shared/Components/MismatchedEmployees/Default.cshtml (the Home dashboard's "PHRST Queue"
+   card). Links point at /employees/... routes that Phase 8 builds - until then they 404, which is
+   expected for a component ported ahead of the feature area it links into.
+
+   PRESERVED BUG (not introduced by this port): the source's outer loop flags the "Terminations"
+   section visible when any item has Reason == "End", but the inner loop that actually lists items
+   filters on Reason == "End Date" - two different strings that never both match the same row, so
+   the Terminations header renders with zero items underneath. Kept as-is per the faithful-port
+   mandate; flagging for a follow-up fix decision rather than silently changing behavior. *@
+@if (_jobQueue.Count > 0 || _nameQueue.Count > 0 || _newQueue.Count > 0 || _endQueue.Count > 0)
+{
+    <MudCard>
+        <MudCardContent>
+            <MudText Typo="Typo.h6" Align="Align.Center" Class="mb-3">PHRST Queue</MudText>
+
+            @if (_jobQueue.Count > 0)
+            {
+                <MudText Typo="Typo.subtitle2" Align="Align.Center" Class="mt-4 mb-2" Style="opacity:0.7;">Job Changes</MudText>
+                @foreach (var item in _jobQueue.Take(10))
+                {
+                    <MudText Align="Align.Center" Class="mb-1">
+                        <MudLink Href="@($"employees/edit/{item.SystemId}/{item.JobRecordId}")" Target="_blank">@item.AccountFirstName @item.AccountLastName</MudLink>
+                    </MudText>
+                }
+                @if (_jobQueue.Count > 10)
+                {
+                    <MudText Align="Align.Center"><MudLink Href="job-records/unlinked-employees" Target="_blank">more...</MudLink></MudText>
+                }
+            }
+
+            @if (_nameQueue.Count > 0)
+            {
+                <MudText Typo="Typo.subtitle2" Align="Align.Center" Class="mt-4 mb-2" Style="opacity:0.7;">Name Changes</MudText>
+                @foreach (var item in _nameQueue.Take(10))
+                {
+                    <MudText Align="Align.Center" Class="mb-1">
+                        <MudLink Href="@($"employees/edit/{item.SystemId}")" Target="_blank">@item.AccountFirstName @item.AccountLastName</MudLink>
+                    </MudText>
+                }
+                @if (_nameQueue.Count > 10)
+                {
+                    <MudText Align="Align.Center"><MudLink Href="job-records/unlinked-employees" Target="_blank">more...</MudLink></MudText>
+                }
+            }
+
+            @if (_newQueue.Count > 0)
+            {
+                <MudText Typo="Typo.subtitle2" Align="Align.Center" Class="mt-4 mb-2" Style="opacity:0.7;">New</MudText>
+                @foreach (var item in _newQueue.Take(10))
+                {
+                    <MudText Align="Align.Center" Class="mb-1">
+                        <MudLink Href="@($"employees/add/{item.EmployeeId}?fromController=JobRecord&fromAction=UnlinkedEmployees")" Target="_blank">@item.EmployeeFirstName @item.EmployeeLastName</MudLink>
+                    </MudText>
+                }
+                @if (_newQueue.Count > 10)
+                {
+                    <MudText Align="Align.Center"><MudLink Href="job-records/unlinked-employees" Target="_blank">more...</MudLink></MudText>
+                }
+            }
+
+            @if (_endQueue.Count > 0)
+            {
+                <MudText Typo="Typo.subtitle2" Align="Align.Center" Class="mt-4 mb-2" Style="opacity:0.7;">Terminations</MudText>
+                @* Empty by construction - see the preserved-bug note above (Reason == "End" vs "End Date"). *@
+            }
+        </MudCardContent>
+    </MudCard>
+}
+
+@code {
+    [Parameter] public int SystemId { get; set; }
+
+    [Inject] private IAccountRepository AccountRepository { get; set; } = default!;
+
+    private List<Select_PHRST_Mismatched_Employees> _jobQueue = new();
+    private List<Select_PHRST_Mismatched_Employees> _nameQueue = new();
+    private List<Select_PHRST_Mismatched_Employees> _newQueue = new();
+    private List<Select_PHRST_Mismatched_Employees> _endQueue = new();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        var employeeData = await AccountRepository.GetPHRSTMismatchedRecordsByEmployeeAsync(SystemId);
+
+        _jobQueue = employeeData.Where(e => e.Reason == "Job").ToList();
+        _nameQueue = employeeData.Where(e => e.Reason == "Name").ToList();
+        _newQueue = employeeData.Where(e => e.Reason == "New").ToList();
+        // Preserved bug: this is genuinely always empty (see file header note).
+        _endQueue = employeeData.Where(e => e.Reason == "End").ToList();
+    }
+}
