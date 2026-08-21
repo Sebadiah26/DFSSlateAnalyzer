@@ -1,0 +1,428 @@
+@page "/incidentiq/bulk-update"
+@implements IDisposable
+@using ApiCallMonitor.Core.Csv
+@inject IDbContextFactory<ApiMonitorDbContext> DbFactory
+@inject IBulkUserEditOrchestrator Orchestrator
+@inject IDialogService DialogService
+
+<PageTitle>Incident IQ Bulk Update - API Call Monitor</PageTitle>
+
+<MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-4">
+    <MudText Typo="Typo.h4">Incident IQ Bulk Update</MudText>
+    <MudStack Row="true" Spacing="2">
+        <MudButton Variant="Variant.Outlined" Href="/incidentiq/users" StartIcon="@Icons.Material.Filled.Edit">User Editor</MudButton>
+        <MudButton Variant="Variant.Outlined" Href="/incidentiq/history" StartIcon="@Icons.Material.Filled.History">Edit History</MudButton>
+        <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Settings" OnClick="EditConnectionAsync">
+            @(_settings.IsConfigured ? $"Connection: {ConnectionHost}" : "Configure Connection")
+        </MudButton>
+    </MudStack>
+</MudStack>
+
+@if (!_loaded)
+{
+    <MudProgressCircular Indeterminate="true" />
+}
+else if (!_settings.IsConfigured)
+{
+    <MudAlert Severity="Severity.Warning">
+        Configure your Incident IQ connection before running a bulk update - click "Configure Connection" above.
+    </MudAlert>
+}
+else if (_running || _done)
+{
+    <MudText Typo="Typo.body2" Class="mb-2">
+        @_processedCount of @_totalCount processed &middot; @_successCount succeeded@(_failCount > 0 ? $", {_failCount} failed" : "")
+    </MudText>
+    <MudProgressLinear Value="@(_totalCount == 0 ? 0 : 100.0 * _processedCount / _totalCount)" Class="mb-4" />
+
+    @if (_running)
+    {
+        <MudButton Variant="Variant.Outlined" Color="Color.Error" StartIcon="@Icons.Material.Filled.Stop" OnClick="CancelBatch" Class="mb-4">
+            Cancel
+        </MudButton>
+    }
+    else
+    {
+        <MudAlert Severity="@(_failCount > 0 ? Severity.Warning : Severity.Success)" Class="mb-3">
+            Batch complete: @_successCount succeeded@(_failCount > 0 ? $", {_failCount} failed" : "") of @_totalCount.
+            <MudLink Href="/incidentiq/history" Class="ml-2">View full history</MudLink>
+        </MudAlert>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ResetToStart" Class="mb-4">Start Another Batch</MudButton>
+    }
+
+    <MudText Typo="Typo.h6" Class="mb-2">Results (most recent first)</MudText>
+    <MudSimpleTable Dense="true" Style="max-height: 500px; overflow-y: auto;">
+        <thead>
+            <tr>
+                <th>User Id</th>
+                <th>Name</th>
+                <th>Status</th>
+                <th>Changes</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var result in _results)
+            {
+                <tr>
+                    <td>@result.UserId</td>
+                    <td>@result.DisplayName</td>
+                    <td>
+                        @if (result.IsSuccess)
+                        {
+                            <MudChip T="string" Size="Size.Small" Color="Color.Success">OK@(result.StatusCode is not null ? $" ({result.StatusCode})" : "")</MudChip>
+                        }
+                        else
+                        {
+                            <MudChip T="string" Size="Size.Small" Color="Color.Error" title="@(result.FetchError ?? result.SaveError)">Failed</MudChip>
+                        }
+                    </td>
+                    <td>
+                        @if (result.Changes.Count > 0)
+                        {
+                            @string.Join("; ", result.Changes.Select(c => $"{c.Field}: {c.OldValue} → {c.NewValue}"))
+                        }
+                        @if (result.AddedFieldNames.Count > 0)
+                        {
+                            <MudText Typo="Typo.caption" Color="Color.Warning">new field(s): @string.Join(", ", result.AddedFieldNames)</MudText>
+                        }
+                        @if (result.Changes.Count == 0 && result.AddedFieldNames.Count == 0 && result.FetchSucceeded)
+                        {
+                            <MudText Typo="Typo.caption" Class="mud-text-secondary">no change</MudText>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </MudSimpleTable>
+}
+else
+{
+    <MudPaper Class="pa-4 mb-4" Elevation="1">
+        <MudText Typo="Typo.h6" Class="mb-2">1. Paste your data</MudText>
+        <MudText Typo="Typo.body2" Class="mb-3 mud-text-secondary">
+            A CSV (or tab-separated - e.g. pasted straight from an SSMS results grid or Excel) with a header row.
+            One column must be the Incident IQ user id; every other column becomes a field to set on that user -
+            e.g. <code>UserId,JobTitle</code>.
+        </MudText>
+        <MudTextField T="string" @bind-Value="_rawText" Lines="10"
+                       Placeholder="@("UserId,JobTitle\n3fa85f64-5717-4562-b3fc-2c963f66afa6,Teacher\n7c9e6679-7425-40de-944b-e07fc1f90ae7,Media Specialist")" />
+        <MudButton Class="mt-3" Variant="Variant.Filled" Color="Color.Primary" Disabled="@string.IsNullOrWhiteSpace(_rawText)" OnClick="ParseText">
+            Parse
+        </MudButton>
+        @if (_parseError is not null)
+        {
+            <MudAlert Severity="Severity.Error" Class="mt-3">@_parseError</MudAlert>
+        }
+    </MudPaper>
+
+    @if (_parsedRows is not null)
+    {
+        var mappings = IncludedMappings;
+        var previewRows = BuildRows();
+
+        <MudPaper Class="pa-4 mb-4" Elevation="1">
+            <MudText Typo="Typo.h6" Class="mb-2">2. Map columns</MudText>
+
+            <MudSelect T="int" Label="Incident IQ user id column" @bind-Value="_userIdColumnIndex" Class="mb-3">
+                @for (var i = 0; i < _headers.Count; i++)
+                {
+                    var index = i;
+                    <MudSelectItem Value="@index">@_headers[index]</MudSelectItem>
+                }
+            </MudSelect>
+
+            <MudText Typo="Typo.body2" Class="mb-2">
+                Other columns - the field name is what gets set in Incident IQ (edit it if it doesn't match your CSV header):
+            </MudText>
+
+            @foreach (var mapping in _columnMappings.Where(m => m.ColumnIndex != _userIdColumnIndex))
+            {
+                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2" Class="mb-2">
+                    <MudCheckBox T="bool" @bind-Value="mapping.Include" />
+                    <MudText Style="min-width: 160px;">@mapping.ColumnHeader</MudText>
+                    <MudIcon Icon="@Icons.Material.Filled.ArrowForward" />
+                    <MudTextField T="string" @bind-Value="mapping.FieldName" Disabled="@(!mapping.Include)" Label="Incident IQ field name" />
+                </MudStack>
+            }
+
+            <MudText Typo="Typo.body2" Class="mt-3 mb-2">
+                @previewRows.Count of @(_parsedRows.Count - 1) data row(s) parsed into updates@(previewRows.Count < _parsedRows.Count - 1 ? " (some rows were skipped - blank id, or no mapped field columns)" : "").
+            </MudText>
+
+            @if (previewRows.Count > 0 && mappings.Count > 0)
+            {
+                <MudSimpleTable Dense="true" Class="mb-3">
+                    <thead>
+                        <tr>
+                            <th>User Id</th>
+                            @foreach (var mapping in mappings)
+                            {
+                                <th>@mapping.FieldName</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var row in previewRows.Take(10))
+                        {
+                            <tr>
+                                <td>@row.UserId</td>
+                                @foreach (var mapping in mappings)
+                                {
+                                    <td>@row.FieldValues.GetValueOrDefault(mapping.FieldName, "")</td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </MudSimpleTable>
+                @if (previewRows.Count > 10)
+                {
+                    <MudText Typo="Typo.caption" Class="mud-text-secondary">Showing first 10 of @previewRows.Count.</MudText>
+                }
+            }
+
+            <MudGrid Class="mt-3">
+                <MudItem xs="4">
+                    <MudNumericField T="int" Label="Delay between calls (ms)" @bind-Value="_delayMs" Min="0" Max="60000" />
+                </MudItem>
+            </MudGrid>
+
+            <MudText Typo="Typo.body2" Class="mt-3 mb-2 mud-text-secondary">
+                Stay on this page while the batch runs - navigating away cancels it.
+            </MudText>
+
+            <MudButton Class="mt-1" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.PlayArrow"
+                       Disabled="@(previewRows.Count == 0)" OnClick="RunBatchAsync">
+                Run Batch (@previewRows.Count user@(previewRows.Count == 1 ? "" : "s"))
+            </MudButton>
+        </MudPaper>
+    }
+}
+
+@code {
+    private static readonly string[] IdColumnNames = { "UserId", "Id", "UserID", "User Id", "IncidentIqUserId" };
+
+    private IncidentIqConnectionSettings _settings = new();
+    private bool _loaded;
+
+    private string _rawText = string.Empty;
+    private string? _parseError;
+    private List<string[]>? _parsedRows;
+    private List<string> _headers = new();
+    private int _userIdColumnIndex;
+    private List<ColumnMapping> _columnMappings = new();
+    private int _delayMs = 250;
+
+    private bool _running;
+    private bool _done;
+    private string? _batchId;
+    private CancellationTokenSource? _cts;
+    private int _processedCount;
+    private int _successCount;
+    private int _failCount;
+    private int _totalCount;
+    private List<BulkFieldUpdateRowResult> _results = new();
+
+    private string? ConnectionHost => Uri.TryCreate(_settings.ApiBaseUrl, UriKind.Absolute, out var uri) ? uri.Host : _settings.ApiBaseUrl;
+
+    private List<ColumnMapping> IncludedMappings =>
+        _columnMappings.Where(m => m.Include && m.ColumnIndex != _userIdColumnIndex && !string.IsNullOrWhiteSpace(m.FieldName)).ToList();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        _settings = await IncidentIqConnectionStore.GetAsync(db);
+        _loaded = true;
+    }
+
+    private void ParseText()
+    {
+        var rows = DelimitedTextParser.Parse(_rawText);
+        if (rows.Count < 2)
+        {
+            _parseError = "Need a header row plus at least one data row.";
+            _parsedRows = null;
+            return;
+        }
+
+        _parseError = null;
+        _parsedRows = rows;
+        _headers = rows[0].ToList();
+
+        _userIdColumnIndex = _headers.FindIndex(h => IdColumnNames.Contains(h.Trim(), StringComparer.OrdinalIgnoreCase));
+        if (_userIdColumnIndex < 0)
+        {
+            _userIdColumnIndex = 0;
+        }
+
+        _columnMappings = _headers
+            .Select((h, idx) => new ColumnMapping { ColumnIndex = idx, ColumnHeader = h, FieldName = h.Trim() })
+            .ToList();
+    }
+
+    private List<BulkUpdateRow> BuildRows()
+    {
+        if (_parsedRows is null)
+        {
+            return new();
+        }
+
+        var mappings = IncludedMappings;
+        var result = new List<BulkUpdateRow>();
+
+        foreach (var dataRow in _parsedRows.Skip(1))
+        {
+            if (_userIdColumnIndex >= dataRow.Length)
+            {
+                continue;
+            }
+
+            var userId = dataRow[_userIdColumnIndex].Trim();
+            if (string.IsNullOrEmpty(userId))
+            {
+                continue;
+            }
+
+            var fieldValues = new Dictionary<string, string>();
+            foreach (var mapping in mappings)
+            {
+                if (mapping.ColumnIndex < dataRow.Length)
+                {
+                    fieldValues[mapping.FieldName] = dataRow[mapping.ColumnIndex];
+                }
+            }
+
+            if (fieldValues.Count > 0)
+            {
+                result.Add(new BulkUpdateRow(userId, fieldValues));
+            }
+        }
+
+        return result;
+    }
+
+    private async Task RunBatchAsync()
+    {
+        var rows = BuildRows();
+        if (rows.Count == 0)
+        {
+            return;
+        }
+
+        var confirmed = await DialogService.ShowMessageBox(
+            "Run bulk update",
+            $"This fetches and, for any that actually change, saves {rows.Count} Incident IQ user(s) - posting directly to Incident IQ as it runs. Continue?",
+            yesText: "Run",
+            cancelText: "Cancel");
+
+        if (confirmed != true)
+        {
+            return;
+        }
+
+        _batchId = Guid.NewGuid().ToString("N");
+        _cts = new CancellationTokenSource();
+        _running = true;
+        _done = false;
+        _processedCount = 0;
+        _successCount = 0;
+        _failCount = 0;
+        _totalCount = rows.Count;
+        _results = new();
+
+        // Created here (inside this button-click handler) so it captures the circuit's
+        // SynchronizationContext - Report() below marshals back onto it automatically, same as the
+        // collection Run Now flow. Awaited directly rather than via Task.Run, since this stays on
+        // one page the whole time (no navigation to survive) and awaiting here is what lets the
+        // Cancel button's click get a turn to run between each row's HTTP calls.
+        var progress = new Progress<BulkFieldUpdateRowResult>(OnRowCompleted);
+        var delay = TimeSpan.FromMilliseconds(Math.Max(0, _delayMs));
+
+        try
+        {
+            await Orchestrator.RunBatchAsync(_settings, _batchId, rows, delay, progress, _cts.Token);
+        }
+        catch (OperationCanceledException)
+        {
+            // Cancelled via the Cancel button (or Dispose, on navigating away) - not an error.
+        }
+        finally
+        {
+            _running = false;
+            _done = true;
+        }
+    }
+
+    private void OnRowCompleted(BulkFieldUpdateRowResult result)
+    {
+        _processedCount++;
+        if (result.IsSuccess)
+        {
+            _successCount++;
+        }
+        else
+        {
+            _failCount++;
+        }
+
+        _results.Insert(0, result);
+        if (_results.Count > 200)
+        {
+            _results.RemoveAt(_results.Count - 1);
+        }
+
+        StateHasChanged();
+    }
+
+    private void CancelBatch() => _cts?.Cancel();
+
+    private void ResetToStart()
+    {
+        _rawText = string.Empty;
+        _parseError = null;
+        _parsedRows = null;
+        _headers = new();
+        _columnMappings = new();
+        _running = false;
+        _done = false;
+        _batchId = null;
+        _processedCount = 0;
+        _successCount = 0;
+        _failCount = 0;
+        _totalCount = 0;
+        _results = new();
+    }
+
+    private async Task EditConnectionAsync()
+    {
+        var parameters = new DialogParameters<IncidentIqConnectionDialog> { { x => x.ExistingSettings, _settings } };
+        var dialogRef = await DialogService.ShowAsync<IncidentIqConnectionDialog>("Incident IQ Connection", parameters);
+        var result = await dialogRef.Result;
+
+        if (result is { Canceled: false, Data: IncidentIqConnectionDialog.ConnectionEditResult edit })
+        {
+            await using var db = await DbFactory.CreateDbContextAsync();
+            await IncidentIqConnectionStore.SaveAsync(db, new IncidentIqConnectionSettings
+            {
+                ApiBaseUrl = edit.ApiBaseUrl,
+                ApiToken = edit.ApiToken,
+                SiteId = edit.SiteId,
+            });
+
+            _settings = await IncidentIqConnectionStore.GetAsync(db);
+        }
+    }
+
+    public void Dispose()
+    {
+        _cts?.Cancel();
+        _cts?.Dispose();
+    }
+
+    private class ColumnMapping
+    {
+        public int ColumnIndex { get; set; }
+        public string ColumnHeader { get; set; } = string.Empty;
+        public bool Include { get; set; } = true;
+        public string FieldName { get; set; } = string.Empty;
+    }
+}

@@ -12,6 +12,10 @@ public class UserEditLogEntry
     /// purely for readability in the log - not authoritative, and not always present.</summary>
     public string? UserDisplayName { get; set; }
 
+    /// <summary>Groups every row of one bulk update run together (see BulkUpdate.razor). Null for
+    /// an edit made through the one-at-a-time interactive editor.</summary>
+    public string? BatchId { get; set; }
+
     /// <summary>JSON-serialized <see cref="List{T}"/> of <see cref="UserFieldChange"/> for every
     /// field that actually changed. "[]" if the record was posted back with no edits.</summary>
     public string ChangedFieldsJson { get; set; } = "[]";

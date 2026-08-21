@@ -6,7 +6,10 @@
 
 <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-4">
     <MudText Typo="Typo.h4">Incident IQ Edit History</MudText>
-    <MudButton Variant="Variant.Outlined" Href="/incidentiq/users" StartIcon="@Icons.Material.Filled.ArrowBack">User Editor</MudButton>
+    <MudStack Row="true" Spacing="2">
+        <MudButton Variant="Variant.Outlined" Href="/incidentiq/users" StartIcon="@Icons.Material.Filled.ArrowBack">User Editor</MudButton>
+        <MudButton Variant="Variant.Outlined" Href="/incidentiq/bulk-update" StartIcon="@Icons.Material.Filled.UploadFile">Bulk Update</MudButton>
+    </MudStack>
 </MudStack>
 
 @if (_entries is null)
@@ -19,8 +22,18 @@ else if (_entries.Count == 0)
 }
 else
 {
+    <MudSelect T="string" Label="Show" Value="_filter" ValueChanged="OnFilterChanged" Class="mb-3" Style="max-width: 250px;">
+        <MudSelectItem Value="@("all")">All edits</MudSelectItem>
+        <MudSelectItem Value="@("manual")">Manual (User Editor) only</MudSelectItem>
+        <MudSelectItem Value="@("bulk")">Bulk Update only</MudSelectItem>
+    </MudSelect>
+
+    @if (FilteredEntries.Count == 0)
+    {
+        <MudAlert Severity="Severity.Info">No edits match this filter.</MudAlert>
+    }
     <MudExpansionPanels Elevation="1">
-        @foreach (var entry in _entries)
+        @foreach (var entry in FilteredEntries)
         {
             <MudExpansionPanel>
                 <TitleContent>
@@ -29,6 +42,12 @@ else
                                  Color="@(entry.IsSuccess ? Color.Success : Color.Error)" />
                         <MudText>@(entry.UserDisplayName ?? entry.IncidentIqUserId)</MudText>
                         <MudText Typo="Typo.body2" Class="mud-text-secondary">@entry.IncidentIqUserId</MudText>
+                        @if (entry.BatchId is not null)
+                        {
+                            <MudChip T="string" Size="Size.Small" Color="Color.Info" Icon="@Icons.Material.Filled.UploadFile" title="@entry.BatchId">
+                                Batch @entry.BatchId[..8]
+                            </MudChip>
+                        }
                         <MudSpacer />
                         @if (entry.StatusCode is not null)
                         {
@@ -80,6 +99,14 @@ else
 
 @code {
     private List<UserEditLogEntry>? _entries;
+    private string _filter = "all";
+
+    private List<UserEditLogEntry> FilteredEntries => _filter switch
+    {
+        "manual" => _entries!.Where(e => e.BatchId is null).ToList(),
+        "bulk" => _entries!.Where(e => e.BatchId is not null).ToList(),
+        _ => _entries!,
+    };
 
     protected override async Task OnInitializedAsync()
     {
@@ -89,6 +116,8 @@ else
             .Take(200)
             .ToListAsync();
     }
+
+    private void OnFilterChanged(string value) => _filter = value;
 
     private static List<UserFieldChange> ParseChanges(string json)
     {

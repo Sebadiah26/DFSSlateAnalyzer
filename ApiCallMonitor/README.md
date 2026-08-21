@@ -36,6 +36,23 @@ results as they come in.
   expects the *entire* user object on every POST - anything left out gets nulled, not left alone
   (per Incident IQ's own community docs) - so this app always fetches first and round-trips
   whatever it doesn't understand, rather than risking blanking fields it can't see.
+- **Incident IQ bulk update** (`/incidentiq/bulk-update`) - the same fetch/merge/post machinery as
+  the user editor, but driven by data instead of a human clicking through each record: paste a CSV
+  (or tab-separated data - e.g. straight out of an SSMS results grid or Excel), pick which column is
+  the Incident IQ user id, and map every other column to the Incident IQ field name it should set -
+  e.g. a `UserId,JobTitle` export from a SQL query updates 1,000 users' job titles unattended. Each
+  row is fetched, has just its mapped field(s) changed, and posted back - everything else on the
+  record is left exactly as fetched, same as the one-at-a-time editor and for the same reason
+  (Incident IQ nulls out anything missing from a POST). Rows are processed one at a time, with a
+  configurable delay between them (default 250ms) so a big batch doesn't hammer Incident IQ's API,
+  and results stream in live with running success/fail counts and a Cancel button. Every row - success
+  or failure - is logged to the same `/incidentiq/history` as the interactive editor, tagged with a
+  batch id so you can tell a bulk run's edits apart from manual ones.
+
+  This mode posts to Incident IQ as it runs, with no draft/review step beyond the preview table and
+  a one-time confirmation dialog before it starts - there's no undo. It also only runs while you stay
+  on the page (navigating away cancels the batch, same as clicking Cancel) - it isn't a background
+  job that survives closing the tab. For anything large or unfamiliar, try a handful of rows first.
 
 ## Running it
 
@@ -55,9 +72,9 @@ at a different location instead, set `ConnectionStrings:ApiCallMonitorDb` (e.g. 
 
 | Project                    | Contents                                                                 |
 |-----------------------------|---------------------------------------------------------------------------|
-| `ApiCallMonitor.Core`       | Models (`ApiCallCollection`, `ApiCallDefinition`, `CallRun`, `CallRunResult`, `UserEditLogEntry`, `IncidentIqConnectionSettings`), `IHttpCallExecutor` (sends one configured call over HTTP and reports what happened), `IPowerShellScriptGenerator` (renders a collection as a `.ps1` script), the built-in Incident IQ seed data, and `ApiCallMonitor.Core.IncidentIq` (`IIncidentIqUserClient` fetches/saves one user; `JsonRecordEditor` splits a fetched record into editable scalar fields and merges edits back without touching anything it doesn't understand). |
-| `ApiCallMonitor.Data`       | `ApiMonitorDbContext` (EF Core + SQLite), `IRunOrchestrator` (runs every enabled call in a collection in order and persists a result row for each), `BuiltInConfigurationSeeder` (seeds the Incident IQ starter collections into a brand-new database), and `IncidentIqConnectionStore` (get-or-create for the single shared Incident IQ connection). |
-| `ApiCallMonitor.Blazor`     | The Blazor Server UI (MudBlazor) - collection/call configuration, the live run monitor, run history, the PowerShell script download endpoint/on-disk sync (`ScriptFileStore`), and the Incident IQ user editor + its edit history. |
+| `ApiCallMonitor.Core`       | Models (`ApiCallCollection`, `ApiCallDefinition`, `CallRun`, `CallRunResult`, `UserEditLogEntry`, `IncidentIqConnectionSettings`), `IHttpCallExecutor` (sends one configured call over HTTP and reports what happened), `IPowerShellScriptGenerator` (renders a collection as a `.ps1` script), the built-in Incident IQ seed data, `ApiCallMonitor.Core.Csv` (`DelimitedTextParser`, a small dependency-free CSV/TSV parser), and `ApiCallMonitor.Core.IncidentIq` (`IIncidentIqUserClient` fetches/saves one user; `JsonRecordEditor` splits a fetched record into editable scalar fields and merges edits back without touching anything it doesn't understand; `IIncidentIqBulkFieldUpdateService` applies a fixed set of field values to one user, built on the same `JsonRecordEditor`). |
+| `ApiCallMonitor.Data`       | `ApiMonitorDbContext` (EF Core + SQLite), `IRunOrchestrator` (runs every enabled call in a collection in order and persists a result row for each), `BuiltInConfigurationSeeder` (seeds the Incident IQ starter collections into a brand-new database), `IncidentIqConnectionStore` (get-or-create for the single shared Incident IQ connection), and `IBulkUserEditOrchestrator` (drives a bulk update batch row by row, with a delay between calls, logging each row as it goes). |
+| `ApiCallMonitor.Blazor`     | The Blazor Server UI (MudBlazor) - collection/call configuration, the live run monitor, run history, the PowerShell script download endpoint/on-disk sync (`ScriptFileStore`), and the Incident IQ user editor + bulk update + their shared edit history. |
 
 This is a separate solution (`ApiCallMonitor.sln`) from `DFSSlateAnalyzer.sln` at the repo root -
 it isn't related to the DFS slate analyzer or staff management apps, it just lives in the same repo.

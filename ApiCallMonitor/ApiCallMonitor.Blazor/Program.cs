@@ -39,6 +39,8 @@ builder.Services.AddSingleton<RunProgressNotifier>();
 builder.Services.AddSingleton<IPowerShellScriptGenerator, PowerShellScriptGenerator>();
 builder.Services.AddSingleton<ScriptFileStore>();
 builder.Services.AddSingleton<IIncidentIqUserClient, IncidentIqUserClient>();
+builder.Services.AddSingleton<IIncidentIqBulkFieldUpdateService, IncidentIqBulkFieldUpdateService>();
+builder.Services.AddSingleton<IBulkUserEditOrchestrator, BulkUserEditOrchestrator>();
 
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
