@@ -1,0 +1,161 @@
+@page "/runs/{RunId:int}"
+@implements IDisposable
+@inject IDbContextFactory<ApiMonitorDbContext> DbFactory
+@inject RunProgressNotifier ProgressNotifier
+
+<PageTitle>Run #@RunId - API Call Monitor</PageTitle>
+
+@if (_run is null)
+{
+    <MudProgressCircular Indeterminate="true" />
+}
+else
+{
+    <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-1">
+        <div>
+            <MudText Typo="Typo.h4">
+                Run #@_run.Id
+                @if (_collectionName is not null)
+                {
+                    <MudText Typo="Typo.body1" Class="d-inline">
+                        &nbsp;-&nbsp;<MudLink Href="@($"/collections/{_run.CollectionId}")">@_collectionName</MudLink>
+                    </MudText>
+                }
+            </MudText>
+            <MudText Typo="Typo.body2" Class="mud-text-secondary">
+                Started @_run.StartedAtUtc.ToLocalTime().ToString("g")
+                @if (_run.CompletedAtUtc is not null)
+                {
+                    <span>&nbsp;·&nbsp;completed @_run.CompletedAtUtc.Value.ToLocalTime().ToString("g")</span>
+                }
+            </MudText>
+        </div>
+        <StatusChip Status="_run.Status" />
+    </MudStack>
+
+    <MudDivider Class="my-4" />
+
+    <MudText Typo="Typo.h6" Class="mb-2">
+        Results (@_results.Count@(_totalEnabledCalls > 0 ? $" / {_totalEnabledCalls}" : ""))
+    </MudText>
+
+    @if (_run.Status == RunStatus.Running)
+    {
+        <MudProgressLinear Indeterminate="true" Color="Color.Primary" Class="mb-4" />
+    }
+
+    @if (_results.Count == 0)
+    {
+        <MudAlert Severity="Severity.Info">@(_run.Status == RunStatus.Running ? "Waiting for the first call to complete..." : "No results recorded for this run.")</MudAlert>
+    }
+    else
+    {
+        <MudExpansionPanels Elevation="1">
+        @foreach (var result in _results.OrderBy(r => r.Order))
+        {
+                <MudExpansionPanel>
+                    <TitleContent>
+                        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
+                            <MudIcon Icon="@(result.IsSuccess ? Icons.Material.Filled.CheckCircle : Icons.Material.Filled.Error)"
+                                     Color="@(result.IsSuccess ? Color.Success : Color.Error)" />
+                            <MudText>@result.Name</MudText>
+                            <MudChip T="string" Size="Size.Small" Color="Color.Default">@result.Method</MudChip>
+                            <MudText Typo="Typo.body2" Class="mud-text-secondary">@result.Url</MudText>
+                            <MudSpacer />
+                            @if (result.StatusCode is not null)
+                            {
+                                <MudChip T="string" Size="Size.Small" Color="@(result.IsSuccess ? Color.Success : Color.Error)">@result.StatusCode</MudChip>
+                            }
+                            <MudText Typo="Typo.body2">@(result.DurationMs) ms</MudText>
+                        </MudStack>
+                    </TitleContent>
+                    <ChildContent>
+                        @if (!string.IsNullOrWhiteSpace(result.ErrorMessage))
+                        {
+                            <MudAlert Severity="Severity.Error" Class="mb-2">@result.ErrorMessage</MudAlert>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(result.ResponseSnippet))
+                        {
+                            <pre class="response-snippet">@result.ResponseSnippet</pre>
+                        }
+                    </ChildContent>
+                </MudExpansionPanel>
+        }
+        </MudExpansionPanels>
+    }
+}
+
+@code {
+    [Parameter] public int RunId { get; set; }
+
+    private CallRun? _run;
+    private string? _collectionName;
+    private List<CallRunResult> _results = new();
+    private int _totalEnabledCalls;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAsync();
+        ProgressNotifier.ResultReported += OnResultReported;
+        ProgressNotifier.RunFinished += OnRunFinished;
+    }
+
+    private async Task LoadAsync()
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+
+        _run = await db.Runs.FirstOrDefaultAsync(r => r.Id == RunId);
+        if (_run is null)
+        {
+            return;
+        }
+
+        _collectionName = await db.Collections
+            .Where(c => c.Id == _run.CollectionId)
+            .Select(c => c.Name)
+            .FirstOrDefaultAsync();
+
+        _totalEnabledCalls = await db.Calls.CountAsync(c => c.CollectionId == _run.CollectionId && c.Enabled);
+
+        _results = await db.RunResults
+            .Where(r => r.CallRunId == RunId)
+            .OrderBy(r => r.Order)
+            .ToListAsync();
+    }
+
+    private void OnResultReported(int runId, CallRunResult result)
+    {
+        if (runId != RunId)
+        {
+            return;
+        }
+
+        _ = InvokeAsync(() =>
+        {
+            _results.Add(result);
+            StateHasChanged();
+        });
+    }
+
+    private void OnRunFinished(int runId, RunStatus status)
+    {
+        if (runId != RunId)
+        {
+            return;
+        }
+
+        _ = InvokeAsync(async () =>
+        {
+            // Reload rather than just flipping a local flag, so CompletedAtUtc and any
+            // results this page missed while unmounted/reconnecting are picked up too.
+            await LoadAsync();
+            StateHasChanged();
+        });
+    }
+
+    public void Dispose()
+    {
+        ProgressNotifier.ResultReported -= OnResultReported;
+        ProgressNotifier.RunFinished -= OnRunFinished;
+    }
+}

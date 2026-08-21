@@ -1,0 +1,25 @@
+@* Small color-coded chip for a run's RunStatus, shared between the monitor page and history list. *@
+
+<MudChip T="string" Color="@Color" Icon="@Icon">@Status</MudChip>
+
+@code {
+    [Parameter] public RunStatus Status { get; set; }
+
+    private Color Color => Status switch
+    {
+        RunStatus.Running => MudBlazor.Color.Info,
+        RunStatus.Completed => MudBlazor.Color.Success,
+        RunStatus.CompletedWithErrors => MudBlazor.Color.Error,
+        RunStatus.Cancelled => MudBlazor.Color.Warning,
+        _ => MudBlazor.Color.Default,
+    };
+
+    private string Icon => Status switch
+    {
+        RunStatus.Running => Icons.Material.Filled.Sync,
+        RunStatus.Completed => Icons.Material.Filled.CheckCircle,
+        RunStatus.CompletedWithErrors => Icons.Material.Filled.Error,
+        RunStatus.Cancelled => Icons.Material.Filled.Cancel,
+        _ => Icons.Material.Filled.HelpOutline,
+    };
+}

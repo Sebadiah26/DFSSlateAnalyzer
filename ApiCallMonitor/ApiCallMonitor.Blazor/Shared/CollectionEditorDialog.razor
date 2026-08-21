@@ -1,0 +1,44 @@
+@* Add/edit a collection's Name + Description. Caller passes an existing ApiCallCollection to edit,
+   or leaves ExistingCollection null to create a new one. Returns a CollectionEditResult via
+   DialogResult.Ok on save; the caller persists it (see Collections/Index.razor and
+   Collections/Details.razor). *@
+
+<MudDialog>
+    <DialogContent>
+        <MudTextField T="string" Label="Name" @bind-Value="_name" Immediate="true" Required="true" RequiredError="A name is required." />
+        <MudTextField T="string" Label="Description" @bind-Value="_description" Immediate="true" Lines="2" Class="mt-3" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" Disabled="@string.IsNullOrWhiteSpace(_name)" OnClick="Submit">Save</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter] public ApiCallCollection? ExistingCollection { get; set; }
+
+    private string _name = string.Empty;
+    private string? _description;
+
+    protected override void OnInitialized()
+    {
+        _name = ExistingCollection?.Name ?? string.Empty;
+        _description = ExistingCollection?.Description;
+    }
+
+    private void Submit()
+    {
+        if (string.IsNullOrWhiteSpace(_name))
+        {
+            return;
+        }
+
+        MudDialog.Close(DialogResult.Ok(new CollectionEditResult(_name.Trim(), string.IsNullOrWhiteSpace(_description) ? null : _description.Trim())));
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    public record CollectionEditResult(string Name, string? Description);
+}

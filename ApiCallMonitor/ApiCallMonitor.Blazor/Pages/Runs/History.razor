@@ -1,0 +1,88 @@
+@page "/history"
+@inject IDbContextFactory<ApiMonitorDbContext> DbFactory
+
+<PageTitle>Run History - API Call Monitor</PageTitle>
+
+<MudText Typo="Typo.h4" Class="mb-4">Run History</MudText>
+
+@if (_runs is null)
+{
+    <MudProgressCircular Indeterminate="true" />
+}
+else if (_runs.Count == 0)
+{
+    <MudAlert Severity="Severity.Info">No runs yet. Open a collection and click "Run Now" to start one.</MudAlert>
+}
+else
+{
+    <MudTable Items="@_runs" Hover="true" Bordered="true">
+        <HeaderContent>
+            <MudTh>Run</MudTh>
+            <MudTh>Collection</MudTh>
+            <MudTh>Status</MudTh>
+            <MudTh>Started</MudTh>
+            <MudTh>Duration</MudTh>
+            <MudTh>Results</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Run"><MudLink Href="@($"/runs/{context.Id}")">#@context.Id</MudLink></MudTd>
+            <MudTd DataLabel="Collection"><MudLink Href="@($"/collections/{context.CollectionId}")">@context.CollectionName</MudLink></MudTd>
+            <MudTd DataLabel="Status"><StatusChip Status="context.Status" /></MudTd>
+            <MudTd DataLabel="Started">@context.StartedAtUtc.ToLocalTime().ToString("g")</MudTd>
+            <MudTd DataLabel="Duration">@FormatDuration(context.StartedAtUtc, context.CompletedAtUtc)</MudTd>
+            <MudTd DataLabel="Results">
+                <MudText Color="Color.Success" Class="d-inline">@context.SuccessCount ok</MudText>
+                @if (context.FailureCount > 0)
+                {
+                    <MudText Color="Color.Error" Class="d-inline">&nbsp;· @context.FailureCount failed</MudText>
+                }
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+}
+
+@code {
+    private List<RunRow>? _runs;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+
+        _runs = await db.Runs
+            .OrderByDescending(r => r.StartedAtUtc)
+            .Select(r => new RunRow(
+                r.Id,
+                r.CollectionId,
+                r.Collection!.Name,
+                r.Status,
+                r.StartedAtUtc,
+                r.CompletedAtUtc,
+                r.Results.Count(x => x.IsSuccess),
+                r.Results.Count(x => !x.IsSuccess)))
+            .Take(200)
+            .ToListAsync();
+    }
+
+    private static string FormatDuration(DateTime startedAtUtc, DateTime? completedAtUtc)
+    {
+        if (completedAtUtc is null)
+        {
+            return "running...";
+        }
+
+        var elapsed = completedAtUtc.Value - startedAtUtc;
+        return elapsed.TotalSeconds < 60
+            ? $"{elapsed.TotalSeconds:0.0}s"
+            : $"{elapsed.TotalMinutes:0.0}m";
+    }
+
+    private record RunRow(
+        int Id,
+        int CollectionId,
+        string CollectionName,
+        RunStatus Status,
+        DateTime StartedAtUtc,
+        DateTime? CompletedAtUtc,
+        int SuccessCount,
+        int FailureCount);
+}

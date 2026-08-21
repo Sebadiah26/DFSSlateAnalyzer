@@ -1,0 +1,270 @@
+@page "/collections/{CollectionId:int}"
+@inject IDbContextFactory<ApiMonitorDbContext> DbFactory
+@inject IRunOrchestrator Orchestrator
+@inject RunProgressNotifier ProgressNotifier
+@inject IDialogService DialogService
+@inject NavigationManager Navigation
+
+<PageTitle>@(_collection?.Name ?? "Collection") - API Call Monitor</PageTitle>
+
+@if (_collection is null)
+{
+    <MudProgressCircular Indeterminate="true" />
+}
+else
+{
+    <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-1">
+        <div>
+            <MudText Typo="Typo.h4">@_collection.Name</MudText>
+            @if (!string.IsNullOrWhiteSpace(_collection.Description))
+            {
+                <MudText Typo="Typo.body2" Class="mud-text-secondary">@_collection.Description</MudText>
+            }
+        </div>
+        <MudStack Row="true" Spacing="2">
+            <MudButton Variant="Variant.Outlined" Href="/history" StartIcon="@Icons.Material.Filled.History">History</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.PlayArrow"
+                       Disabled="@(_calls.Count(c => c.Enabled) == 0 || _starting)" OnClick="RunNowAsync">
+                Run Now
+            </MudButton>
+        </MudStack>
+    </MudStack>
+
+    <MudDivider Class="my-4" />
+
+    <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-2">
+        <MudText Typo="Typo.h6">Calls (@_calls.Count)</MudText>
+        <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Add" OnClick="AddCallAsync">Add Call</MudButton>
+    </MudStack>
+
+    @if (_calls.Count == 0)
+    {
+        <MudAlert Severity="Severity.Info">No calls configured yet. Add one to get started.</MudAlert>
+    }
+    else
+    {
+        <MudTable Items="@_calls" Hover="true" Bordered="true">
+            <HeaderContent>
+                <MudTh>Order</MudTh>
+                <MudTh>Name</MudTh>
+                <MudTh>Method</MudTh>
+                <MudTh>URL</MudTh>
+                <MudTh>Enabled</MudTh>
+                <MudTh></MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Order">
+                    <MudIconButton Icon="@Icons.Material.Filled.ArrowUpward" Size="Size.Small" Disabled="@(context == _calls.First())" OnClick="@(() => MoveAsync(context, -1))" />
+                    <MudIconButton Icon="@Icons.Material.Filled.ArrowDownward" Size="Size.Small" Disabled="@(context == _calls.Last())" OnClick="@(() => MoveAsync(context, 1))" />
+                </MudTd>
+                <MudTd DataLabel="Name">@context.Name</MudTd>
+                <MudTd DataLabel="Method">
+                    <MudChip T="string" Size="Size.Small" Color="Color.Info">@context.Method.ToString().ToUpperInvariant()</MudChip>
+                </MudTd>
+                <MudTd DataLabel="URL">@context.Url</MudTd>
+                <MudTd DataLabel="Enabled">
+                    <MudSwitch T="bool" Value="@context.Enabled" ValueChanged="@(enabled => ToggleEnabledAsync(context, enabled))" Color="Color.Primary" />
+                </MudTd>
+                <MudTd>
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" OnClick="@(() => EditCallAsync(context))" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Error" OnClick="@(() => DeleteCallAsync(context))" />
+                </MudTd>
+            </RowTemplate>
+        </MudTable>
+    }
+}
+
+@code {
+    [Parameter] public int CollectionId { get; set; }
+
+    private ApiCallCollection? _collection;
+    private List<ApiCallDefinition> _calls = new();
+    private bool _starting;
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        _collection = await db.Collections.FirstOrDefaultAsync(c => c.Id == CollectionId);
+
+        if (_collection is null)
+        {
+            Navigation.NavigateTo("/collections");
+            return;
+        }
+
+        _calls = await db.Calls
+            .Where(c => c.CollectionId == CollectionId)
+            .OrderBy(c => c.Order)
+            .ToListAsync();
+    }
+
+    private async Task AddCallAsync()
+    {
+        var dialogRef = await DialogService.ShowAsync<CallEditorDialog>("Add Call");
+        var result = await dialogRef.Result;
+
+        if (result is { Canceled: false, Data: CallEditorDialog.CallEditResult edit })
+        {
+            await using var db = await DbFactory.CreateDbContextAsync();
+            var nextOrder = _calls.Count == 0 ? 0 : _calls.Max(c => c.Order) + 1;
+
+            db.Calls.Add(new ApiCallDefinition
+            {
+                CollectionId = CollectionId,
+                Order = nextOrder,
+                Name = edit.Name,
+                Method = edit.Method,
+                Url = edit.Url,
+                HeadersRaw = edit.HeadersRaw,
+                Body = edit.Body,
+                ContentType = edit.ContentType,
+                TimeoutSeconds = edit.TimeoutSeconds,
+                ExpectedStatusCode = edit.ExpectedStatusCode,
+                Enabled = edit.Enabled,
+            });
+
+            await db.SaveChangesAsync();
+            await LoadAsync();
+        }
+    }
+
+    private async Task EditCallAsync(ApiCallDefinition call)
+    {
+        var parameters = new DialogParameters<CallEditorDialog> { { x => x.ExistingCall, call } };
+        var dialogRef = await DialogService.ShowAsync<CallEditorDialog>("Edit Call", parameters);
+        var result = await dialogRef.Result;
+
+        if (result is { Canceled: false, Data: CallEditorDialog.CallEditResult edit })
+        {
+            await using var db = await DbFactory.CreateDbContextAsync();
+            var entity = await db.Calls.FindAsync(call.Id);
+            if (entity is null)
+            {
+                await LoadAsync();
+                return;
+            }
+
+            entity.Name = edit.Name;
+            entity.Method = edit.Method;
+            entity.Url = edit.Url;
+            entity.HeadersRaw = edit.HeadersRaw;
+            entity.Body = edit.Body;
+            entity.ContentType = edit.ContentType;
+            entity.TimeoutSeconds = edit.TimeoutSeconds;
+            entity.ExpectedStatusCode = edit.ExpectedStatusCode;
+            entity.Enabled = edit.Enabled;
+
+            await db.SaveChangesAsync();
+            await LoadAsync();
+        }
+    }
+
+    private async Task DeleteCallAsync(ApiCallDefinition call)
+    {
+        var confirmed = await DialogService.ShowMessageBox(
+            "Delete call",
+            $"Delete '{call.Name}'?",
+            yesText: "Delete",
+            cancelText: "Cancel");
+
+        if (confirmed != true)
+        {
+            return;
+        }
+
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var entity = await db.Calls.FindAsync(call.Id);
+        if (entity is not null)
+        {
+            db.Calls.Remove(entity);
+            await db.SaveChangesAsync();
+        }
+
+        await LoadAsync();
+    }
+
+    private async Task ToggleEnabledAsync(ApiCallDefinition call, bool enabled)
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var entity = await db.Calls.FindAsync(call.Id);
+        if (entity is null)
+        {
+            return;
+        }
+
+        entity.Enabled = enabled;
+        await db.SaveChangesAsync();
+        call.Enabled = enabled;
+    }
+
+    private async Task MoveAsync(ApiCallDefinition call, int direction)
+    {
+        var index = _calls.IndexOf(call);
+        var swapIndex = index + direction;
+        if (swapIndex < 0 || swapIndex >= _calls.Count)
+        {
+            return;
+        }
+
+        var other = _calls[swapIndex];
+
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var entityA = await db.Calls.FindAsync(call.Id);
+        var entityB = await db.Calls.FindAsync(other.Id);
+        if (entityA is null || entityB is null)
+        {
+            return;
+        }
+
+        (entityA.Order, entityB.Order) = (entityB.Order, entityA.Order);
+        await db.SaveChangesAsync();
+
+        await LoadAsync();
+    }
+
+    private async Task RunNowAsync()
+    {
+        _starting = true;
+        try
+        {
+            var runId = await Orchestrator.CreateRunAsync(CollectionId);
+
+            // Progress<T> captures this button click's SynchronizationContext (the Blazor circuit's),
+            // so reports below get marshalled back onto it automatically - see RunProgressNotifier's
+            // doc comment for why this indirection through a singleton (rather than handing the
+            // orchestrator's IProgress straight to the monitor page) is what lets any page currently
+            // watching this run - not just this one - pick up live updates.
+            var progress = new Progress<CallRunResult>(result => ProgressNotifier.ReportResult(runId, result));
+
+            _ = Task.Run(async () =>
+            {
+                // ExecuteRunAsync guarantees the run row itself reaches a terminal status even on an
+                // unexpected internal failure (see RunOrchestrator) - this catch is just a last-resort
+                // safety net so a truly unforeseen exception here still tells any watching monitor
+                // page to stop waiting, rather than leaving it spinning forever.
+                var status = RunStatus.CompletedWithErrors;
+                try
+                {
+                    status = await Orchestrator.ExecuteRunAsync(runId, progress);
+                }
+                catch (Exception)
+                {
+                    // Swallowed deliberately: this runs detached from any request/circuit, so there is
+                    // no user-facing surface left to report to beyond the run's own status below.
+                }
+                finally
+                {
+                    ProgressNotifier.ReportRunFinished(runId, status);
+                }
+            });
+
+            Navigation.NavigateTo($"/runs/{runId}");
+        }
+        finally
+        {
+            _starting = false;
+        }
+    }
+}

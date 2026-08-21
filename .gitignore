@@ -3,6 +3,12 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# ApiCallMonitor's local SQLite database (created at runtime, see ApiCallMonitor.Blazor/Program.cs)
+ApiCallMonitor/**/App_Data/
+*.db
+*.db-shm
+*.db-wal
+
 # User-specific files
 *.rsuser
 *.suo

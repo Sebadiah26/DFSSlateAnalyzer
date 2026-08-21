@@ -1,0 +1,118 @@
+@* Add/edit a single API call within a collection. Caller passes an existing ApiCallDefinition to
+   edit, or leaves ExistingCall null to create a new one. Returns a CallEditResult via
+   DialogResult.Ok on save; the caller persists it (see Collections/Details.razor). *@
+
+<MudDialog>
+    <DialogContent>
+        <MudTextField T="string" Label="Name" @bind-Value="_name" Immediate="true" Required="true" RequiredError="A name is required." />
+
+        <MudGrid Class="mt-1">
+            <MudItem xs="4">
+                <MudSelect T="HttpCallMethod" Label="Method" @bind-Value="_method">
+                    @foreach (var method in Enum.GetValues<HttpCallMethod>())
+                    {
+                        <MudSelectItem Value="@method">@method.ToString().ToUpperInvariant()</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="8">
+                <MudTextField T="string" Label="URL" @bind-Value="_url" Immediate="true" Required="true" RequiredError="A URL is required." Placeholder="https://api.example.com/health" />
+            </MudItem>
+        </MudGrid>
+
+        <MudTextField T="string" Label="Headers (one 'Name: value' per line)" @bind-Value="_headersRaw" Immediate="true" Lines="3" Class="mt-3" Placeholder="Authorization: Bearer ..." />
+
+        <MudGrid Class="mt-1">
+            <MudItem xs="8">
+                <MudTextField T="string" Label="Body" @bind-Value="_body" Immediate="true" Lines="4" Disabled="@(_method == HttpCallMethod.Get || _method == HttpCallMethod.Head)" />
+            </MudItem>
+            <MudItem xs="4">
+                <MudTextField T="string" Label="Content-Type" @bind-Value="_contentType" Immediate="true" Disabled="@(_method == HttpCallMethod.Get || _method == HttpCallMethod.Head)" />
+            </MudItem>
+        </MudGrid>
+
+        <MudGrid Class="mt-1">
+            <MudItem xs="4">
+                <MudNumericField T="int" Label="Timeout (seconds)" @bind-Value="_timeoutSeconds" Min="1" Max="600" />
+            </MudItem>
+            <MudItem xs="4">
+                <MudNumericField T="int?" Label="Expected status code (optional)" @bind-Value="_expectedStatusCode" Min="100" Max="599" Placeholder="Any 2xx" />
+            </MudItem>
+            <MudItem xs="4" Class="d-flex align-center">
+                <MudSwitch T="bool" @bind-Value="_enabled" Color="Color.Primary" Label="Enabled" />
+            </MudItem>
+        </MudGrid>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" Disabled="@(!IsValid)" OnClick="Submit">Save</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter] public ApiCallDefinition? ExistingCall { get; set; }
+
+    private string _name = string.Empty;
+    private HttpCallMethod _method = HttpCallMethod.Get;
+    private string _url = string.Empty;
+    private string? _headersRaw;
+    private string? _body;
+    private string _contentType = "application/json";
+    private int _timeoutSeconds = 30;
+    private int? _expectedStatusCode;
+    private bool _enabled = true;
+
+    private bool IsValid => !string.IsNullOrWhiteSpace(_name) && !string.IsNullOrWhiteSpace(_url);
+
+    protected override void OnInitialized()
+    {
+        if (ExistingCall is null)
+        {
+            return;
+        }
+
+        _name = ExistingCall.Name;
+        _method = ExistingCall.Method;
+        _url = ExistingCall.Url;
+        _headersRaw = ExistingCall.HeadersRaw;
+        _body = ExistingCall.Body;
+        _contentType = ExistingCall.ContentType;
+        _timeoutSeconds = ExistingCall.TimeoutSeconds;
+        _expectedStatusCode = ExistingCall.ExpectedStatusCode;
+        _enabled = ExistingCall.Enabled;
+    }
+
+    private void Submit()
+    {
+        if (!IsValid)
+        {
+            return;
+        }
+
+        MudDialog.Close(DialogResult.Ok(new CallEditResult(
+            _name.Trim(),
+            _method,
+            _url.Trim(),
+            _headersRaw,
+            _body,
+            string.IsNullOrWhiteSpace(_contentType) ? "application/json" : _contentType.Trim(),
+            Math.Max(1, _timeoutSeconds),
+            _expectedStatusCode,
+            _enabled)));
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    public record CallEditResult(
+        string Name,
+        HttpCallMethod Method,
+        string Url,
+        string? HeadersRaw,
+        string? Body,
+        string ContentType,
+        int TimeoutSeconds,
+        int? ExpectedStatusCode,
+        bool Enabled);
+}

@@ -1,0 +1,98 @@
+@page "/"
+@page "/collections"
+@inject IDbContextFactory<ApiMonitorDbContext> DbFactory
+@inject IDialogService DialogService
+
+<PageTitle>Collections - API Call Monitor</PageTitle>
+
+<MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-4">
+    <MudText Typo="Typo.h4">API Call Collections</MudText>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="CreateCollectionAsync">New Collection</MudButton>
+</MudStack>
+
+@if (_collections is null)
+{
+    <MudProgressCircular Indeterminate="true" />
+}
+else if (_collections.Count == 0)
+{
+    <MudAlert Severity="Severity.Info">No collections yet. Create one to start configuring calls.</MudAlert>
+}
+else
+{
+    <MudTable Items="@_collections" Hover="true" Bordered="true">
+        <HeaderContent>
+            <MudTh>Name</MudTh>
+            <MudTh>Description</MudTh>
+            <MudTh>Calls</MudTh>
+            <MudTh>Created</MudTh>
+            <MudTh></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Name">
+                <MudLink Href="@($"/collections/{context.Id}")">@context.Name</MudLink>
+            </MudTd>
+            <MudTd DataLabel="Description">@context.Description</MudTd>
+            <MudTd DataLabel="Calls">@context.CallCount</MudTd>
+            <MudTd DataLabel="Created">@context.CreatedAtUtc.ToLocalTime().ToString("g")</MudTd>
+            <MudTd>
+                <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small" OnClick="@(() => DeleteCollectionAsync(context))" title="Delete collection" />
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+}
+
+@code {
+    private List<CollectionRow>? _collections;
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        _collections = await db.Collections
+            .OrderByDescending(c => c.CreatedAtUtc)
+            .Select(c => new CollectionRow(c.Id, c.Name, c.Description, c.Calls.Count, c.CreatedAtUtc))
+            .ToListAsync();
+    }
+
+    private async Task CreateCollectionAsync()
+    {
+        var dialogRef = await DialogService.ShowAsync<CollectionEditorDialog>("New Collection");
+        var result = await dialogRef.Result;
+
+        if (result is { Canceled: false, Data: CollectionEditorDialog.CollectionEditResult edit })
+        {
+            await using var db = await DbFactory.CreateDbContextAsync();
+            db.Collections.Add(new ApiCallCollection { Name = edit.Name, Description = edit.Description });
+            await db.SaveChangesAsync();
+            await LoadAsync();
+        }
+    }
+
+    private async Task DeleteCollectionAsync(CollectionRow row)
+    {
+        var confirmed = await DialogService.ShowMessageBox(
+            "Delete collection",
+            $"Delete '{row.Name}' and all of its calls and run history? This cannot be undone.",
+            yesText: "Delete",
+            cancelText: "Cancel");
+
+        if (confirmed != true)
+        {
+            return;
+        }
+
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var entity = await db.Collections.FindAsync(row.Id);
+        if (entity is not null)
+        {
+            db.Collections.Remove(entity);
+            await db.SaveChangesAsync();
+        }
+
+        await LoadAsync();
+    }
+
+    private record CollectionRow(int Id, string Name, string? Description, int CallCount, DateTime CreatedAtUtc);
+}
