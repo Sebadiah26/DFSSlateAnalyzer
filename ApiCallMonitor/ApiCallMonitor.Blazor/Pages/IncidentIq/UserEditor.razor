@@ -1,0 +1,310 @@
+@page "/incidentiq/users"
+@using System.Text.Json
+@inject IDbContextFactory<ApiMonitorDbContext> DbFactory
+@inject IIncidentIqUserClient UserClient
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+
+<PageTitle>Incident IQ User Editor - API Call Monitor</PageTitle>
+
+<MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-4">
+    <MudText Typo="Typo.h4">Incident IQ User Editor</MudText>
+    <MudStack Row="true" Spacing="2">
+        <MudButton Variant="Variant.Outlined" Href="/incidentiq/history" StartIcon="@Icons.Material.Filled.History">Edit History</MudButton>
+        <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Settings" OnClick="EditConnectionAsync">
+            @(_settings.IsConfigured ? $"Connection: {ConnectionHost}" : "Configure Connection")
+        </MudButton>
+    </MudStack>
+</MudStack>
+
+@if (!_loaded)
+{
+    <MudProgressCircular Indeterminate="true" />
+}
+else if (!_settings.IsConfigured)
+{
+    <MudAlert Severity="Severity.Warning">
+        Configure your Incident IQ connection (API base URL, token, site id) before starting a review - click
+        "Configure Connection" above.
+    </MudAlert>
+}
+else if (_queue is null)
+{
+    var pendingIds = ParseIds(_idsText);
+    <MudPaper Class="pa-4" Elevation="1">
+        <MudText Typo="Typo.h6" Class="mb-2">Start a review</MudText>
+        <MudText Typo="Typo.body2" Class="mb-3 mud-text-secondary">
+            Paste the Incident IQ user IDs to review, one per line. Each one is fetched and shown for editing, and
+            it's only posted back to Incident IQ when you click "Save &amp; Next" - "Skip" moves on without changing
+            anything.
+        </MudText>
+        <MudTextField T="string" @bind-Value="_idsText" Lines="8"
+                       Placeholder="@("e.g.\n3fa85f64-5717-4562-b3fc-2c963f66afa6\n7c9e6679-7425-40de-944b-e07fc1f90ae7")" />
+        <MudButton Class="mt-3" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.PlayArrow"
+                   Disabled="@(pendingIds.Count == 0)" OnClick="StartReviewAsync">
+            Start Review (@pendingIds.Count user@(pendingIds.Count == 1 ? "" : "s"))
+        </MudButton>
+    </MudPaper>
+}
+else if (_currentIndex >= _queue.Count)
+{
+    <MudAlert Severity="Severity.Success" Class="mb-4">
+        Review complete: @_savedCount saved, @_skippedCount skipped@(_failedCount > 0 ? $", {_failedCount} failed" : "") of @_queue.Count.
+    </MudAlert>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Reset">Start New Review</MudButton>
+}
+else
+{
+    <MudText Typo="Typo.body2" Class="mb-2">
+        User @(_currentIndex + 1) of @_queue.Count &middot; @_savedCount saved, @_skippedCount skipped@(_failedCount > 0 ? $", {_failedCount} failed" : "")
+    </MudText>
+    <MudProgressLinear Value="@(100.0 * _currentIndex / _queue.Count)" Class="mb-4" />
+
+    @if (_loadingUser)
+    {
+        <MudProgressCircular Indeterminate="true" />
+    }
+    else if (_currentFetch is { Success: false })
+    {
+        <MudAlert Severity="Severity.Error" Class="mb-3">
+            Couldn't fetch user '@_queue[_currentIndex]'@(_currentFetch.StatusCode is not null ? $" ({_currentFetch.StatusCode})" : ""): @_currentFetch.ErrorMessage
+        </MudAlert>
+        <MudStack Row="true" Spacing="2">
+            <MudButton Variant="Variant.Outlined" OnClick="RetryAsync">Retry</MudButton>
+            <MudButton Variant="Variant.Outlined" OnClick="SkipAsync">Skip</MudButton>
+        </MudStack>
+    }
+    else if (_currentFetch is { Success: true })
+    {
+        <MudPaper Class="pa-4" Elevation="1">
+            <MudText Typo="Typo.h6" Class="mb-1">@CurrentDisplayName</MudText>
+            <MudText Typo="Typo.body2" Class="mb-3 mud-text-secondary">Id: @_queue[_currentIndex]</MudText>
+
+            @foreach (var field in _fields)
+            {
+                <MudTextField T="string" Label="@field.Name" @bind-Value="field.EditedValue" Immediate="true" Class="mb-2"
+                               Disabled="@_saving" HelperText="@(field.Changed ? $"was: {field.OriginalValue}" : null)" />
+            }
+
+            @if (_skippedFieldNames.Count > 0)
+            {
+                <MudExpansionPanels Class="mt-3" Elevation="0">
+                    <MudExpansionPanel Text="@($"{_skippedFieldNames.Count} nested/non-scalar field(s) not shown for editing")">
+                        <MudText Typo="Typo.body2">@string.Join(", ", _skippedFieldNames)</MudText>
+                        <MudText Typo="Typo.caption" Class="mud-text-secondary">
+                            Carried through unchanged when saved - Incident IQ requires posting the full user object
+                            back, so nothing here gets dropped even though it isn't editable in this form.
+                        </MudText>
+                    </MudExpansionPanel>
+                </MudExpansionPanels>
+            }
+        </MudPaper>
+
+        <MudStack Row="true" Spacing="2" Class="mt-4">
+            <MudButton Variant="Variant.Outlined" Disabled="@(_currentIndex == 0 || _saving)" OnClick="PreviousAsync">Previous</MudButton>
+            <MudButton Variant="Variant.Outlined" Disabled="@_saving" OnClick="SkipAsync">Skip</MudButton>
+            <MudSpacer />
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Save"
+                       Disabled="@(_saving || !_fields.Any(f => f.Changed))" OnClick="SaveAndNextAsync">
+                Save &amp; Next
+            </MudButton>
+        </MudStack>
+    }
+}
+
+@code {
+    private IncidentIqConnectionSettings _settings = new();
+    private bool _loaded;
+
+    private string _idsText = string.Empty;
+    private List<string>? _queue;
+    private int _currentIndex;
+
+    private IncidentIqFetchResult? _currentFetch;
+    private List<EditableJsonField> _fields = new();
+    private List<string> _skippedFieldNames = new();
+
+    private bool _loadingUser;
+    private bool _saving;
+    private int _savedCount;
+    private int _skippedCount;
+    private int _failedCount;
+
+    private string? ConnectionHost => Uri.TryCreate(_settings.ApiBaseUrl, UriKind.Absolute, out var uri) ? uri.Host : _settings.ApiBaseUrl;
+
+    private string CurrentDisplayName
+    {
+        get
+        {
+            string[] candidates = { "Name", "FullName", "DisplayName", "Email", "Username", "UserName" };
+            foreach (var candidate in candidates)
+            {
+                var match = _fields.FirstOrDefault(f => string.Equals(f.Name, candidate, StringComparison.OrdinalIgnoreCase));
+                if (match is not null && !string.IsNullOrWhiteSpace(match.OriginalValue))
+                {
+                    return match.OriginalValue!;
+                }
+            }
+
+            return _queue is not null && _currentIndex < _queue.Count ? $"User {_queue[_currentIndex]}" : "User";
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        _settings = await IncidentIqConnectionStore.GetAsync(db);
+        _loaded = true;
+    }
+
+    private static List<string> ParseIds(string? text) =>
+        (text ?? string.Empty)
+            .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+    private async Task StartReviewAsync()
+    {
+        _queue = ParseIds(_idsText);
+        _currentIndex = 0;
+        _savedCount = 0;
+        _skippedCount = 0;
+        _failedCount = 0;
+        await LoadCurrentAsync();
+    }
+
+    private async Task LoadCurrentAsync()
+    {
+        if (_queue is null || _currentIndex >= _queue.Count)
+        {
+            return;
+        }
+
+        _loadingUser = true;
+        _currentFetch = null;
+        _fields = new();
+        _skippedFieldNames = new();
+        StateHasChanged();
+
+        _currentFetch = await UserClient.GetUserAsync(_settings, _queue[_currentIndex]);
+        if (_currentFetch is { Success: true, User: { } user })
+        {
+            SetCurrentUser(user);
+        }
+
+        _loadingUser = false;
+    }
+
+    private void SetCurrentUser(System.Text.Json.Nodes.JsonObject user)
+    {
+        _fields = JsonRecordEditor.ExtractEditableFields(user);
+        var editableNames = _fields.Select(f => f.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        _skippedFieldNames = user.Select(kv => kv.Key).Where(name => !editableNames.Contains(name)).ToList();
+    }
+
+    private Task RetryAsync() => LoadCurrentAsync();
+
+    private async Task SkipAsync()
+    {
+        _skippedCount++;
+        _currentIndex++;
+        await LoadCurrentAsync();
+    }
+
+    private async Task PreviousAsync()
+    {
+        if (_currentIndex == 0)
+        {
+            return;
+        }
+
+        _currentIndex--;
+        await LoadCurrentAsync();
+    }
+
+    private async Task SaveAndNextAsync()
+    {
+        var fetchedUser = _currentFetch?.User;
+        var queue = _queue;
+        if (fetchedUser is null || queue is null)
+        {
+            return;
+        }
+
+        _saving = true;
+        try
+        {
+            var (merged, changes) = JsonRecordEditor.ApplyEdits(fetchedUser, _fields);
+            var userId = queue[_currentIndex];
+            var displayName = CurrentDisplayName;
+            var saveResult = await UserClient.SaveUserAsync(_settings, userId, merged);
+
+            await LogEditAsync(userId, displayName, changes, saveResult);
+
+            if (saveResult.Success)
+            {
+                _savedCount++;
+                Snackbar.Add($"Saved {displayName}.", Severity.Success);
+            }
+            else
+            {
+                _failedCount++;
+                Snackbar.Add($"Failed to save {displayName}: {saveResult.ErrorMessage}", Severity.Error);
+            }
+
+            _currentIndex++;
+            await LoadCurrentAsync();
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+
+    private async Task LogEditAsync(string userId, string displayName, List<EditableJsonField> changes, IncidentIqSaveResult saveResult)
+    {
+        var changeDtos = changes.Select(f => new UserFieldChange(f.Name, f.OriginalValue, f.EditedValue)).ToList();
+
+        await using var db = await DbFactory.CreateDbContextAsync();
+        db.UserEditLog.Add(new UserEditLogEntry
+        {
+            IncidentIqUserId = userId,
+            UserDisplayName = displayName,
+            ChangedFieldsJson = JsonSerializer.Serialize(changeDtos),
+            StatusCode = saveResult.StatusCode,
+            IsSuccess = saveResult.Success,
+            ErrorMessage = saveResult.ErrorMessage,
+        });
+        await db.SaveChangesAsync();
+    }
+
+    private void Reset()
+    {
+        _queue = null;
+        _idsText = string.Empty;
+        _currentIndex = 0;
+        _currentFetch = null;
+        _fields = new();
+        _skippedFieldNames = new();
+    }
+
+    private async Task EditConnectionAsync()
+    {
+        var parameters = new DialogParameters<IncidentIqConnectionDialog> { { x => x.ExistingSettings, _settings } };
+        var dialogRef = await DialogService.ShowAsync<IncidentIqConnectionDialog>("Incident IQ Connection", parameters);
+        var result = await dialogRef.Result;
+
+        if (result is { Canceled: false, Data: IncidentIqConnectionDialog.ConnectionEditResult edit })
+        {
+            await using var db = await DbFactory.CreateDbContextAsync();
+            await IncidentIqConnectionStore.SaveAsync(db, new IncidentIqConnectionSettings
+            {
+                ApiBaseUrl = edit.ApiBaseUrl,
+                ApiToken = edit.ApiToken,
+                SiteId = edit.SiteId,
+            });
+
+            _settings = await IncidentIqConnectionStore.GetAsync(db);
+        }
+    }
+}

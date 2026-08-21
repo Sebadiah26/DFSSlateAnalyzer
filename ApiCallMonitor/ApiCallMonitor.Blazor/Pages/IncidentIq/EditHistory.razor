@@ -1,0 +1,104 @@
+@page "/incidentiq/history"
+@using System.Text.Json
+@inject IDbContextFactory<ApiMonitorDbContext> DbFactory
+
+<PageTitle>Incident IQ Edit History - API Call Monitor</PageTitle>
+
+<MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-4">
+    <MudText Typo="Typo.h4">Incident IQ Edit History</MudText>
+    <MudButton Variant="Variant.Outlined" Href="/incidentiq/users" StartIcon="@Icons.Material.Filled.ArrowBack">User Editor</MudButton>
+</MudStack>
+
+@if (_entries is null)
+{
+    <MudProgressCircular Indeterminate="true" />
+}
+else if (_entries.Count == 0)
+{
+    <MudAlert Severity="Severity.Info">No edits yet. Save a change from the user editor to see it here.</MudAlert>
+}
+else
+{
+    <MudExpansionPanels Elevation="1">
+        @foreach (var entry in _entries)
+        {
+            <MudExpansionPanel>
+                <TitleContent>
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
+                        <MudIcon Icon="@(entry.IsSuccess ? Icons.Material.Filled.CheckCircle : Icons.Material.Filled.Error)"
+                                 Color="@(entry.IsSuccess ? Color.Success : Color.Error)" />
+                        <MudText>@(entry.UserDisplayName ?? entry.IncidentIqUserId)</MudText>
+                        <MudText Typo="Typo.body2" Class="mud-text-secondary">@entry.IncidentIqUserId</MudText>
+                        <MudSpacer />
+                        @if (entry.StatusCode is not null)
+                        {
+                            <MudChip T="string" Size="Size.Small" Color="@(entry.IsSuccess ? Color.Success : Color.Error)">@entry.StatusCode</MudChip>
+                        }
+                        <MudText Typo="Typo.body2">@entry.EditedAtUtc.ToLocalTime().ToString("g")</MudText>
+                    </MudStack>
+                </TitleContent>
+                <ChildContent>
+                    @if (!string.IsNullOrWhiteSpace(entry.ErrorMessage))
+                    {
+                        <MudAlert Severity="Severity.Error" Class="mb-2">@entry.ErrorMessage</MudAlert>
+                    }
+
+                    @{
+                        var changes = ParseChanges(entry.ChangedFieldsJson);
+                    }
+                    @if (changes.Count == 0)
+                    {
+                        <MudText Typo="Typo.body2" Class="mud-text-secondary">No fields were changed - posted back as-is.</MudText>
+                    }
+                    else
+                    {
+                        <MudSimpleTable Dense="true">
+                            <thead>
+                                <tr>
+                                    <th>Field</th>
+                                    <th>Old value</th>
+                                    <th>New value</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var change in changes)
+                                {
+                                    <tr>
+                                        <td>@change.Field</td>
+                                        <td>@change.OldValue</td>
+                                        <td>@change.NewValue</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </MudSimpleTable>
+                    }
+                </ChildContent>
+            </MudExpansionPanel>
+        }
+    </MudExpansionPanels>
+}
+
+@code {
+    private List<UserEditLogEntry>? _entries;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        _entries = await db.UserEditLog
+            .OrderByDescending(e => e.EditedAtUtc)
+            .Take(200)
+            .ToListAsync();
+    }
+
+    private static List<UserFieldChange> ParseChanges(string json)
+    {
+        try
+        {
+            return JsonSerializer.Deserialize<List<UserFieldChange>>(json) ?? new();
+        }
+        catch (JsonException)
+        {
+            return new();
+        }
+    }
+}

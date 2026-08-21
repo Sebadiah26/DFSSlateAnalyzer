@@ -22,6 +22,10 @@ public class ApiMonitorDbContext : DbContext
 
     public DbSet<CallRunResult> RunResults => Set<CallRunResult>();
 
+    public DbSet<IncidentIqConnectionSettings> IncidentIqConnectionSettings => Set<IncidentIqConnectionSettings>();
+
+    public DbSet<UserEditLogEntry> UserEditLog => Set<UserEditLogEntry>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<ApiCallCollection>(entity =>
@@ -58,6 +62,13 @@ public class ApiMonitorDbContext : DbContext
         modelBuilder.Entity<CallRunResult>(entity =>
         {
             entity.Property(result => result.Method).HasMaxLength(16);
+        });
+
+        // Single fixed-Id row (Id = IncidentIqConnectionSettings.SingletonId) rather than an
+        // autoincrementing key - ValueGeneratedNever so EF never tries to have SQLite assign it.
+        modelBuilder.Entity<IncidentIqConnectionSettings>(entity =>
+        {
+            entity.Property(s => s.Id).ValueGeneratedNever();
         });
     }
 }

@@ -1,0 +1,57 @@
+@* Edits the single shared Incident IQ connection (ApiCallMonitor.Core.Models.IncidentIqConnectionSettings)
+   used by the user editor. Caller passes the current settings in; returns the edited values via
+   DialogResult.Ok on save - the caller persists them (see Pages/IncidentIq/UserEditor.razor). *@
+
+<MudDialog>
+    <DialogContent>
+        <MudText Typo="Typo.body2" Class="mb-3">
+            Every Incident IQ API request needs these three - find them under
+            <b>Administration &gt; Developer Tools</b> in your Incident IQ site.
+        </MudText>
+
+        <MudTextField T="string" Label="API base URL" @bind-Value="_apiBaseUrl" Immediate="true"
+                       Placeholder="https://yoursite.incidentiq.com/api/v1.0" Required="true" RequiredError="Required." />
+        <MudTextField T="string" Label="API token" @bind-Value="_apiToken" Immediate="true" Class="mt-3"
+                       InputType="InputType.Password" Required="true" RequiredError="Required." />
+        <MudTextField T="string" Label="Site ID" @bind-Value="_siteId" Immediate="true" Class="mt-3"
+                       Required="true" RequiredError="Required." />
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" Disabled="@(!IsValid)" OnClick="Submit">Save</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter] public IncidentIqConnectionSettings? ExistingSettings { get; set; }
+
+    private string _apiBaseUrl = string.Empty;
+    private string _apiToken = string.Empty;
+    private string _siteId = string.Empty;
+
+    private bool IsValid =>
+        !string.IsNullOrWhiteSpace(_apiBaseUrl) && !string.IsNullOrWhiteSpace(_apiToken) && !string.IsNullOrWhiteSpace(_siteId);
+
+    protected override void OnInitialized()
+    {
+        _apiBaseUrl = ExistingSettings?.ApiBaseUrl ?? string.Empty;
+        _apiToken = ExistingSettings?.ApiToken ?? string.Empty;
+        _siteId = ExistingSettings?.SiteId ?? string.Empty;
+    }
+
+    private void Submit()
+    {
+        if (!IsValid)
+        {
+            return;
+        }
+
+        MudDialog.Close(DialogResult.Ok(new ConnectionEditResult(_apiBaseUrl.Trim().TrimEnd('/'), _apiToken.Trim(), _siteId.Trim())));
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    public record ConnectionEditResult(string ApiBaseUrl, string ApiToken, string SiteId);
+}

@@ -21,6 +21,21 @@ results as they come in.
   ("Incident IQ - Reference Data" and "Incident IQ - Assets & Users") covering common Incident IQ
   read-only endpoints, marked with a "Built-in" chip. Fill in your site/token/site-id placeholders
   (see each collection's description) before running them - see the caveat below.
+- **Incident IQ user editor** (`/incidentiq/users`) - a separate mode for reviewing and editing
+  Incident IQ users one at a time: paste in a list of user IDs, and for each one the app fetches
+  the full record, shows every editable (scalar) field in a form, and only POSTs it back to
+  Incident IQ when you click "Save & Next" ("Skip" moves on without changing anything). Set your
+  connection (API base URL, token, site id) once via the "Configure Connection" button - it's
+  shared across the whole editor, so you don't re-paste it per call. Every save is logged to
+  `/incidentiq/history` with the before/after value of each field that changed, plus the status
+  code Incident IQ returned.
+
+  This deliberately doesn't hard-code Incident IQ's user schema: nested/array fields (roles,
+  custom field groups, etc.) are shown read-only rather than editable, but are always carried
+  through unchanged in what gets posted back. That matters because Incident IQ's update endpoint
+  expects the *entire* user object on every POST - anything left out gets nulled, not left alone
+  (per Incident IQ's own community docs) - so this app always fetches first and round-trips
+  whatever it doesn't understand, rather than risking blanking fields it can't see.
 
 ## Running it
 
@@ -40,9 +55,9 @@ at a different location instead, set `ConnectionStrings:ApiCallMonitorDb` (e.g. 
 
 | Project                    | Contents                                                                 |
 |-----------------------------|---------------------------------------------------------------------------|
-| `ApiCallMonitor.Core`       | Models (`ApiCallCollection`, `ApiCallDefinition`, `CallRun`, `CallRunResult`), `IHttpCallExecutor` (sends one configured call over HTTP and reports what happened), `IPowerShellScriptGenerator` (renders a collection as a `.ps1` script), and the built-in Incident IQ seed data. |
-| `ApiCallMonitor.Data`       | `ApiMonitorDbContext` (EF Core + SQLite), `IRunOrchestrator` (runs every enabled call in a collection in order and persists a result row for each), and `BuiltInConfigurationSeeder` (seeds the Incident IQ starter collections into a brand-new database). |
-| `ApiCallMonitor.Blazor`     | The Blazor Server UI (MudBlazor) - collection/call configuration, the live run monitor, run history, and the PowerShell script download endpoint/on-disk sync (`ScriptFileStore`). |
+| `ApiCallMonitor.Core`       | Models (`ApiCallCollection`, `ApiCallDefinition`, `CallRun`, `CallRunResult`, `UserEditLogEntry`, `IncidentIqConnectionSettings`), `IHttpCallExecutor` (sends one configured call over HTTP and reports what happened), `IPowerShellScriptGenerator` (renders a collection as a `.ps1` script), the built-in Incident IQ seed data, and `ApiCallMonitor.Core.IncidentIq` (`IIncidentIqUserClient` fetches/saves one user; `JsonRecordEditor` splits a fetched record into editable scalar fields and merges edits back without touching anything it doesn't understand). |
+| `ApiCallMonitor.Data`       | `ApiMonitorDbContext` (EF Core + SQLite), `IRunOrchestrator` (runs every enabled call in a collection in order and persists a result row for each), `BuiltInConfigurationSeeder` (seeds the Incident IQ starter collections into a brand-new database), and `IncidentIqConnectionStore` (get-or-create for the single shared Incident IQ connection). |
+| `ApiCallMonitor.Blazor`     | The Blazor Server UI (MudBlazor) - collection/call configuration, the live run monitor, run history, the PowerShell script download endpoint/on-disk sync (`ScriptFileStore`), and the Incident IQ user editor + its edit history. |
 
 This is a separate solution (`ApiCallMonitor.sln`) from `DFSSlateAnalyzer.sln` at the repo root -
 it isn't related to the DFS slate analyzer or staff management apps, it just lives in the same repo.
@@ -55,6 +70,11 @@ it isn't related to the DFS slate analyzer or staff management apps, it just liv
   PowerShell scripts and the on-disk `App_Data/Scripts/` folder - they contain whatever headers
   (including bearer tokens) the source calls do, in plain text.
 - Response bodies are truncated to ~4KB when stored, to keep the database small.
-- The built-in Incident IQ calls are a starting point, not a guarantee: the paths/headers were
-  pulled from Incident IQ's public docs and community posts, not an official, versioned spec, so
-  double-check them against Administration > Developer Tools in your own Incident IQ site.
+- The built-in Incident IQ calls, and the user editor's `GET`/`POST` to `{ApiBaseUrl}/users/{id}`,
+  are a starting point, not a guarantee: the paths/headers/update semantics were pulled from
+  Incident IQ's public docs and community posts, not an official, versioned spec, so double-check
+  them against Administration > Developer Tools in your own Incident IQ site - and try the user
+  editor against a test/non-critical account first.
+- The user editor posts directly to Incident IQ the moment you click "Save & Next" - there's no
+  draft/approval step. Double-check the fields (and the "was: ..." helper text under anything
+  you've changed) before saving.

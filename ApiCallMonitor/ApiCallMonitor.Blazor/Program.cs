@@ -2,6 +2,7 @@ using System.Text;
 using ApiCallMonitor.Blazor.Services;
 using ApiCallMonitor.Core.Execution;
 using ApiCallMonitor.Core.Export;
+using ApiCallMonitor.Core.IncidentIq;
 using ApiCallMonitor.Data;
 using Microsoft.EntityFrameworkCore;
 using MudBlazor.Services;
@@ -37,6 +38,7 @@ builder.Services.AddSingleton<IRunOrchestrator, RunOrchestrator>();
 builder.Services.AddSingleton<RunProgressNotifier>();
 builder.Services.AddSingleton<IPowerShellScriptGenerator, PowerShellScriptGenerator>();
 builder.Services.AddSingleton<ScriptFileStore>();
+builder.Services.AddSingleton<IIncidentIqUserClient, IncidentIqUserClient>();
 
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
