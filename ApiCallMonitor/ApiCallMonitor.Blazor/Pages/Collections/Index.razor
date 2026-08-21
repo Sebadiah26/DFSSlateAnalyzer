@@ -2,6 +2,7 @@
 @page "/collections"
 @inject IDbContextFactory<ApiMonitorDbContext> DbFactory
 @inject IDialogService DialogService
+@inject ScriptFileStore ScriptFileStore
 
 <PageTitle>Collections - API Call Monitor</PageTitle>
 
@@ -30,12 +31,20 @@ else
         </HeaderContent>
         <RowTemplate>
             <MudTd DataLabel="Name">
-                <MudLink Href="@($"/collections/{context.Id}")">@context.Name</MudLink>
+                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                    <MudLink Href="@($"/collections/{context.Id}")">@context.Name</MudLink>
+                    @if (context.IsBuiltIn)
+                    {
+                        <MudChip T="string" Size="Size.Small" Color="Color.Secondary">Built-in</MudChip>
+                    }
+                </MudStack>
             </MudTd>
             <MudTd DataLabel="Description">@context.Description</MudTd>
             <MudTd DataLabel="Calls">@context.CallCount</MudTd>
             <MudTd DataLabel="Created">@context.CreatedAtUtc.ToLocalTime().ToString("g")</MudTd>
             <MudTd>
+                <MudIconButton Icon="@Icons.Material.Filled.Terminal" Size="Size.Small"
+                               Href="@($"/api/collections/{context.Id}/script.ps1")" title="Download PowerShell script" />
                 <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small" OnClick="@(() => DeleteCollectionAsync(context))" title="Delete collection" />
             </MudTd>
         </RowTemplate>
@@ -52,7 +61,7 @@ else
         await using var db = await DbFactory.CreateDbContextAsync();
         _collections = await db.Collections
             .OrderByDescending(c => c.CreatedAtUtc)
-            .Select(c => new CollectionRow(c.Id, c.Name, c.Description, c.Calls.Count, c.CreatedAtUtc))
+            .Select(c => new CollectionRow(c.Id, c.Name, c.Description, c.IsBuiltIn, c.Calls.Count, c.CreatedAtUtc))
             .ToListAsync();
     }
 
@@ -64,8 +73,11 @@ else
         if (result is { Canceled: false, Data: CollectionEditorDialog.CollectionEditResult edit })
         {
             await using var db = await DbFactory.CreateDbContextAsync();
-            db.Collections.Add(new ApiCallCollection { Name = edit.Name, Description = edit.Description });
+            var collection = new ApiCallCollection { Name = edit.Name, Description = edit.Description };
+            db.Collections.Add(collection);
             await db.SaveChangesAsync();
+
+            await ScriptFileStore.WriteAsync(collection);
             await LoadAsync();
         }
     }
@@ -91,8 +103,9 @@ else
             await db.SaveChangesAsync();
         }
 
+        ScriptFileStore.Delete(row.Id);
         await LoadAsync();
     }
 
-    private record CollectionRow(int Id, string Name, string? Description, int CallCount, DateTime CreatedAtUtc);
+    private record CollectionRow(int Id, string Name, string? Description, bool IsBuiltIn, int CallCount, DateTime CreatedAtUtc);
 }

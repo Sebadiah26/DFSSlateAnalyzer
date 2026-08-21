@@ -4,6 +4,7 @@
 @inject RunProgressNotifier ProgressNotifier
 @inject IDialogService DialogService
 @inject NavigationManager Navigation
+@inject ScriptFileStore ScriptFileStore
 
 <PageTitle>@(_collection?.Name ?? "Collection") - API Call Monitor</PageTitle>
 
@@ -15,7 +16,13 @@ else
 {
     <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-1">
         <div>
-            <MudText Typo="Typo.h4">@_collection.Name</MudText>
+            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                <MudText Typo="Typo.h4">@_collection.Name</MudText>
+                @if (_collection.IsBuiltIn)
+                {
+                    <MudChip T="string" Size="Size.Small" Color="Color.Secondary">Built-in</MudChip>
+                }
+            </MudStack>
             @if (!string.IsNullOrWhiteSpace(_collection.Description))
             {
                 <MudText Typo="Typo.body2" Class="mud-text-secondary">@_collection.Description</MudText>
@@ -23,6 +30,10 @@ else
         </div>
         <MudStack Row="true" Spacing="2">
             <MudButton Variant="Variant.Outlined" Href="/history" StartIcon="@Icons.Material.Filled.History">History</MudButton>
+            <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Terminal"
+                       Href="@($"/api/collections/{CollectionId}/script.ps1")">
+                PowerShell Script
+            </MudButton>
             <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.PlayArrow"
                        Disabled="@(_calls.Count(c => c.Enabled) == 0 || _starting)" OnClick="RunNowAsync">
                 Run Now
@@ -86,18 +97,27 @@ else
     private async Task LoadAsync()
     {
         await using var db = await DbFactory.CreateDbContextAsync();
-        _collection = await db.Collections.FirstOrDefaultAsync(c => c.Id == CollectionId);
+        var collection = await db.Collections.FirstOrDefaultAsync(c => c.Id == CollectionId);
 
-        if (_collection is null)
+        if (collection is null)
         {
             Navigation.NavigateTo("/collections");
             return;
         }
 
-        _calls = await db.Calls
+        var calls = await db.Calls
             .Where(c => c.CollectionId == CollectionId)
             .OrderBy(c => c.Order)
             .ToListAsync();
+
+        collection.Calls = calls;
+
+        // Runs after every save (every mutating method below reloads via this same method), so the
+        // on-disk script always reflects whatever was last saved - see ScriptFileStore.
+        await ScriptFileStore.WriteAsync(collection);
+
+        _collection = collection;
+        _calls = calls;
     }
 
     private async Task AddCallAsync()

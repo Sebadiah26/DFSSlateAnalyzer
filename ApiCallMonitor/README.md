@@ -10,6 +10,17 @@ results as they come in.
   live monitor page that fills in each call's result (status code, duration, response body/error)
   as it finishes.
 - **History** - every run is kept, so past results stay browsable after the fact.
+- **PowerShell export** - every saved collection also gets a runnable `.ps1` script, kept in sync
+  automatically: it's rewritten to `ApiCallMonitor.Blazor/App_Data/Scripts/collection-{id}.ps1`
+  every time you save the collection or its calls, and there's a "PowerShell Script" button/download
+  icon (on the collection page and the collections list) that generates a fresh copy on demand. The
+  script replays the collection's enabled calls with `Invoke-WebRequest`, prints a pass/fail summary,
+  and exits 0/1 - so it can run unattended from Task Scheduler, cron (via `pwsh`), or a CI pipeline
+  without this app running at all. Works on Windows PowerShell 5.1+ and PowerShell 7+.
+- **Built-in Incident IQ collections** - a fresh database is seeded with two starter collections
+  ("Incident IQ - Reference Data" and "Incident IQ - Assets & Users") covering common Incident IQ
+  read-only endpoints, marked with a "Built-in" chip. Fill in your site/token/site-id placeholders
+  (see each collection's description) before running them - see the caveat below.
 
 ## Running it
 
@@ -29,9 +40,9 @@ at a different location instead, set `ConnectionStrings:ApiCallMonitorDb` (e.g. 
 
 | Project                    | Contents                                                                 |
 |-----------------------------|---------------------------------------------------------------------------|
-| `ApiCallMonitor.Core`       | Models (`ApiCallCollection`, `ApiCallDefinition`, `CallRun`, `CallRunResult`) and `IHttpCallExecutor`, which sends one configured call over HTTP and reports what happened. |
-| `ApiCallMonitor.Data`       | `ApiMonitorDbContext` (EF Core + SQLite) and `IRunOrchestrator`, which runs every enabled call in a collection in order and persists a result row for each. |
-| `ApiCallMonitor.Blazor`     | The Blazor Server UI (MudBlazor) - collection/call configuration, the live run monitor, and run history. |
+| `ApiCallMonitor.Core`       | Models (`ApiCallCollection`, `ApiCallDefinition`, `CallRun`, `CallRunResult`), `IHttpCallExecutor` (sends one configured call over HTTP and reports what happened), `IPowerShellScriptGenerator` (renders a collection as a `.ps1` script), and the built-in Incident IQ seed data. |
+| `ApiCallMonitor.Data`       | `ApiMonitorDbContext` (EF Core + SQLite), `IRunOrchestrator` (runs every enabled call in a collection in order and persists a result row for each), and `BuiltInConfigurationSeeder` (seeds the Incident IQ starter collections into a brand-new database). |
+| `ApiCallMonitor.Blazor`     | The Blazor Server UI (MudBlazor) - collection/call configuration, the live run monitor, run history, and the PowerShell script download endpoint/on-disk sync (`ScriptFileStore`). |
 
 This is a separate solution (`ApiCallMonitor.sln`) from `DFSSlateAnalyzer.sln` at the repo root -
 it isn't related to the DFS slate analyzer or staff management apps, it just lives in the same repo.
@@ -40,5 +51,10 @@ it isn't related to the DFS slate analyzer or staff management apps, it just liv
 
 - There's no authentication - anyone who can reach the site can configure and run calls, including
   whatever headers (e.g. bearer tokens) you put in them. Fine for local/internal use; add auth
-  before deploying it anywhere reachable by untrusted users.
+  before deploying it anywhere reachable by untrusted users. The same goes for the generated
+  PowerShell scripts and the on-disk `App_Data/Scripts/` folder - they contain whatever headers
+  (including bearer tokens) the source calls do, in plain text.
 - Response bodies are truncated to ~4KB when stored, to keep the database small.
+- The built-in Incident IQ calls are a starting point, not a guarantee: the paths/headers were
+  pulled from Incident IQ's public docs and community posts, not an official, versioned spec, so
+  double-check them against Administration > Developer Tools in your own Incident IQ site.

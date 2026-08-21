@@ -13,5 +13,10 @@ public class ApiCallCollection
 
     public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
 
+    /// <summary>True for a collection seeded by the app itself (see BuiltInConfigurationSeeder in
+    /// ApiCallMonitor.Data) rather than created by a user. Purely informational - a built-in
+    /// collection can still be freely edited or deleted like any other.</summary>
+    public bool IsBuiltIn { get; set; }
+
     public List<ApiCallDefinition> Calls { get; set; } = new();
 }

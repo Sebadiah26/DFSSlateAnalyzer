@@ -1,5 +1,7 @@
+using System.Text;
 using ApiCallMonitor.Blazor.Services;
 using ApiCallMonitor.Core.Execution;
+using ApiCallMonitor.Core.Export;
 using ApiCallMonitor.Data;
 using Microsoft.EntityFrameworkCore;
 using MudBlazor.Services;
@@ -33,6 +35,8 @@ builder.Services.AddHttpClient(HttpCallExecutor.HttpClientName, client =>
 builder.Services.AddSingleton<IHttpCallExecutor, HttpCallExecutor>();
 builder.Services.AddSingleton<IRunOrchestrator, RunOrchestrator>();
 builder.Services.AddSingleton<RunProgressNotifier>();
+builder.Services.AddSingleton<IPowerShellScriptGenerator, PowerShellScriptGenerator>();
+builder.Services.AddSingleton<ScriptFileStore>();
 
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
@@ -45,6 +49,7 @@ using (var scope = app.Services.CreateScope())
     var dbFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<ApiMonitorDbContext>>();
     await using var db = await dbFactory.CreateDbContextAsync();
     await db.Database.EnsureCreatedAsync();
+    await BuiltInConfigurationSeeder.EnsureSeededAsync(db);
 }
 
 if (!app.Environment.IsDevelopment())
@@ -58,6 +63,41 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.MapBlazorHub();
+
+// Plain download endpoint rather than Blazor Server JS interop, so a link/button can just point at
+// it directly. Always regenerates from the collection's current saved state (independent of
+// ScriptFileStore's on-disk copy), so what you download is guaranteed to match what's saved even if
+// the on-disk copy somehow lagged behind.
+app.MapGet("/api/collections/{collectionId:int}/script.ps1", async (
+    int collectionId,
+    IDbContextFactory<ApiMonitorDbContext> dbFactory,
+    IPowerShellScriptGenerator scriptGenerator) =>
+{
+    await using var db = await dbFactory.CreateDbContextAsync();
+
+    var collection = await db.Collections.FirstOrDefaultAsync(c => c.Id == collectionId);
+    if (collection is null)
+    {
+        return Results.NotFound();
+    }
+
+    collection.Calls = await db.Calls
+        .Where(c => c.CollectionId == collectionId)
+        .OrderBy(c => c.Order)
+        .ToListAsync();
+
+    var scriptBytes = Encoding.UTF8.GetBytes(scriptGenerator.Generate(collection));
+    var fileName = $"{SanitizeFileName(collection.Name)}.ps1";
+    return Results.File(scriptBytes, "application/octet-stream", fileName);
+});
+
 app.MapFallbackToPage("/_Host");
 
 app.Run();
+
+static string SanitizeFileName(string name)
+{
+    var invalidChars = Path.GetInvalidFileNameChars();
+    var sanitized = new string(name.Select(c => invalidChars.Contains(c) ? '_' : c).ToArray()).Trim();
+    return string.IsNullOrWhiteSpace(sanitized) ? "collection" : sanitized;
+}
